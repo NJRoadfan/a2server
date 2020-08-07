@@ -321,6 +321,7 @@ fi
 sudo sed -i 's/timelord/a2boot/g' /etc/init.d/netatalk
 sudo sed -i 's/TIMELORD/A2BOOT/g' /etc/init.d/netatalk
 sudo sed -i 's/#A2BOOT_RUN=no/A2BOOT_RUN=yes/' /etc/default/netatalk
+sudo sed -i 's/#PAPD_RUN=no/PAPD_RUN=yes/' /etc/default/netatalk
 
 # allow Guest users to be able to network boot
 sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/default/netatalk
@@ -360,6 +361,15 @@ if [[ $(tac /usr/local/etc/netatalk/atalkd.conf | sed '/./,$!d' | head -1 | cut 
     # with Dayna or Asante bridges
     echo -e 'enp0s3 -router -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
 fi
+
+if [[ $(tac /usr/local/etc/netatalk/papd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
+    # enable papd's auto sharing of CUPS printer queues
+    echo -e 'cupsautoadd:op=root:' | sudo tee -a /usr/local/etc/netatalk/papd.conf > /dev/null
+fi
+
+# Enable CUPS web interface
+sudo cupsctl --remote-admin --remote-any
+sudo service cups restart
 
 # Raspberry Pi
 if [[ $isRpi ]]; then
