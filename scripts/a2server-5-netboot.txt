@@ -366,7 +366,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 read
             fi
             [[ $autoAnswerYes ]] && gsosVersion=1
-            if [[ $REPLY == "1" || $REPLY == "2" || $REPLY == "3" || $REPLY == "4"]]; then
+            if [[ $REPLY == "1" || $REPLY == "2" || $REPLY == "3" || $REPLY == "4" ]]; then
                 gsosInstall=$REPLY
     
                 if [[ gsosInstall -gt 1 ]]; then
