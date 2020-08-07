@@ -357,9 +357,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 echo "     previous work along with additional fixes/changes. Better"
                 echo "     documentation of changes."
                 echo "  4: GS/OS 6.0.4 (Jan 2017)"
-                echo "     Continuing community effort released by Tony Diaz. Includes"
-                echo "     previous work along with additional fixes/changes. Better"
-                echo "     documentation of changes. Most will prefer this or Apple's"
+                echo "     Latest comumunity release. Includes previous work along with"
+                echo "     additional fixes/changes. Most will prefer this or Apple's"
                 echo "     release above."
                 echo
                 echo -n "Which flavor would you like? "
@@ -438,7 +437,6 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         if [[ $? -ne 0 || ! -f $outfile ]]; then
                             wget -qO $outfile "${binaryURL}external/appleii/gsos603/$diskname.po"
                         fi
-                    fi
                     elif (( $gsosInstall == 4 )); then
                         if [[ $useExternalURL ]]; then
                             wget -qO $outfile "$gsosURL/$diskname.po"
