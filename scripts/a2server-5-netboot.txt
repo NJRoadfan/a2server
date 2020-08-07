@@ -394,7 +394,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 elif (( $gsosInstall == 3 )); then
                     gsosURL="ftp://ftp.apple.asimov.net/pub/apple_II/images/gs/os/gsos/Apple_IIGS_System_6.0.3/"
                 elif (( $gsosInstall == 4 )); then
-		    diskNames=( Install System.Disk SystemTools1 SystemTools2 SystemTools3 Fonts1 Fonts2 synthLAB )
+		    diskNames=( Install System.Disk SystemTools1 SystemTools2 SystemTools3 Fonts Fonts2 synthLAB )
                     gsosURL="ftp://ftp.apple.asimov.net/pub/apple_II/images/gs/os/gsos/Apple_IIGS_System_6.0.4/PO%20Disk%20Images/"
                 fi
     
