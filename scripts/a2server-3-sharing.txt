@@ -229,7 +229,7 @@ else
         #   and the Dayna bridge doesn't crash GS/OS
         # Patch papd to work correctly with the current version of cups and
         # to print with the Apple IIgs LaserWriter driver.
-        wget -O netatalkpatches.tar.gz "${script-url}files/netatalkpatches.tar.gz"
+        wget -O netatalkpatches.tar.gz "${scriptURL}files/netatalkpatches.tar.gz"
         tar zxf netatalkpatches.tar.gz
         
         patch -p0 -i daynatalk.patch
