@@ -232,6 +232,7 @@ else
         wget -O netatalkpatches.tar.gz "${scriptURL}files/netatalkpatches.tar.gz"
         tar zxf netatalkpatches.tar.gz
         
+        patch -p0 -i norouter.patch
         patch -p0 -i daynatalk.patch
         patch -p0 -i filedate.patch
         patch -p0 -i openssl11.patch
