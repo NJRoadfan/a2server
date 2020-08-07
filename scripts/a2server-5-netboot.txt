@@ -355,6 +355,10 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 echo "  3: GS/OS 6.0.3 (Aug 2015)"
                 echo "     Continuing community effort released by Tony Diaz. Includes"
                 echo "     previous work along with additional fixes/changes. Better"
+                echo "     documentation of changes."
+                echo "  4: GS/OS 6.0.4 (Jan 2017)"
+                echo "     Continuing community effort released by Tony Diaz. Includes"
+                echo "     previous work along with additional fixes/changes. Better"
                 echo "     documentation of changes. Most will prefer this or Apple's"
                 echo "     release above."
                 echo
@@ -362,7 +366,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 read
             fi
             [[ $autoAnswerYes ]] && gsosVersion=1
-            if [[ $REPLY == "1" || $REPLY == "2" || $REPLY == "3" ]]; then
+            if [[ $REPLY == "1" || $REPLY == "2" || $REPLY == "3" || $REPLY == "4"]]; then
                 gsosInstall=$REPLY
     
                 if [[ gsosInstall -gt 1 ]]; then
@@ -390,6 +394,10 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     diskWebNames=( Install System%20disk System%20tools%201 System%20tools%202 System%20tools%203 Fonts%201 Fonts%202 Synthlab )
                 elif (( $gsosInstall == 3 )); then
                     gsosURL="ftp://ftp.apple.asimov.net/pub/apple_II/images/gs/os/gsos/Apple_IIGS_System_6.0.3/"
+                fi
+                elif (( $gsosInstall == 4 )); then
+		    diskNames=( Install System.Disk SystemTools1 SystemTools2 SystemTools3 Fonts1 Fonts2 synthLAB )
+                    gsosURL="ftp://ftp.apple.asimov.net/pub/apple_II/images/gs/os/gsos/Apple_IIGS_System_6.0.4/PO%20Disk%20Images/"
                 fi
     
                 # delete previously downloaded installer
@@ -429,6 +437,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         fi
                         if [[ $? -ne 0 || ! -f $outfile ]]; then
                             wget -qO $outfile "${binaryURL}external/appleii/gsos603/$diskname.po"
+                        fi
+                    fi
+                    elif (( $gsosInstall == 4 )); then
+                        if [[ $useExternalURL ]]; then
+                            wget -qO $outfile "$gsosURL/$diskname.po"
+                        fi
+                        if [[ $? -ne 0 || ! -f $outfile ]]; then
+                            wget -qO $outfile "${binaryURL}external/appleii/gsos604/$diskname.po"
                         fi
                     fi
                     cppo -s -ad $outfile $netInstallDir
@@ -502,6 +518,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 processScript $netInstallDir/Install/Scripts/Teach
                 echo "Script: AppleShare"
                 processScript $netInstallDir/Install/Scripts/Appleshare
+                echo "Script: LaserWriter"
+                processScript $netInstallDir/Install/Scripts/LaserWriter
                 echo "Script: Server.Sys.File"
                 processScript $netInstallDir/Install/Scripts/Server.Sys.File
     
@@ -806,7 +824,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     afpsync -v $gsosDir > /dev/null
                 fi
 
-                echo -n "Marinetti 3.0b8"
+                echo -n "Marinetti 3.0b11"
                 if [[ -f $gsosDir/System/CDevs/TCPIP ]]; then
                     echo " is already installed."
                 else
@@ -818,19 +836,21 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     wget -qO MarinettiB1.SHK ${binaryURL}appleii/MarinettiB1.SHK
                     cppo -ad -s -n MarinettiB1.SHK $gsosDir > /dev/null
 
-                    # TCP/IP update (3.0b8)
+		    # TCP/IP update (3.0b11)
                     if [[ $useExternalURL ]]; then
-                        wget -qO Marinetti3.0b8.po http://www.a2retrosystems.com/downloads/Marinetti3.0b8.po
-                        if (( $? != 0 )); then
-                            wget -qO Marinetti3.0b8.po http://web.archive.org/web/20171105043713/http://a2retrosystems.com/downloads/Marinetti3.0b8.po
-                        fi
+                        wget -qO TCPIP30b11.SHK http://www.apple2.org/marinetti/TCPIP30b11.SHK
                     fi
-                    if [[ $? != 0 || ! -f Marinetti3.0b8.po || $(wc -c < Marinetti3.0b8.po) != "819200" ]]; then
-                        wget -qO Marinetti3.0b8.po ${binaryURL}external/appleii/Marinetti3.0b8.po
+                    if (( $? != 0 )); then
+                        wget -qO TCPIP30b11.SHK http://web.archive.org/web/20191017233144/http://www.apple2.org/marinetti/TCPIP30b11.SHK
                     fi
-                    cppo -ad Marinetti3.0b8.po /MARINETTI3.0B8/TCPIP $gsosDir/System/System.Setup > /dev/null
-                    cppo -ad Marinetti3.0b8.po /MARINETTI3.0B8/CHANGELOG.3.0B8 $commDir/Marinetti > /dev/null
-
+                    if [[ $? != 0 || ! -f TCPIP30b11.SHK || $(wc -c < TCPIP30b11.SHK) != "35486" ]]; then
+                        wget -qO TCPIP30b11.SHK ${binaryURL}external/appleii/TCPIP30b11.SHK
+                    fi
+		    cppo -ad -s TCPIP30b11.SHK . > /dev/null
+		    cd TCPIP30b11
+		    cpAD TCPIP $gsosDir/System/System.Setup > /dev/null
+		    cpAD CHANGELOG.B11 $commDir/Marinetti > /dev/null
+		    
                     # PPP Scripted Link Layer update (1.3d4)
                     if [[ $useExternalURL ]]; then
                         wget -qO PPPX.1.3d4.SHK http://www.apple2.org/marinetti/PPPX.1.3d4.SHK
