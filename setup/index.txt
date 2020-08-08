@@ -116,7 +116,7 @@ if [[ $isRpi ]]; then #supported Raspbian? (16-Feb-15, 20-Jun-14, 09-Jan-14, etc
     # [[ ($fwhash == "8aca5762") || ($fwhash == "462f3e3f476f7b6") || ($fwhash == "c32bc633039cd9") || ($fwhash == "9d34d0475f9") || ($fwhash == "d4f5315cfac4e") || ($fwhash == "6f4a90c8cb8817f") || ($fwhash == "5dd9b4962e") || ($fwhash == "17c8799375") ]] && unsupportedOS=
 elif [[ $isDebian ]]; then # supported Debian?
      debianVersion=$(cat /etc/debian_version)
-     debianSupported="-10.4- -9.2- -8.2- -7.9- -7.8- -7.6- -7.3-"
+     debianSupported="-10.5- -9.2- -8.2- -7.9- -7.8- -7.6- -7.3-"
      [[ $debianSupported == *-$debianVersion-* ]] && unsupportedOS=
 fi
 
