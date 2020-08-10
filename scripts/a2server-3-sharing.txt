@@ -126,7 +126,7 @@ else
             sudo apt-get -y install libssl1.0.2
         elif [[ $(apt-cache search '^libssl1.1$') ]]; then # Buster
             # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libssl
+            sudo apt-get -y install libssl1.1
         else
             break
         fi
