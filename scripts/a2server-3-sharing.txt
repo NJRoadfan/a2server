@@ -141,9 +141,6 @@ else
             break
         fi
         
-        # install CUPS. Needed to build support into Netatalk
-        sudo apt-get -y install cups
-        
         # install Netatalk
         if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
             { wget -qO- "${binaryURL}precompiled/netatalk226-${arch}_${debianName}.tgz" | sudo tar Pzx; } &> /dev/null
@@ -154,7 +151,10 @@ else
 
         break
     done
-
+    
+    # install CUPS. Needed to build support into Netatalk
+    sudo apt-get -y install cups
+        
     if [[ $compileFromSource ]]; then
     
         # Dependencies: build-deps for netatalk 2.2.6
