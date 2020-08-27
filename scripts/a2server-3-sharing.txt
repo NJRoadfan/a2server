@@ -370,7 +370,9 @@ fi
 
 # Enable CUPS web interface and disable storing of old print jobs
 sudo sed -i "/MaxLogSize/a PreserveJobHistory No" /etc/cups/cupsd.conf
-sudo cupsctl --remote-admin --remote-any
+sudo cupsctl --remote-admin
+# Allow current user to add/remove CUPS printer queues
+sudo usermod -a -G lpadmin $USER
 sudo service cups restart
 
 # Raspberry Pi
