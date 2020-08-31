@@ -235,6 +235,7 @@ else
         patch -p0 -i norouter.patch
         patch -p0 -i daynatalk.patch
         patch -p0 -i filedate.patch
+        patch -p0 -i gcc10.patch
         patch -p0 -i openssl11.patch
         patch -p0 -i print_cups.patch
         patch -p0 -i papd.patch
