@@ -660,8 +660,7 @@ if [[ -f "/lib/modules/$kernelRelease/kernel/drivers/net/appletalk/ipddp.ko" ]];
             sudo sed -i '$!N; /^\(# CONFIG_IPDDP is not set\)\n\1$/!P; D' .config # delete repeated entries
             sudo make prepare
             sudo make modules_prepare
-            sudo make SUBDIRS=scripts/mod
-            sudo make SUBDIRS=net/appletalk modules
+            sudo make M=net/appletalk
             sudo cp net/appletalk/appletalk.ko /lib/modules/$kernelRelease/kernel/net/appletalk
             sudo depmod
             sudo modprobe appletalk
