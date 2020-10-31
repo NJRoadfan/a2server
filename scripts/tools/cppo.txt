@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # vim: set tabstop=4 shiftwidth=4 expandtab filetype=python:
 
 """cppo: Copy/catalog files from a ProDOS/DOS 3.3/ShrinkIt image/archive.
