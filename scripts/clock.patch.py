@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 '''CLOCK.PATCH by Greg Branche implemented in Python 2/3 for A2SERVER
 
 This is a line-for-line conversion of an edited version of CLOCK.PATCH
