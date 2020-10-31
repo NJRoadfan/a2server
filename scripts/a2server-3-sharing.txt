@@ -241,7 +241,7 @@ else
         patch -p0 -i papd.patch
 
         # prepare to build Netatalk
-        ./configure --enable-debian --enable-ddp --enable-a2boot --enable-cups
+        ./configure --enable-debian --enable-ddp --enable-a2boot --enable-cups --disable-quota
 
         # uninstall Netatalk if already installed
         [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
