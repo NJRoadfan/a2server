@@ -544,7 +544,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         mkdir -p /tmp/netboot
         rm -r /tmp/netboot/* 2> /dev/null
         wget -qO /tmp/netboot/clock.patch.py "${scriptURL}scripts/clock.patch.py"
-        updateP8YearTables $(python /tmp/netboot/clock.patch.py $(LANG=C date +"%a %m/%d/%y"))
+        updateP8YearTables $(python3 /tmp/netboot/clock.patch.py $(LANG=C date +"%a %m/%d/%y"))
 
         gsosInstalled=""
         [[ -f "$gsosDir/System/Start.GS.OS" ]] && gsosInstalled="GS/OS and "
