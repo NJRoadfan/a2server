@@ -208,15 +208,15 @@ else
         if [[ $useExternalURL ]]; then
             #wget -qO netatalk-2.2.6.tar.gz "http://downloads.sourceforge.net/project/netatalk/netatalk/2.2.6/netatalk-2.2.6.tar.gz"
             #tar zxf netatalk-2.2.6.tar.gz &> /dev/null
-            wget -qO netatalk-2.2.x.tar.gz "https://github.com/rdmark/Netatalk-2.x/archive/refs/tags/netatalk-2-220101.tar.gz"
-            tar zxf netatalk-2.2.x.tar.gz &> /dev/null
+            wget -qO netatalk-2-220101.tar.gz "https://github.com/rdmark/Netatalk-2.x/archive/refs/tags/netatalk-2-220101.tar.gz"
+            tar zxf netatalk-2-220101.tar.gz &> /dev/null
 
         fi
-        if [[ ! -d netatalk-2.2.x ]]; then
+        if [[ ! -d netatalk-2-220101.tar.gz ]]; then
             wget -O netatalk-2.2.6.tar.gz "${binaryURL}external/source/netatalk-2.2.6.tar.gz"
             tar zxf netatalk-2.2.6.tar.gz &> /dev/null
         fi
-        cd netatalk-2.2.x
+        cd netatalk-2-220101.tar.gz
 
         # prepare to build Netatalk
         ./bootstrap
