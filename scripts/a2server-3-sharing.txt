@@ -185,17 +185,9 @@ else
         if [[ $(apt-cache search '^libgcrypt11-dev$') ]]; then # Stretch, Jessie or Wheezy
             # Dependencies: build-deps for netatalk 2.2.6
             sudo apt-get -y install libgcrypt11-dev
-        elif [[ $(apt-cache search '^libgcrypt20-dev$') ]]; then # Buster
+        else # Buster and Bullseye
             # Dependencies: build-deps for netatalk 2.2.6
-            echo "deb http://deb.debian.org/debian/ oldstable main" | sudo tee -a /etc/apt/sources.list > /dev/null
-            sudo apt-get -y update
-            sudo apt-get -y install libgcrypt11-dev            
-            sudo sed -i '$d' /etc/apt/sources.list
-            sudo apt-get -y update
-        else
-            echo "A2SERVER: WARNING: unknown version of libgcrypt-dev is being installed."
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install $(apt-cache search '^libgcrypt.*dev$' | sort -r | head -1 | cut -d ' ' -f 1)
+            sudo apt-get -y install libgcrypt20-dev
         fi
 
         sudo apt-get clean
@@ -216,7 +208,7 @@ else
             wget -O netatalk-2.2.6.tar.gz "${binaryURL}external/source/netatalk-2.2.6.tar.gz"
             tar zxf netatalk-2.2.6.tar.gz &> /dev/null
         fi
-        cd netatalk-2-220101.tar.gz
+        cd Netatalk-2.x-netatalk-2-220101
 
         # prepare to build Netatalk
         ./bootstrap
