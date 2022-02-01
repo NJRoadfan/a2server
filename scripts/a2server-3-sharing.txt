@@ -213,7 +213,7 @@ else
 
         # prepare to build Netatalk
         ./bootstrap
-        ./configure --enable-debian --enable-ddp --enable-a2boot --enable-timelord --enable-zeroconf --enable-cups --disable-quota
+        ./configure --enable-debian --enable-ddp --enable-a2boot --enable-timelord --enable-cups --disable-quota
 
         # uninstall Netatalk if already installed
         [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
