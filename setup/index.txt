@@ -116,19 +116,19 @@ if [[ $isRpi ]]; then #supported Raspbian? (16-Feb-15, 20-Jun-14, 09-Jan-14, etc
     # [[ ($fwhash == "8aca5762") || ($fwhash == "462f3e3f476f7b6") || ($fwhash == "c32bc633039cd9") || ($fwhash == "9d34d0475f9") || ($fwhash == "d4f5315cfac4e") || ($fwhash == "6f4a90c8cb8817f") || ($fwhash == "5dd9b4962e") || ($fwhash == "17c8799375") ]] && unsupportedOS=
 elif [[ $isDebian ]]; then # supported Debian?
      debianVersion=$(cat /etc/debian_version)
-     debianSupported="-10.5- -9.2- -8.2- -7.9- -7.8- -7.6- -7.3-"
+     debianSupported="-11.2- -10.11- -9.2- -8.2- -7.9- -7.8- -7.6- -7.3-"
      [[ $debianSupported == *-$debianVersion-* ]] && unsupportedOS=
 fi
 
 if [[ $unsupportedOS && $isRpi ]]; then
     echo
-    echo "A2SERVER and its installer scripts have been tested on Raspbian Buster,"
+    echo "A2SERVER and its installer scripts have been tested on Raspbian Bullseye, Buster,"
     echo "Stretch, Jessie, and Wheezy, though not this specific firmware version"
     echo "(${fwhash:0:7}). Just FYI."
     unsupportedOS=
 elif [[ $unsupportedOS && $isDebian ]]; then
     echo
-    echo "A2SERVER and its installer scripts have been tested on Debian 7/8/9/10,"
+    echo "A2SERVER and its installer scripts have been tested on Debian 7/8/9/10/11,"
     echo "though not this specific point release ($debianVersion). Just FYI."
     unsupportedOS=
 fi
