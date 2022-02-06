@@ -34,7 +34,11 @@ fi
 debianName=
 if [[ $debianVersion ]]; then
     debianMajor=$(cut -d . -f 1 <<< $debianVersion)
-    if [[ $debianMajor == "9" ]]; then
+    if [[ $debianMajor == "11" ]]; then
+        debianName="bullseye" 
+    elif [[ $debianMajor == "10" ]]; then
+        debianName="buster"
+    elif [[ $debianMajor == "9" ]]; then
         debianName="stretch"
     elif [[ $debianMajor == "8" ]]; then
         debianName="jessie"
