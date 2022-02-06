@@ -392,10 +392,10 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     diskNames=( Install System.Disk SystemTools1 SystemTools2 SystemTools3 Fonts1 Fonts2 synthLAB )
                     diskWebNames=( Install System%20disk System%20tools%201 System%20tools%202 System%20tools%203 Fonts%201 Fonts%202 Synthlab )
                 elif (( $gsosInstall == 3 )); then
-                    gsosURL="ftp://ftp.apple.asimov.net/pub/apple_II/images/gs/os/gsos/Apple_IIGS_System_6.0.3/"
+                    gsosURL="http://mirrors.apple2.org.za/ftp.apple.asimov.net/images/gs/os/gsos/Apple_IIGS_System_6.0.3/"
                 elif (( $gsosInstall == 4 )); then
 		    diskNames=( Install System.Disk SystemTools1 SystemTools2 SystemTools3 Fonts Fonts2 synthLAB )
-                    gsosURL="ftp://ftp.apple.asimov.net/pub/apple_II/images/gs/os/gsos/Apple_IIGS_System_6.0.4/PO%20Disk%20Images/"
+                    gsosURL="http://mirrors.apple2.org.za/ftp.apple.asimov.net/images/gs/os/gsos/Apple_IIGS_System_6.0.4/PO%20Disk%20Images/"
                 fi
     
                 # delete previously downloaded installer
@@ -691,7 +691,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 echo
                 cd /tmp/netboot
                 if [[ $useExternalURL ]]; then
-                    wget -q -O dsk2file.shk http://www.dwheeler.com/6502/oneelkruns/dsk2file.zip
+                    wget -q -O dsk2file.shk http://dwheeler.com/6502/oneelkruns/dsk2file.zip
                     if (( $? != 0 )); then
                         wget -q -O dsk2file.shk http://web.archive.org/web/20120726132356/http://www.dwheeler.com/6502/oneelkruns/dsk2file.zip
                     fi
