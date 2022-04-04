@@ -201,16 +201,16 @@ else
         if [[ $useExternalURL ]]; then
             #wget -qO netatalk-2.2.6.tar.gz "http://downloads.sourceforge.net/project/netatalk/netatalk/2.2.6/netatalk-2.2.6.tar.gz"
             #tar zxf netatalk-2.2.6.tar.gz &> /dev/null
-            wget -qO netatalk-2-220101.tar.gz "https://github.com/rdmark/Netatalk-2.x/archive/refs/tags/netatalk-2-220101.tar.gz"
-            tar zxf netatalk-2-220101.tar.gz &> /dev/null
+            wget -qO netatalk-2-220401b.tar.gz "https://github.com/rdmark/Netatalk-2.x/archive/refs/tags/netatalk-2-220401b.tar.gz"
+            tar zxf netatalk-2-220401b.tar.gz &> /dev/null
 
         fi
 
-        cd Netatalk-2.x-netatalk-2-220101
+        cd Netatalk-2.x-netatalk-2-220401b
 
         # prepare to build Netatalk
         ./bootstrap
-        ./configure --enable-debian --enable-ddp --enable-a2boot --enable-timelord --enable-cups --disable-quota
+        ./configure --enable-debian --enable-cups --disable-quota
 
         # uninstall Netatalk if already installed
         [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
