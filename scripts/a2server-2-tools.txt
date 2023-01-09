@@ -70,44 +70,48 @@ if ! hash nulib2 &> /dev/null; then
     fi
         
     if ! hash nulib2 &> /dev/null; then
-
         if [[ ! -f /tmp/a2server-packageReposUpdated ]]; then
             # prepare for installing packages
             sudo apt-get -y update
             touch /tmp/a2server-packageReposUpdated
         fi
+	
+    	sudo apt-get -y install nulib2
+    	sudo apt-get clean
+    
+    	# If all else fails, compile from source.
+        if ! hash nulib2 &> /dev/null; then
+            # Dependencies: build-dep for nulib
+            sudo apt-get -y install build-essential zlib1g-dev
+            sudo apt-get -y clean
 
-        # Dependencies: build-dep for nulib
-        sudo apt-get -y install build-essential zlib1g-dev
-        sudo apt-get -y clean
-
-        cd /tmp
-        rm -rf /tmp/nulib2 &> /dev/null
-        mkdir /tmp/nulib2
-        cd /tmp/nulib2
-        if [[ $useExternalURL ]]; then
-            wget -q -O nulib2-3.1.0a2.zip "https://github.com/fadden/nulib2/archive/20fe7efb4d37fedf807416c16d74d51d893ea48a.zip"
-            unzip nulib2-3.1.0a2.zip 2> /dev/null
-            rm nulib2-3.1.0a2.zip &> /dev/null
+            cd /tmp
+            rm -rf /tmp/nulib2 &> /dev/null
+            mkdir /tmp/nulib2
+            cd /tmp/nulib2
+            if [[ $useExternalURL ]]; then
+                wget -q -O nulib2-3.1.0a2.zip "https://github.com/fadden/nulib2/archive/20fe7efb4d37fedf807416c16d74d51d893ea48a.zip"
+                unzip nulib2-3.1.0a2.zip 2> /dev/null
+                rm nulib2-3.1.0a2.zip &> /dev/null
+            fi
+            if [ ! -d nulib2* ]; then
+                wget -q -O nulib2-3.1.0a2.zip "${binaryURL}external/source/nulib2-3.1.0a2.zip"
+                unzip nulib2-3.1.0a2.zip 2> /dev/null
+                rm nulib2-3.1.0a2.zip &> /dev/null
+            fi
+            cd nulib2*
+            cd nufxlib
+            ./configure
+            make
+            sudo make install
+            cd ../nulib2
+            ./configure
+            make
+            sudo make install
+            cd
+            rm -rf /tmp/nulib2
         fi
-        if [ ! -d nulib2* ]; then
-            wget -q -O nulib2-3.1.0a2.zip "${binaryURL}external/source/nulib2-3.1.0a2.zip"
-            unzip nulib2-3.1.0a2.zip 2> /dev/null
-            rm nulib2-3.1.0a2.zip &> /dev/null
-        fi
-        cd nulib2*
-        cd nufxlib
-        ./configure
-        make
-        sudo make install
-        cd ../nulib2
-        ./configure
-        make
-        sudo make install
-        cd
-        rm -rf /tmp/nulib2
     fi
-
 else
     echo "A2SERVER: Nulib2 has already been installed."
 fi
@@ -126,10 +130,9 @@ if ! hash unar &> /dev/null; then
     fi
 
     # jessie and later: Just use the unar package
-    if [[ $debianMajor -ge 8 ]]; then
-        sudo apt-get -y install unar
-        sudo apt-get clean
-    fi
+
+    sudo apt-get -y install unar
+    sudo apt-get clean
     
     if ! hash unar &> /dev/null; then
         if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
