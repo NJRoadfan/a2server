@@ -885,7 +885,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cppo -ad -s -n uthernet2ll.bxy $gsosDir/System/TCPIP > /dev/null
 
                     # MacIP Link Layer settings for A2SERVER
-                    wget -qO- ${binaryURL}macip-prefs.tgz | tar Pxz
+                    wget -qO- ${binaryURL}a2server/macip-prefs.tgz | tar Pxz
 
                     afpsync -v $gsosDir > /dev/null
                 fi
@@ -918,7 +918,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpAD TimeZone/Tool056 $gsosDir/System/Tools
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SAFE2 2> /dev/null
                     mv Help/Help.Files/SAFE2 $gsosDir/System/Desk.Accs/Help.Files
-                    wget -qO- ${binaryURL}safe2-setup.tgz | tar Pzx
+                    wget -qO- ${binaryURL}appleii/safe2-setup.tgz | tar Pzx
 
                     afpsync -v $gsosDir > /dev/null
                 fi
@@ -988,7 +988,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpAD Quick.Start $commDir/SNAP
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SNAP 2> /dev/null
                     mv Help/Help.Files/SNAP $gsosDir/System/Desk.Accs/Help.Files
-                    wget -qO- ${binaryURL}snap-setup.tgz | tar Pzx
+                    wget -qO- ${binaryURL}appleii/snap-setup.tgz | tar Pzx
                     # cpAD Fonts/SIS.3.10 $gsosDir/System/Fonts
                     # cpAD Fonts/SIS.4.10 $gsosDir/System/Fonts
                     # cpAD Tools/HTMLTool/TOOL130 $gsosDir/System/Tools
