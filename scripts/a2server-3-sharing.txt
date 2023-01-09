@@ -44,7 +44,9 @@ fi
 debianName=
 if [[ $debianVersion ]]; then
     debianMajor=$(cut -d . -f 1 <<< $debianVersion)
-    if [[ $debianMajor == "10" ]]; then
+    if [[ $debianMajor == "11" ]]; then
+        debianName="bullseye"
+    elif [[ $debianMajor == "10" ]]; then
         debianName="buster"
     elif [[ $debianMajor == "9" ]]; then
         debianName="stretch"
@@ -134,7 +136,7 @@ else
         if [[ $(apt-cache search '^libgcrypt11$') ]]; then # Wheezy
             # Dependencies: netatalk 2.2.6
             sudo apt-get -y install libgcrypt11
-        elif [[ $(apt-cache search '^libgcrypt20$') ]]; then # Jessie, Stretch, Buster
+        elif [[ $(apt-cache search '^libgcrypt20$') ]]; then # Jessie, Stretch, Buster, Bullseye
             # Dependencies: netatalk 2.2.6
             sudo apt-get -y install libgcrypt20
         else
@@ -154,30 +156,20 @@ else
     
     # install CUPS. Needed to build support into Netatalk
     sudo apt-get -y install cups
+    
+    # Make sure we have iptables for macipgw. Bullseye removed it by default.
+    sudo apt-get -y install iptables
         
     if [[ $compileFromSource ]]; then
     
         # Dependencies: build-deps for netatalk 2.2.6
         sudo apt-get -y install build-essential
         sudo apt-get -y install libcups2-dev
-        
-        if [[ $(dpkg -l | grep libssl-dev | tr -s ' ' | cut -d ' ' -f 3 | cut -c 1-3) == "1.1" ]]; then
-            echo "A2SERVER: WARNING: libssl-dev 1.1 is already installed; removing."
-            sudo apt-get -y purge libssl-dev
-            sudo apt -y autoremove
-        fi
-
-        if [[ $(apt-cache search '^libssl1.0-dev$') ]]; then # Stretch
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libssl1.0-dev
-        else # Jessie or Wheezy (libssl-dev 1.0.x) or Buster (absent)
-            if [[ $(apt-cache madison libssl-dev | grep '^libssl' | head -1 | cut -d '|' -f 2 | tr -d ' ' | cut -c 1-3) == "1.1" ]]; then # Buster, so pull from Stretch
-                sudo apt-get -y install libssl-dev
-            else # Jessie or Wheezy
-            # Dependencies: build-deps for netatalk 2.2.6
-                sudo apt-get -y install libssl-dev
-            fi
-        fi
+        sudo apt-get -y install autotools-dev
+        sudo apt-get -y install automake
+        sudo apt-get -y install libtool
+        sudo apt-get -y install libssl-dev
+        sudo apt-get -y install libavahi-client-dev
         
         if [[ $(apt-cache search '^libdb5.1-dev$') ]]; then # Wheezy
             # Dependencies: build-deps for netatalk 2.2.6
@@ -194,17 +186,9 @@ else
         if [[ $(apt-cache search '^libgcrypt11-dev$') ]]; then # Stretch, Jessie or Wheezy
             # Dependencies: build-deps for netatalk 2.2.6
             sudo apt-get -y install libgcrypt11-dev
-        elif [[ $(apt-cache search '^libgcrypt20-dev$') ]]; then # Buster
+        else # Buster and Bullseye
             # Dependencies: build-deps for netatalk 2.2.6
-            echo "deb http://deb.debian.org/debian/ oldstable main" | sudo tee -a /etc/apt/sources.list > /dev/null
-            sudo apt-get -y update
-            sudo apt-get -y install libgcrypt11-dev            
-            sudo sed -i '$d' /etc/apt/sources.list
-            sudo apt-get -y update
-        else
-            echo "A2SERVER: WARNING: unknown version of libgcrypt-dev is being installed."
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install $(apt-cache search '^libgcrypt.*dev$' | sort -r | head -1 | cut -d ' ' -f 1)
+            sudo apt-get -y install libgcrypt20-dev
         fi
 
         sudo apt-get clean
@@ -215,33 +199,18 @@ else
         cd /tmp/netatalk
         
         if [[ $useExternalURL ]]; then
-            wget -qO netatalk-2.2.6.tar.gz "http://downloads.sourceforge.net/project/netatalk/netatalk/2.2.6/netatalk-2.2.6.tar.gz"
-            tar zxf netatalk-2.2.6.tar.gz &> /dev/null
+            #wget -qO netatalk-2.2.6.tar.gz "http://downloads.sourceforge.net/project/netatalk/netatalk/2.2.6/netatalk-2.2.6.tar.gz"
+            #tar zxf netatalk-2.2.6.tar.gz &> /dev/null
+            wget -qO netatalk-2-220401b.tar.gz "https://github.com/rdmark/Netatalk-2.x/archive/refs/tags/netatalk-2-220401b.tar.gz"
+            tar zxf netatalk-2-220401b.tar.gz &> /dev/null
+
         fi
-        if [[ ! -d netatalk-2.2.6 ]]; then
-            wget -O netatalk-2.2.6.tar.gz "${binaryURL}external/source/netatalk-2.2.6.tar.gz"
-            tar zxf netatalk-2.2.6.tar.gz &> /dev/null
-        fi
-        cd netatalk-2.2.6
-        
-        # Patch the source so file dates are preserved during a GS/OS folder copy,
-        #   and the AsanteTalk bridge consistently starts up in AppleTalk Phase 2
-        #   and the Dayna bridge doesn't crash GS/OS
-        # Patch papd to work correctly with the current version of cups and
-        # to print with the Apple IIgs LaserWriter driver.
-        wget -O netatalkpatches.tar.gz "${scriptURL}files/netatalkpatches.tar.gz"
-        tar zxf netatalkpatches.tar.gz
-        
-        patch -p0 -i norouter.patch
-        patch -p0 -i daynatalk.patch
-        patch -p0 -i filedate.patch
-        patch -p0 -i gcc10.patch
-        patch -p0 -i openssl11.patch
-        patch -p0 -i print_cups.patch
-        patch -p0 -i papd.patch
+
+        cd Netatalk-2.x-netatalk-2-220401b
 
         # prepare to build Netatalk
-        ./configure --enable-debian --enable-ddp --enable-a2boot --enable-cups --disable-quota
+        ./bootstrap
+        ./configure --enable-debian --enable-cups --disable-quota
 
         # uninstall Netatalk if already installed
         [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
@@ -320,10 +289,9 @@ if ! grep -q -i 'macipgw' /etc/init.d/netatalk; then
 fi
 
 # enable network boot support in netatalk
-sudo sed -i 's/timelord/a2boot/g' /etc/init.d/netatalk
-sudo sed -i 's/TIMELORD/A2BOOT/g' /etc/init.d/netatalk
 sudo sed -i 's/#A2BOOT_RUN=no/A2BOOT_RUN=yes/' /etc/default/netatalk
 sudo sed -i 's/#PAPD_RUN=no/PAPD_RUN=yes/' /etc/default/netatalk
+sudo sed -i 's/#TIMELORD_RUN=no/TIMELORD_RUN=yes/' /etc/default/netatalk
 
 # allow Guest users to be able to network boot
 sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/default/netatalk
