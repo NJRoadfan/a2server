@@ -803,7 +803,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                       Installer/Extras/Tools^System/Tools \
                       Installer/Extras/Fonts^System/Fonts \
                       Installer/Extras/System.Setup^System/System.Setup \
-                      Installer/Help^System/Desk.Accs \
+                      Installer/Help/Desk.Accs^System/Desk.Accs \
                       Installer/Spectrum.Sounds^System/Sounds \
                       Spectrum.*/Add.Ons^USERS/$userFolder/Add.Ons \
                       Spectrum.*/Spectrum.Script^USERS/$userFolder/Spectrum.Script \
