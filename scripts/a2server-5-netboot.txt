@@ -788,14 +788,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     mkdir -p /tmp/netboot/spectrum
                     cd /tmp/netboot/spectrum
                     if [[ $useExternalURL ]]; then
-                        wget -qO spectrum_gold_2mg.zip http://speccie.uk/speccie/downloads/spectrum_gold_2mg.zip
-                        unzip spectrum_gold_2mg.zip Spectrum.Gold.2mg &> /dev/null
+                        wget -qO spectrum_platinum_2mg.zip http://speccie.uk/speccie/downloads/spectrum_platinum.2mg.zip
+                        unzip spectrum_platinum_2mg.zip "Spectrum Platinum.2mg" &> /dev/null
                     fi
-                    if [[ ! -f Spectrum.Gold.2mg || $(wc -c < Spectrum.Gold.2mg) -eq 0 ]]; then
-                        wget -qO spectrum_gold_2mg.zip ${binaryURL}external/appleii/spectrum_gold_2mg.zip
-                        unzip spectrum_gold_2mg.zip Spectrum.Gold.2mg &> /dev/null
+                    if [[ ! -f spectrum_platinum_2mg.zip || $(wc -c < "Spectrum Platinum.2mg") -eq 0 ]]; then
+                        wget -qO spectrum_platinum_2mg.zip ${binaryURL}external/appleii/spectrum_platinum_2mg.zip
+                        unzip spectrum_platinum_2mg.zip "Spectrum Platinum.2mg" &> /dev/null
                     fi
-                    cppo -s -ad Spectrum.Gold.2mg . &> /dev/null
+                    cppo -s -ad "Spectrum Platinum.2mg" . &> /dev/null
                     userFolder=$(tr [:lower:] [:upper:] <<< $USER)
                     
                     for thisFolder in \
@@ -812,12 +812,12 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                       Manuals^Comm/Spectrum/Manuals
                     do
                         mkdir -p $gsosDir/"${thisFolder##*^}"
-                        cp -R Spectrum.Gold/${thisFolder%%^*}/* $gsosDir/"${thisFolder##*^}"
+                        cp -R Spectrum.Platnm/${thisFolder%%^*}/* $gsosDir/"${thisFolder##*^}"
                         mkdir -p $gsosDir/"${thisFolder##*^}"/.AppleDouble
-                        cp -R Spectrum.Gold/${thisFolder%%^*}/.AppleDouble/* $gsosDir/"${thisFolder##*^}"/.AppleDouble
+                        cp -R Spectrum.Platnm/${thisFolder%%^*}/.AppleDouble/* $gsosDir/"${thisFolder##*^}"/.AppleDouble
                     done
-                    cpAD Spectrum.Gold/Installer/SoundPatch $commDir/Spectrum
-                    cpAD Spectrum.Gold/Spectrum.*/Spectrum $commDir/Spectrum
+                    cpAD Spectrum.Platnm/Installer/SoundPatch $commDir/Spectrum
+                    cpAD Spectrum.Platnm/Spectrum.*/Spectrum $commDir/Spectrum
                     afpsync -v $gsosDir > /dev/null
                 fi
 
