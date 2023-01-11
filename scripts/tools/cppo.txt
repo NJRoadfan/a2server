@@ -722,7 +722,7 @@ def makeADfile():
     # ADv2 header
     writecharsHex(g.exFileData, hexToDec("00"), "0005160700020000")
     # number of entries
-    writecharsHex(g.exFileData, hexToDec("18"), "000D")
+    writecharsHex(g.exFileData, hexToDec("18"), "0009")
     # Resource Fork
     writecharsHex(g.exFileData, hexToDec("1A"), "00000002000002E500000000")
     # Real Name
