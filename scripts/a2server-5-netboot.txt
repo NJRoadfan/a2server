@@ -764,14 +764,16 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 
             if [[ $gsosInstalled ]]; then
 
-                unset safeUrl samUrl snapUrl safeVer samVer snapVer
+                unset safeUrl samUrl snapUrl webberUrl safeVer samVer snapVer webberVer
                 if [[ $useExternalURL ]]; then
 					safeUrl=$(wget -qO- http://speccie.uk/software/safe2/ | grep -i 'safe2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					samUrl=$(wget -qO- http://speccie.uk/software/sam2/ | grep -i 'sam2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					snapUrl=$(wget -qO- http://speccie.uk/software/snap/ | grep -i 'snap.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
+					webberUrl=$(wget -qO- http://speccie.uk/software/webber/ | grep -i 'webber.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					safeVer=$(echo $safeUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
 					samVer=$(echo $samUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 4- | sed 's/./.&/g' | cut -c 2-)
 					snapVer=$(echo $snapUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
+					webberVer=$(echo $webberUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
                 fi
                 
                 echo -n "Spectrum"
@@ -995,6 +997,33 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     # cpAD Tools/Hierarchic/Hierarchic $gsosDir/System/CDEvs
                     # cpAD Fonts/Shaston.16 $gsosDir/System/Fonts
 
+                    afpsync -v $gsosDir > /dev/null
+                fi
+
+                echo -n "Webber $webberVer"
+                if [[ -f $commDir/Webber/Webber ]]; then
+                    echo " is already installed."
+                else
+                    echo
+                    mkdir -p $commDir/Webber
+                    mkdir -p /tmp/netboot/webber
+                    cd /tmp/netboot/webber
+                    if [[ $useExternalURL ]]; then
+                        [[ ! $webberUrl ]] && webberUrl="http://speccie.uk/speccie/downloads/webber115.bxy"
+                        wget -qO webber.bxy "$webberUrl"
+                        cppo -s -ad webber.bxy . &> /dev/null
+                    fi
+                    if [[ ! -f Webber/Webber ]]; then
+                        wget -qO webber.bxy ${binaryURL}external/appleii/webber.bxy
+                        cppo -s -ad webber.bxy . &> /dev/null
+                    fi
+                    cd Webber
+                    cpAD Webber $commDir/Webber
+                    cpAD Read.Me.First $commDir/Webber
+                    cpAD Changes $commDir/Webber
+                    cpAD Quick.Start $commDir/Webber
+		    cpAD Tools/TOOL130 $gsosDir/System/Tools
+                    cpAD Tools/TOOL132 $gsosDir/System/Tools
                     afpsync -v $gsosDir > /dev/null
                 fi
              fi
