@@ -773,7 +773,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 					safeVer=$(echo $safeUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
 					samVer=$(echo $samUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 4- | sed 's/./.&/g' | cut -c 2-)
 					snapVer=$(echo $snapUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
-					webberVer=$(echo $webberUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
+					webberVer=$(echo $webberUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 7- | sed 's/./.&/g' | cut -c 2-)
                 fi
                 
                 echo -n "Spectrum"
@@ -1021,7 +1021,6 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpAD Webber $commDir/Webber
                     cpAD Read.Me.First $commDir/Webber
                     cpAD Changes $commDir/Webber
-                    cpAD Quick.Start $commDir/Webber
 		    cpAD Tools/TOOL130 $gsosDir/System/Tools
                     cpAD Tools/TOOL132 $gsosDir/System/Tools
                     afpsync -v $gsosDir > /dev/null
