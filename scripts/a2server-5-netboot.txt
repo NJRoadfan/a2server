@@ -725,7 +725,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 fi
                 truncate -s 819284 'Apple II System Disk 3.2.sea'
                 dd if='Apple II System Disk 3.2.sea' of=A2SYSDISK32.HDV bs=84 skip=1 2> /dev/null
-                cppo -s -ad A2SYSDISK32.HDV /UTILITIES/SYSUTIL.SYSTEM $diskToolsP8Dir/SYSUTIL &> /dev/null
+                cppo -s -ad A2SYSDISK32.HDV /UTILITIES/SYSUTIL.SYSTEM $diskToolsP8Dir &> /dev/null
                 cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.0 $diskToolsP8Dir &> /dev/null
                 cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.1 $diskToolsP8Dir &> /dev/null
                 cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.2 $diskToolsP8Dir &> /dev/null
