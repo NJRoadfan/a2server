@@ -549,7 +549,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         gsosInstalled=""
         [[ -f "$gsosDir/System/Start.GS.OS" ]] && gsosInstalled="GS/OS and "
         p8ToolsInstalled=
-        [[ -f $diskToolsP8Dir/SHRINKIT && -f $diskToolsP8Dir/DSK2FILE && -f $diskToolsP8Dir/SYSUTIL ]] && p8ToolsInstalled=1
+        [[ -f $diskToolsP8Dir/SHRINKIT && -f $diskToolsP8Dir/DSK2FILE && -f $diskToolsP8Dir/SYSUTIL.SYSTEM ]] && p8ToolsInstalled=1
         gsosToolsInstalled=
         [[ -f $imageToolsDir/Asimov && -f $gsosDir/System/System.Setup/MountIt && -f $imageToolsDir/GSHK ]] && gsosToolsInstalled=1
         toolsInstalled=
