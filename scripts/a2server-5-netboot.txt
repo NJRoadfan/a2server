@@ -549,7 +549,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         gsosInstalled=""
         [[ -f "$gsosDir/System/Start.GS.OS" ]] && gsosInstalled="GS/OS and "
         p8ToolsInstalled=
-        [[ -f $diskToolsP8Dir/SHRINKIT && -f $diskToolsP8Dir/DSK2FILE && -f $diskToolsP8Dir/SYSUTIL ]] && p8ToolsInstalled=1
+        [[ -f $diskToolsP8Dir/SHRINKIT && -f $diskToolsP8Dir/DSK2FILE && -f $diskToolsP8Dir/SYSUTIL.SYSTEM ]] && p8ToolsInstalled=1
         gsosToolsInstalled=
         [[ -f $imageToolsDir/Asimov && -f $gsosDir/System/System.Setup/MountIt && -f $imageToolsDir/GSHK ]] && gsosToolsInstalled=1
         toolsInstalled=
@@ -707,13 +707,13 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             fi
     
             echo -n "Apple System Utilities 3.1"
-            if [[ -f $diskToolsP8Dir/SYSUTIL ]]; then
+            if [[ -f $diskToolsP8Dir/SYSUTIL.SYSTEM ]]; then
                 echo " is already installed."
             else
                 echo
                 cd /tmp/netboot
                 if [[ $useExternalURL ]]; then
-                    wget --max-redirect 0 -qO Apple_II_System_Disk_3.2.sea.bin http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_II_Supplemental/Apple_II_System_Disk_3.2.sea.bin
+                    wget -qO Apple_II_System_Disk_3.2.sea.bin http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_II_Supplemental/Apple_II_System_Disk_3.2.sea.bin
                     if (( $? != 0 )); then
                         wget -qO Apple_II_System_Disk_3.2.sea.bin http://archive.org/download/download.info.apple.com.2012.11/download.info.apple.com.2012.11.zip/download.info.apple.com%2FApple_Support_Area%2FApple_Software_Updates%2FEnglish-North_American%2FApple_II%2FApple_II_Supplemental%2FApple_II_System_Disk_3.2.sea.bin
                     fi
@@ -725,7 +725,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 fi
                 truncate -s 819284 'Apple II System Disk 3.2.sea'
                 dd if='Apple II System Disk 3.2.sea' of=A2SYSDISK32.HDV bs=84 skip=1 2> /dev/null
-                cppo -s -ad A2SYSDISK32.HDV /UTILITIES/SYSUTIL.SYSTEM $diskToolsP8Dir/SYSUTIL &> /dev/null
+                cppo -s -ad A2SYSDISK32.HDV /UTILITIES/SYSUTIL.SYSTEM $diskToolsP8Dir &> /dev/null
                 cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.0 $diskToolsP8Dir &> /dev/null
                 cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.1 $diskToolsP8Dir &> /dev/null
                 cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.2 $diskToolsP8Dir &> /dev/null
@@ -737,7 +737,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         p8CommInstalled=
         [[ -f $commDir/ProTERM/PROTERM && -f $commDir/Z.Link/Z.LINK && -f $commDir/ADTPro/ADTPRO && -f $commDir/ADTPro/VSDRIVE ]] && p8CommInstalled=1
         gsosCommInstalled=
-        [[ -f $commDir/Spectrum/Spectrum && -f $commDir/SAM2/SAM2 && -f $commDir/SAFE2/SAFE2 && -f $commDir/SNAP/SNAP && -f $gsosDir/System/CDevs/TCPIP ]] && gsosCommInstalled=1
+        [[ -f $commDir/Spectrum/Spectrum && -f $commDir/SAM2/SAM2 && -f $commDir/SAFE2/SAFE2 && -f $commDir/SNAP/SNAP && -f $commDir/Webber/Webber && -f $commDir/Networker2/NetWorker2 && -f $gsosDir/System/CDevs/TCPIP ]] && gsosCommInstalled=1
         commInstalled=
         if [[ $gsosInstalled ]]; then
             [[ $gsosCommInstalled && $p8CommInstalled ]] && commInstalled=1
@@ -764,14 +764,18 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 
             if [[ $gsosInstalled ]]; then
 
-                unset safeUrl samUrl snapUrl safeVer samVer snapVer
+                unset safeUrl samUrl snapUrl webberUrl networkerUrl safeVer samVer snapVer webberVer networkerVer
                 if [[ $useExternalURL ]]; then
 					safeUrl=$(wget -qO- http://speccie.uk/software/safe2/ | grep -i 'safe2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					samUrl=$(wget -qO- http://speccie.uk/software/sam2/ | grep -i 'sam2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					snapUrl=$(wget -qO- http://speccie.uk/software/snap/ | grep -i 'snap.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
+					webberUrl=$(wget -qO- http://speccie.uk/software/webber/ | grep -i 'webber.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
+					networkerUrl=$(wget -qO- http://speccie.uk/software/networker2/ | grep -i 'netwrk.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					safeVer=$(echo $safeUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
 					samVer=$(echo $samUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 4- | sed 's/./.&/g' | cut -c 2-)
 					snapVer=$(echo $snapUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
+					webberVer=$(echo $webberUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 7- | sed 's/./.&/g' | cut -c 2-)
+					networkerVer=$(echo $networkerUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 1- | sed 's/./.&/g' | cut -c 2-)
                 fi
                 
                 echo -n "Spectrum"
@@ -995,6 +999,64 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     # cpAD Tools/Hierarchic/Hierarchic $gsosDir/System/CDEvs
                     # cpAD Fonts/Shaston.16 $gsosDir/System/Fonts
 
+                    afpsync -v $gsosDir > /dev/null
+                fi
+
+                echo -n "Webber $webberVer"
+                if [[ -f $commDir/Webber/Webber ]]; then
+                    echo " is already installed."
+                else
+                    echo
+                    mkdir -p $commDir/Webber
+                    mkdir -p /tmp/netboot/webber
+                    cd /tmp/netboot/webber
+                    if [[ $useExternalURL ]]; then
+                        [[ ! $webberUrl ]] && webberUrl="http://speccie.uk/speccie/downloads/webber115.bxy"
+                        wget -qO webber.bxy "$webberUrl"
+                        cppo -s -ad webber.bxy . &> /dev/null
+                    fi
+                    if [[ ! -f Webber/Webber ]]; then
+                        wget -qO webber.bxy ${binaryURL}external/appleii/webber.bxy
+                        cppo -s -ad webber.bxy . &> /dev/null
+                    fi
+                    cd Webber
+                    cpAD Webber $commDir/Webber
+                    cpAD Read.Me.First $commDir/Webber
+                    cpAD Changes $commDir/Webber
+		    cpAD Tools/TOOL130 $gsosDir/System/Tools
+                    cpAD Tools/TOOL132 $gsosDir/System/Tools
+                    afpsync -v $gsosDir > /dev/null
+                fi
+                echo -n "NetWorker2 $networkerVer"
+                if [[ -f $commDir/Networker2/NetWorker2 ]]; then
+                    echo " is already installed."
+                else
+                    echo
+                    mkdir -p $commDir/Networker2
+		    mkdir -p $commDir/Networker2/NetW.Data
+		    mkdir -p $commDir/Networker2/NetW.Logs
+                    mkdir -p /tmp/netboot/networker
+                    cd /tmp/netboot/networker
+                    if [[ $useExternalURL ]]; then
+                        [[ ! $networkerUrl ]] && networkerUrl="http://speccie.uk/speccie/downloads/netwrk.203.bxy"
+                        wget -qO networker.bxy "$networkerUrl"
+                        cppo -s -ad networker.bxy . &> /dev/null
+                    fi
+                    if [[ ! -f Networker2/NetWorker2 ]]; then
+                        wget -qO networker.bxy ${binaryURL}external/appleii/networker.bxy
+                        cppo -s -ad networker.bxy . &> /dev/null
+                    fi
+                    cd Networker2
+                    cpAD NetWorker2 $commDir/Networker2
+                    cpAD Manual $commDir/Networker2
+                    cpAD Read.Me.First $commDir/Networker2
+                    cpAD Changes $commDir/Networker2
+                    cpAD NetW.Data/NetW.Prefs $commDir/Networker2/NetW.Data
+                    cpAD NetW.Data/Commands1.txt $commDir/Networker2/NetW.Data
+                    cpAD NetW.Data/Commands2.txt $commDir/Networker2/NetW.Data
+                    cpAD NetW.Data/Commands3.txt $commDir/Networker2/NetW.Data
+		    rm -r $gsosDir/System/Desk.Accs/Help.Files/NetWorker2 2> /dev/null
+                    mv Help/Help.Files/NetWorker2 $gsosDir/System/Desk.Accs/Help.Files 
                     afpsync -v $gsosDir > /dev/null
                 fi
              fi
