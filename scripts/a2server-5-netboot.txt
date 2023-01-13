@@ -1033,6 +1033,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 else
                     echo
                     mkdir -p $commDir/Networker2
+		    mkdir -p $commDir/Networker2/NetW.Data
+		    mkdir -p $commDir/Networker2/NetW.Logs
                     mkdir -p /tmp/netboot/networker
                     cd /tmp/netboot/networker
                     if [[ $useExternalURL ]]; then
@@ -1046,8 +1048,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     fi
                     cd Networker2
                     cpAD NetWorker2 $commDir/Networker2
+                    cpAD Manual $commDir/Networker2
                     cpAD Read.Me.First $commDir/Networker2
                     cpAD Changes $commDir/Networker2
+                    cpAD NetW.Data/NetW.Prefs $commDir/Networker2/NetW.Data
+                    cpAD NetW.Data/Commands1.txt $commDir/Networker2/NetW.Data
+                    cpAD NetW.Data/Commands2.txt $commDir/Networker2/NetW.Data
+                    cpAD NetW.Data/Commands3.txt $commDir/Networker2/NetW.Data
+		    rm -r $gsosDir/System/Desk.Accs/Help.Files/NetWorker2 2> /dev/null
                     mv Help/Help.Files/NetWorker2 $gsosDir/System/Desk.Accs/Help.Files 
                     afpsync -v $gsosDir > /dev/null
                 fi
