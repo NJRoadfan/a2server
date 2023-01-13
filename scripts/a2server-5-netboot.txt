@@ -707,7 +707,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             fi
     
             echo -n "Apple System Utilities 3.1"
-            if [[ -f $diskToolsP8Dir/SYSUTIL ]]; then
+            if [[ -f $diskToolsP8Dir/SYSUTIL.SYSTEM ]]; then
                 echo " is already installed."
             else
                 echo
@@ -775,7 +775,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 					samVer=$(echo $samUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 4- | sed 's/./.&/g' | cut -c 2-)
 					snapVer=$(echo $snapUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
 					webberVer=$(echo $webberUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 7- | sed 's/./.&/g' | cut -c 2-)
-					networkerVer=$(echo $webberUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 10- | sed 's/./.&/g' | cut -c 2-)
+					networkerVer=$(echo $networkerUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 1- | sed 's/./.&/g' | cut -c 2-)
                 fi
                 
                 echo -n "Spectrum"
