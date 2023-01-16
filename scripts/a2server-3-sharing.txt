@@ -80,6 +80,8 @@ else
     if [[ $(ps --no-headers -C afpd) ]]; then
         sudo /etc/init.d/netatalk stop &> /dev/null
         sudo /etc/init.d/samba stop &> /dev/null
+        sudo systemctl stop atalkd cnid afpd papd timelord a2boot macipgw &> /dev/null
+        sudo systemctl stop smbd &> /dev/null
     fi
     
     if [[ ! -f /tmp/a2server-packageReposUpdated ]]; then
@@ -210,7 +212,7 @@ else
 
         # prepare to build Netatalk
         ./bootstrap
-        ./configure --enable-debian --enable-cups --disable-quota
+        ./configure --enable-systemd --enable-cups --disable-quota
 
         # uninstall Netatalk if already installed
         [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
@@ -255,6 +257,10 @@ if ! hash macipgw &> /dev/null; then
         cd "$wd"
         rm -rf /tmp/macipgw
     fi
+    #copy over files required to setup macipgw on boot
+    sudo wget -q -O /lib/systemd/system/macipgw.service "${scriptURL}files/macipgw.service.txt"
+    sudo wget -q -O /usr/local/sbin/macipgw-start.sh "${scriptURL}files/macipgw-start.sh.txt"
+    sudo chmod ugo+x /usr/local/sbin/macipgw-start.sh
 else
     echo "A2SERVER: TCP over AppleTalk (MacIP) has already been installed."
 fi
@@ -263,35 +269,8 @@ fi
 
 echo "A2SERVER: Configuring Netatalk..."
 
-# if missing Netatalk startup file, download a fresh one
-if [ ! -f /etc/init.d/netatalk ]; then
-    echo "A2SERVER: Downloading new Netatalk startup script..."
-    sudo wget -qO /etc/init.d/netatalk ${binaryURL}netatalk-init.d-clean.txt
-fi
-
-# make the Netatalk startup script work correctly
-sudo sed -i 's/bin\/sh/bin\/bash/' /etc/init.d/netatalk
-
-# enable AppleTalk networking support in Netatalk, and run in background
-sudo sed -i 's/#ATALKD_RUN=no/ATALKD_RUN=yes/' /etc/default/netatalk
-sudo sed -i 's/#ATALK_BGROUND=no/ATALK_BGROUND=yes/' /etc/default/netatalk
-if [[ ! $(grep 'kernelRelease' /etc/init.d/netatalk) ]]; then
-    sudo sed -i 's@\(\tif \[ x\"$ATALKD_RUN\)@\n\t# check for valid AppleTalk kernel module\n\t[[ $ATALKD_RUN == "yes" ]] \&\& { kernelRelease=$(uname -r); kernelMajor=$(cut -d "." -f 1  <<< $kernelRelease); kernelMinor=$(cut -d "." -f 2  <<< $kernelRelease | sed '"'"'s/\\(^[0-9]*\\)[^0-9].*$/\\1/'"'"'); kernelPatch=$(cut -d "." -f 3- <<< $kernelRelease | sed '"'"'s/\\(^[0-9]*\\)[^0-9].*$/\\1/'"'"'); [[ ( $kernelMajor -eq 3 \&\& $kernelMinor -ge 12 \&\& $kernelMinor -le 15 ) \&\& ( ! ( -f /usr/bin/raspi-config \&\& $kernelMinor -eq 12 \&\& $kernelPatch -ge 25 ) ) \&\& ( ( ! -f /lib/modules/$kernelRelease/kernel/net/appletalk/appletalk.ko ) || $(sha1sum /lib/modules/$kernelRelease/kernel/net/appletalk/appletalk.ko | cut -f 1 -d " ") != "ecb239fc084c36de93f6926e7749b80f6024f269" ) ]] \&\& { ATALKD_RUN=no; echo "[AppleTalk networking is not available.]" 1>\&2; } }\n\n\1@' /etc/init.d/netatalk
-fi
-sudo sed -i 's/Starting Netatalk services (this will take a while): /Starting Netatalk services"\n\t\t\t[[ $ATALKD_RUN == "yes" ]] \&\& echo -n " (this will take 45 seconds)"\n\t\t\techo -n ":/' /etc/init.d/netatalk
-sudo sed -i 's/Starting Netatalk services in the background./Netatalk services will be available in 45 seconds./' /etc/init.d/netatalk
-sudo sed -i 's/-n "Restarting Netatalk Daemons (this will take a while)"/"Restarting Netatalk Daemons."/' /etc/init.d/netatalk
-
-# enable MacIPgw support after launching atalkd
-if ! grep -q -i 'macipgw' /etc/init.d/netatalk; then
-    sudo sed -i ':a;N;$!ba;s@\(echo -n " atalkd"\)\(.*# prepare\)@\1\n\n\t\t# start MacIPgw (TCP over AppleTalk) service\n\t\tps aux | grep -q "[m]acipgw" \&\& sudo pkill macipgw || :\n\t\tatalkd_interface=$(grep "^[^ #]" /etc/netatalk/atalkd.conf | tail -1 | cut -d " " -f 1)\n\t\tsysctl -w net.ipv4.ip_forward=1 > /dev/null\n\t\tmacipgw -n 8.8.8.8 192.168.151.0 255.255.255.0\n\t\t/sbin/iptables -t nat -A POSTROUTING -o ${atalkd_interface} -j MASQUERADE\n\t\t/sbin/iptables -A FORWARD -i ${atalkd_interface} -o tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT\n\t\t/sbin/iptables -A FORWARD -i tun1 -o ${atalkd_interface} -j ACCEPT\n\n\t\techo -n " macipgw"\n\2@' /etc/init.d/netatalk
-    sudo sed -i 's@\(start-stop-daemon --stop --quiet --oknodo --exec /usr/local/sbin/atalkd.*$\)@\1\n                    echo -n " macipgw"\n            sudo pkill macipgw 2> /dev/null@' /etc/init.d/netatalk
-fi
-
-# enable network boot support in netatalk
-sudo sed -i 's/#A2BOOT_RUN=no/A2BOOT_RUN=yes/' /etc/default/netatalk
-sudo sed -i 's/#PAPD_RUN=no/PAPD_RUN=yes/' /etc/default/netatalk
-sudo sed -i 's/#TIMELORD_RUN=no/TIMELORD_RUN=yes/' /etc/default/netatalk
+# enable netatalk services on startup
+sudo systemctl enable atalkd afpd papd a2boot timelord macipgw
 
 # allow Guest users to be able to network boot
 sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/default/netatalk
@@ -343,14 +322,6 @@ sudo cupsctl --remote-admin WebInterface=yes
 # Allow current user to add/remove CUPS printer queues
 sudo usermod -a -G lpadmin $USER
 sudo service cups restart
-
-# Raspberry Pi
-if [[ $isRpi ]]; then
-    # blink LED upon netatalk startup
-    if [[ ! $(grep 'led0' /etc/init.d/netatalk) ]]; then
-        sudo sed -i ':a;N;$!ba;s/fi\n}/fi\n\n    # blink LED on Raspberry Pi\n    ([[ -e \/sys\/class\/leds\/ACT ]] \&\& led=ACT || led=led0; echo none > \/sys\/class\/leds\/$led\/trigger; for i in {1..20}; do echo 1 > \/sys\/class\/leds\/$led\/brightness; sleep 0.25; echo 0 > \/sys\/class\/leds\/$led\/brightness; sleep 0.25; done; echo mmc0 > \/sys\/class\/leds\/$led\/trigger) \&\n}/' /etc/init.d/netatalk
-    fi
-fi
 
 # 1.3.0: we are no longer setting up new GSFILES
 # set up GSFILES share (for GS data files, not GSOS system)
@@ -505,8 +476,7 @@ if [[ -d /usr/local/adtpro/disks ]]; then # A2CLOUD/ADTPro installed
     fi
 fi
 
-# to make Netatalk start up when the server boots:
-sudo update-rc.d netatalk defaults &> /dev/null
+
 
 # prepare shared volumes for use
 afpsync -v < /dev/null
@@ -662,13 +632,7 @@ fi
 
 # --- Start Netatalk (if not running)
 
-bground=
-if [[ $(grep 'ATALK_BGROUND=yes' /etc/default/netatalk) ]]; then
-    bground=1
-    sudo sed -i 's/ATALK_BGROUND=yes/ATALK_BGROUND=no/' /etc/default/netatalk
-fi
-
-[[ $(ps --no-headers -C afpd) ]] || sudo /etc/init.d/netatalk start 2> /dev/null
+sudo systemctl start atalkd afpd papd a2boot timelord macipgw 2> /dev/null
 
 echo
 echo "A2SERVER: Netatalk is installed, configured, and running."
@@ -743,10 +707,6 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
     fi
 fi
 
-if [[ $bground ]]; then
-    sudo sed -i 's/ATALK_BGROUND=no/ATALK_BGROUND=yes/' /etc/default/netatalk
-fi
-
 # --- Set up Avahi-Daemon (Bonjour/mDNS)
 # thanks to: http://missingreadme.wordpress.com/2010/05/08/how-to-set-up-afp-filesharing-on-ubuntu
 
@@ -766,4 +726,4 @@ sudo sed -i 's/^\(hosts.*\)$/\1 mdns/' /etc/nsswitch.conf
 if [[ ! -f /etc/avahi/services/afpd.service && ! -f /etc/avahi/services/afpd.service_disabled ]]; then
     echo -e '<?xml version="1.0" standalone="no"?><!--*-nxml-*-->\n<!DOCTYPE service-group SYSTEM "avahi-service.dtd">\n<service-group>\n    <name replace-wildcards="yes">%h</name>\n    <service>\n        <type>_afpovertcp._tcp</type>\n        <port>548</port>\n    </service>\n    <service>\n        <type>_device-info._tcp</type>\n        <port>0</port>\n        <txt-record>model=MacPro</txt-record>\n    </service>\n</service-group>' | sudo tee /etc/avahi/services/afpd.service > /dev/null
 fi
-sudo /etc/init.d/avahi-daemon restart &> /dev/null
+sudo systemctl restart avahi-daemon &> /dev/null
