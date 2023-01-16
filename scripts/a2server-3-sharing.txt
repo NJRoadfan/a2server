@@ -273,13 +273,13 @@ echo "A2SERVER: Configuring Netatalk..."
 sudo systemctl enable atalkd afpd papd a2boot timelord macipgw
 
 # allow Guest users to be able to network boot
-sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/default/netatalk
+sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/netatalk/netatalk.conf
 # (For a Guest user with different permissions than the compile-time user, create a
 # Linux user, and then specify that user for AFPD_GUEST instead.)
 
 # create a symbolic link to the startup configuration file in netatalk configuration folder
-[[ -L /usr/local/etc/netatalk/netatalk.conf ]] \
-|| sudo ln -s /etc/default/netatalk /usr/local/etc/netatalk/netatalk.conf
+#[[ -L /usr/local/etc/netatalk/netatalk.conf ]] \
+#|| sudo ln -s /etc/default/netatalk /usr/local/etc/netatalk/netatalk.conf
 
 # create a symbolic link to the netatalk configuration folder in /etc
 [[ -L /etc/netatalk ]] || sudo ln -s /usr/local/etc/netatalk /etc/netatalk
