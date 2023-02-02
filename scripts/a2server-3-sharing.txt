@@ -742,18 +742,6 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
             fi
         fi
 
-        # if we still don't have AppleTalk, try to use rpi-update
-        rm /tmp/rpiUpdate 2> /dev/null
-        if [[ ! $(ps aux | grep [a]talkd) ]]; then
-            # use specific rpi-update commit (at https://github.com/Hexxeh/rpi-firmware/)
-            # from when AppleTalk was fixed, so we have a consistent firmware that
-            # we're loading until the next proper release of Raspbian that includes it
-            # 07-23-14: when AppleTalk was fixed after kernel panics in Raspbian 2014-06-20 (kernel 3.12.22+)
-            sudo rm /boot/.firmware_revision
-            sudo rpi-update cfd9a203590737f9536de70a1e01db25a3e8e069
-            touch /tmp/rpiUpdate # so note to restart can display following install
-        fi
-
         if [[ ! $(ps aux | grep [a]talkd) ]]; then
             if [[ -f /tmp/rpiUpdate ]]; then
                 echo
