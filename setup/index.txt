@@ -72,6 +72,14 @@ while [[ $1 ]]; do
         shift
         compileAlways="-c"
         touch /tmp/a2server-compileAlways
+    elif [[ $1 == "-t" ]]; then
+        shift
+        multiThreadedCompilation="-t"
+        touch /tmp/a2server-multiThreadedCompilation
+    elif [[ $1 == "-l" ]]; then
+        shift
+        localScripts="-l"
+        touch /tmp/a2server-localScripts
     elif [[ $1 == "-v" ]]; then
         shift
         # Version was already printed
@@ -85,6 +93,8 @@ while [[ $1 ]]; do
         echo "-b: auto-setup network boot (use with -y)"
         echo "-w: auto-setup Windows file sharing (use with -y)"
         echo "-c: compile non-package items, rather than downloading binaries"
+        echo "-t: use all available CPU cores for multi threaded compilation"
+        echo "-l: use local scripts, rather than downloading from remote server"
         [[ $0 == "-bash" ]] && return 1 || exit 1
     fi
 done
@@ -206,7 +216,7 @@ if (( $doSetup )); then
 
         echo
 
-	if [[ $A2SERVER_USE_LOCAL_SCRIPTS ]]; then
+	if [[ -f /tmp/a2server-localScripts ]]; then
 		echo "A2SERVER: Copying local scripts..."
 		baseDir=$(dirname "$(readlink -f "${0}")")
 		localScriptDir="$baseDir/../scripts"

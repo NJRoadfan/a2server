@@ -218,7 +218,12 @@ else
         [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
         
         # compile and install Netatalk
-        make
+	if [[ -f /tmp/a2server-multiThreadedCompilation ]]; then
+	    echo "Compiling Netatalk with $(nproc) threads..."
+	    make all -j "$(nproc)"
+	else
+	    make all
+	fi
         sudo make install
         
         # to remove the Netatalk source code (optional), type:
