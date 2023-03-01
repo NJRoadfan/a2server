@@ -4,7 +4,7 @@
 # A2SERVER -- a virtual machine for sharing files to Apple II clients
 # by Ivan X, ivan@ivanx.com
 
-# Installs Netatalk 2.2.6 for debian/raspbian (Wheezy or Jessie)
+# Installs Netatalk 2.x for debian/raspbian
 
 # Thanks to Steven Hirsch, Geoff Body, Peter Wong, Tony Diaz, and others
 # at comp.sys.apple2 for the work they've done and insight they've
@@ -108,130 +108,52 @@ else
             fi
         done
     }
-
-    compileFromSource=1
-    urls=
-    while [[ $arch ]]; do
-        # Install runtime libraries needed by Netatalk
-        if [[ $(apt-cache search '^libdb5.1$') ]]; then # Wheezy
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libdb5.1
-        elif [[ $(apt-cache search '^libdb5.3$') ]]; then # Jessie or Stretch
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libdb5.3
-        else
-            break
-        fi
-        if [[ $(apt-cache search '^libssl1.0.0$') ]]; then # Wheezy or Jessie
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libssl1.0.0
-        elif [[ $(apt-cache search '^libssl1.0.2$') ]]; then # Stretch
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libssl1.0.2
-        elif [[ $(apt-cache search '^libssl1.1$') ]]; then # Buster
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libssl1.1
-        else
-            break
-        fi
-        
-        if [[ $(apt-cache search '^libgcrypt11$') ]]; then # Wheezy
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libgcrypt11
-        elif [[ $(apt-cache search '^libgcrypt20$') ]]; then # Jessie, Stretch, Buster, Bullseye
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libgcrypt20
-        else
-            break
-        fi
-        
-        # install Netatalk
-        if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
-            { wget -qO- "${binaryURL}precompiled/netatalk226-${arch}_${debianName}.tgz" | sudo tar Pzx; } &> /dev/null
-	    [[ -f /usr/local/sbin/atalkd ]] && compileFromSource=
-        fi
-        sudo mandb &> /dev/null
-
-        break
-    done
     
-    # install CUPS. Needed to build support into Netatalk
-    sudo apt-get -y install cups
+    # Dependencies: build-deps for netatalk 2.x
+    sudo apt-get install --no-install-recommends --assume-yes cups libcups2-dev libssl-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev
+
+    sudo apt-get clean
     
-    # Make sure we have iptables for macipgw. Bullseye removed it by default.
-    sudo apt-get -y install iptables
-        
-    if [[ $compileFromSource ]]; then
+    # get Netatalk
+    rm -rf /tmp/netatalk &> /dev/null
+    mkdir /tmp/netatalk
+    cd /tmp/netatalk
     
-        # Dependencies: build-deps for netatalk 2.2.6
-        sudo apt-get -y install build-essential
-        sudo apt-get -y install libcups2-dev
-        sudo apt-get -y install autotools-dev
-        sudo apt-get -y install automake
-        sudo apt-get -y install libtool
-        sudo apt-get -y install libssl-dev
-        sudo apt-get -y install libavahi-client-dev
-        
-        if [[ $(apt-cache search '^libdb5.1-dev$') ]]; then # Wheezy
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libdb5.1-dev
-        elif [[ $(apt-cache search '^libdb5.3-dev$') ]]; then # Jessie, Stretch, Buster
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libdb5.3-dev
-        else
-            echo "A2SERVER: WARNING: unknown version of libdb-dev is being installed."
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libdb-dev
-        fi
-        
-        if [[ $(apt-cache search '^libgcrypt11-dev$') ]]; then # Stretch, Jessie or Wheezy
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libgcrypt11-dev
-        else # Buster and Bullseye
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libgcrypt20-dev
-        fi
+    if [[ $useExternalURL ]]; then
+	wget -qO netatalk-2-230202.tar.gz "https://github.com/rdmark/netatalk-2.x/releases/download/netatalk-2-230202/netatalk-2.230202.tar.gz"
+	tar xzf netatalk-2-230202.tar.gz &> /dev/null
 
-        sudo apt-get clean
-        
-        # get Netatalk
-        rm -rf /tmp/netatalk &> /dev/null
-        mkdir /tmp/netatalk
-        cd /tmp/netatalk
-        
-        if [[ $useExternalURL ]]; then
-            wget -qO netatalk-2-230202.tar.gz "https://github.com/rdmark/netatalk-2.x/releases/download/netatalk-2-230202/netatalk-2.230202.tar.gz"
-            tar xzf netatalk-2-230202.tar.gz &> /dev/null
-
-        fi
-
-        cd netatalk-2.230202
-
-        # prepare to build Netatalk
-        ./configure --enable-systemd --enable-cups --disable-quota
-
-        # uninstall Netatalk if already installed
-        [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
-        
-        # compile and install Netatalk
-	if [[ -f /tmp/a2server-multiThreadedCompilation ]]; then
-	    echo "Compiling Netatalk with $(nproc) threads..."
-	    make all -j "$(nproc)"
-	else
-	    make all
-	fi
-        sudo make install
-        
-        # to remove the Netatalk source code (optional), type:
-        cd
-        rm -rf /tmp/netatalk
     fi
+
+    cd netatalk-2.230202
+
+    # prepare to build Netatalk
+    ./configure --enable-systemd --enable-cups --disable-quota
+
+    # uninstall Netatalk if already installed
+    [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
+
+    # compile and install Netatalk
+    if [[ -f /tmp/a2server-multiThreadedCompilation ]]; then
+	echo "Compiling Netatalk with $(nproc) threads..."
+	make all -j "$(nproc)"
+    else
+	make all
+    fi
+    sudo make install
+
+    # to remove the Netatalk source code (optional), type:
+    cd
+    rm -rf /tmp/netatalk
 fi
 
 # --- Install MacIPgw
 if ! hash macipgw &> /dev/null; then
     echo "A2SERVER: Installing TCP over AppleTalk (MacIP)..."
-    
+
+    # Make sure we have iptables for macipgw. Bullseye removed it by default.
+    sudo apt-get install --no-install-recommends --assume-yes iptables
+
     if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
         { wget -qO- "${binaryURL}precompiled/macipgw-${arch}.tgz" | sudo tar Pzx; } 2> /dev/null
     fi
@@ -243,7 +165,7 @@ if ! hash macipgw &> /dev/null; then
         mkdir /tmp/macipgw
         cd /tmp/macipgw
         if [[ $useExternalURL ]]; then
-            wget -qO macipgw.zip "https://github.com/zero2sixd/macipgw/archive/2a5f6a7521a627e46b18468d44f4306fb0a7b7ab.zip"
+            wget -qO macipgw.zip "https://github.com/jasonking3/macipgw/archive/2a5f6a7521a627e46b18468d44f4306fb0a7b7ab.zip"
             unzip macipgw.zip 2> /dev/null
             rm macipgw.zip &> /dev/null
         fi
