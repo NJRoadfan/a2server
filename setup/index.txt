@@ -72,6 +72,14 @@ while [[ $1 ]]; do
         shift
         compileAlways="-c"
         touch /tmp/a2server-compileAlways
+    elif [[ $1 == "-t" ]]; then
+        shift
+        multiThreadedCompilation="-t"
+        touch /tmp/a2server-multiThreadedCompilation
+    elif [[ $1 == "-l" ]]; then
+        shift
+        localScripts="-l"
+        touch /tmp/a2server-localScripts
     elif [[ $1 == "-v" ]]; then
         shift
         # Version was already printed
@@ -85,6 +93,8 @@ while [[ $1 ]]; do
         echo "-b: auto-setup network boot (use with -y)"
         echo "-w: auto-setup Windows file sharing (use with -y)"
         echo "-c: compile non-package items, rather than downloading binaries"
+        echo "-t: use all available CPU cores for multi threaded compilation"
+        echo "-l: use local scripts, rather than downloading from remote server"
         [[ $0 == "-bash" ]] && return 1 || exit 1
     fi
 done
@@ -205,27 +215,29 @@ if (( $doSetup )); then
         sudo true
 
         echo
-        echo "A2SERVER: Downloading scripts..."
 
-        wget -q -O /tmp/1.storage "${scriptURL}scripts/a2server-1-storage.txt"
-        chmod ugo+x /tmp/1.storage
+	if [[ -f /tmp/a2server-localScripts ]]; then
+		echo "A2SERVER: Copying local scripts..."
+		baseDir=$(dirname "$(readlink -f "${0}")")
+		localScriptDir="$baseDir/../scripts"
+		cp "$localScriptDir/a2server-1-storage.txt" /tmp/1.storage || exit 1
+		cp "$localScriptDir/a2server-2-tools.txt" /tmp/2.tools || exit 1
+		cp "$localScriptDir/a2server-3-sharing.txt" /tmp/3.sharing || exit 1
+		cp "$localScriptDir/a2server-5-netboot.txt" /tmp/5.netboot || exit 1
+		cp "$localScriptDir/a2server-6-samba.txt" /tmp/6.samba || exit 1
+		cp "$localScriptDir/a2server-7-console.txt" /tmp/7.console || exit 1
+	else
+		echo "A2SERVER: Downloading scripts..."
+		wget -q -O /tmp/1.storage "${scriptURL}scripts/a2server-1-storage.txt"
+		wget -q -O /tmp/2.tools "${scriptURL}scripts/a2server-2-tools.txt"
+		wget -q -O /tmp/3.sharing "${scriptURL}scripts/a2server-3-sharing.txt"
+		wget -q -O /tmp/5.netboot "${scriptURL}scripts/a2server-5-netboot.txt"
+		wget -q -O /tmp/6.samba "${scriptURL}scripts/a2server-6-samba.txt"
+		wget -q -O /tmp/7.console "${scriptURL}scripts/a2server-7-console.txt"
+	fi
+        chmod ugo+x /tmp/1.storage /tmp/2.tools /tmp/3.sharing /tmp/5.netboot /tmp/6.samba /tmp/7.console
 
-        wget -q -O /tmp/2.tools "${scriptURL}scripts/a2server-2-tools.txt"
-        chmod ugo+x /tmp/2.tools
-
-        wget -q -O /tmp/3.sharing "${scriptURL}scripts/a2server-3-sharing.txt"
-        chmod ugo+x /tmp/3.sharing
-
-        wget -q -O /tmp/5.netboot "${scriptURL}scripts/a2server-5-netboot.txt"
-        chmod ugo+x /tmp/5.netboot
-
-        wget -q -O /tmp/6.samba "${scriptURL}scripts/a2server-6-samba.txt"
-        chmod ugo+x /tmp/6.samba
-
-        wget -q -O /tmp/7.console "${scriptURL}scripts/a2server-7-console.txt"
-        chmod ugo+x /tmp/7.console
-
-        echo "A2SERVER: Scripts have been downloaded. Installing..."
+        echo "A2SERVER: Scripts have been prepared. Installing..."
 
         if [[ $installAll ]]; then
             sudo rm /usr/local/etc/A2SERVER-version 2> /dev/null
