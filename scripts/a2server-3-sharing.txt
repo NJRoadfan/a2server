@@ -148,10 +148,9 @@ else
         # install Netatalk
         if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
             { wget -qO- "${binaryURL}precompiled/netatalk226-${arch}_${debianName}.tgz" | sudo tar Pzx; } &> /dev/null
+	    [[ -f /usr/local/sbin/atalkd ]] && compileFromSource=
         fi
         sudo mandb &> /dev/null
-        
-        [[ -f /usr/local/sbin/atalkd ]] && compileFromSource=
 
         break
     done
@@ -201,17 +200,14 @@ else
         cd /tmp/netatalk
         
         if [[ $useExternalURL ]]; then
-            #wget -qO netatalk-2.2.6.tar.gz "http://downloads.sourceforge.net/project/netatalk/netatalk/2.2.6/netatalk-2.2.6.tar.gz"
-            #tar zxf netatalk-2.2.6.tar.gz &> /dev/null
-            wget -qO branch-netatalk-2-x.zip "https://github.com/rdmark/Netatalk-2.x/archive/refs/heads/branch-netatalk-2-x.zip"
-            unzip branch-netatalk-2-x.zip &> /dev/null
+            wget -qO netatalk-2-230202.tar.gz "https://github.com/rdmark/netatalk-2.x/releases/download/netatalk-2-230202/netatalk-2.230202.tar.gz"
+            tar xzf netatalk-2-230202.tar.gz &> /dev/null
 
         fi
 
-        cd Netatalk-2.x-branch-netatalk-2-x
+        cd netatalk-2.230202
 
         # prepare to build Netatalk
-        ./bootstrap
         ./configure --enable-systemd --enable-cups --disable-quota
 
         # uninstall Netatalk if already installed
