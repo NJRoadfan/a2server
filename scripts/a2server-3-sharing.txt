@@ -110,7 +110,7 @@ else
     }
     
     # Dependencies: build-deps for netatalk 2.x
-    sudo apt-get install --no-install-recommends --assume-yes cups libcups2-dev libssl-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev
+    sudo apt-get install --no-install-recommends --assume-yes build-essential cups libcups2-dev libssl-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev
 
     sudo apt-get clean
     
@@ -150,9 +150,6 @@ fi
 # --- Install MacIPgw
 if ! hash macipgw &> /dev/null; then
     echo "A2SERVER: Installing TCP over AppleTalk (MacIP)..."
-
-    # Make sure we have iptables for macipgw. Bullseye removed it by default.
-    sudo apt-get install --no-install-recommends --assume-yes iptables
 
     if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
         { wget -qO- "${binaryURL}precompiled/macipgw-${arch}.tgz" | sudo tar Pzx; } 2> /dev/null
