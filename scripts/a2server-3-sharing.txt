@@ -193,7 +193,7 @@ echo "A2SERVER: Configuring Netatalk..."
 sudo systemctl enable atalkd afpd papd a2boot timelord macipgw
 
 # allow Guest users to be able to network boot
-sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/netatalk/netatalk.conf
+# sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/netatalk/netatalk.conf
 # (For a Guest user with different permissions than the compile-time user, create a
 # Linux user, and then specify that user for AFPD_GUEST instead.)
 
@@ -433,32 +433,10 @@ kernelMinor=$(cut -d '.' -f 2  <<< $kernelRelease | sed 's/\(^[0-9]*\)[^0-9].*$/
 kernelPatch=$(cut -d '.' -f 3- <<< $kernelRelease | sed 's/\(^[0-9]*\)[^0-9].*$/\1/')
 kernelMajorMinor=$(cut -d '.' -f 1-2 <<< $kernelRelease)
 
-# if on kernel 3.12 through 3.15, check if we need to delete AppleTalk module to prevent kernel panics
-if [[ $kernelMajor -eq 3 && $kernelMinor -ge 12 && $kernelMinor -le 15 ]]; then
-    # if not RPi, or RPi without ivanx-fixed AppleTalk module, delete the module
-    if [[ ! ( $isRpi && $kernelMinor -eq 12 && $kernelPatch -ge 25 ) ]]; then
-        if [[ -f /lib/modules/$kernelRelease/kernel/net/appletalk/appletalk.ko ]]; then
-            if [[ $(sha1sum /lib/modules/$kernelRelease/kernel/net/appletalk/appletalk.ko | cut -f 1 -d ' ') != "ecb239fc084c36de93f6926e7749b80f6024f269" ]]; then
-                # stop Netatalk
-                sudo /etc/init.d/netatalk stop &> /dev/null
-                echo "A2SERVER: Deleting defective AppleTalk kernel module..."
-                sudo rmmod appletalk 2> /dev/null
-                sudo rm -r /lib/modules/$kernelRelease/kernel/net/appletalk
-                # disable single-user mode on Pi (other Linux can use Recovery boot)
-                if [[ $isRpi && $(grep ' single' /boot/cmdline.txt 2> /dev/null) ]]; then
-                    echo "A2SERVER: Disabling single-user mode for next boot..."
-                    sudo sed -i 's/ single//' /boot/cmdline.txt
-                    touch /tmp/singleUser # so note to restart can display following install
-                fi
-            fi
-        fi
-    fi
-fi
-
 # if IPDDP module exists (e.g. Debian, but not Raspbian),
 #   AppleTalk kernel module has been compiled to support it and can't work with MacIP
 if [[ -f "/lib/modules/$kernelRelease/kernel/drivers/net/appletalk/ipddp.ko" ]]; then
-    sudo /etc/init.d/netatalk stop &> /dev/null
+    sudo systemctl stop atalkd afpd papd a2boot timelord macipgw &> /dev/null
     sudo rmmod ipddp 2> /dev/null
     sudo rmmod appletalk 2> /dev/null
     echo "A2SERVER: Replacing AppleTalk kernel module (IPDDP disabled) for MacIP use..."
@@ -540,7 +518,6 @@ if [[ -f "/lib/modules/$kernelRelease/kernel/drivers/net/appletalk/ipddp.ko" ]];
         sudo rm /lib/modules/$kernelRelease/kernel/drivers/net/appletalk/ipddp.ko 2> /dev/null
         sudo sed -i 's:^.*IPDDP.*$:# CONFIG_IPDDP is not set:gI' /boot/config-$kernelRelease
         sudo sed -i '$!N; /^\(# CONFIG_IPDDP is not set\)\n\1$/!P; D' /boot/config-$kernelRelease
-        sudo sed -i "s/ATALKD_RUN=no/ATALKD_RUN=yes/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart &> /dev/null
     else
         # if we didn't load it successfully, put back the one that was there
         echo "A2SERVER: Unable to replace AppleTalk module, replacing original."
@@ -567,7 +544,7 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
         sudo modprobe appletalk
         if [[ $(lsmod | grep appletalk) ]]; then
             # if it loaded, restart netatalk
-            sudo sed -i "s/ATALKD_RUN=no/ATALKD_RUN=yes/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart
+            sudo systemctl restart atalkd afpd papd a2boot timelord macipgw 2> /dev/null
         else
             # if we didn't load it successfully, delete it
             sudo rm -r /lib/modules/$kernelRelease/kernel/net/appletalk
@@ -587,7 +564,7 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
             sudo modprobe appletalk
             if [[ $(lsmod | grep appletalk) ]]; then
                 # if it loaded, restart netatalk
-                sudo sed -i "s/ATALKD_RUN=no/ATALKD_RUN=yes/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart
+                sudo systemctl restart atalkd afpd papd a2boot timelord macipgw 2> /dev/null
             else
                 # if we didn't load it successfully, remove it
                 sudo rm -r /lib/modules/$kernelRelease/kernel/net/appletalk 2> /dev/null
