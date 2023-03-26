@@ -793,13 +793,13 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cd /tmp/netboot/spectrum
                     if [[ $useExternalURL ]]; then
                         wget -qO spectrum_platinum_2mg.zip http://speccie.uk/speccie/downloads/spectrum_platinum.2mg.zip
-                        unzip spectrum_platinum_2mg.zip "Spectrum Platinum.2mg" &> /dev/null
+                        unzip spectrum_platinum_2mg.zip "Spectrum Platinum 2.2mg" &> /dev/null
                     fi
-                    if [[ ! -f spectrum_platinum_2mg.zip || $(wc -c < "Spectrum Platinum.2mg") -eq 0 ]]; then
+                    if [[ ! -f spectrum_platinum_2mg.zip || $(wc -c < "Spectrum Platinum 2.2mg") -eq 0 ]]; then
                         wget -qO spectrum_platinum_2mg.zip ${binaryURL}external/appleii/spectrum_platinum_2mg.zip
-                        unzip spectrum_platinum_2mg.zip "Spectrum Platinum.2mg" &> /dev/null
+                        unzip spectrum_platinum_2mg.zip "Spectrum Platinum 2.2mg" &> /dev/null
                     fi
-                    cppo -s -ad "Spectrum Platinum.2mg" . &> /dev/null
+                    cppo -s -ad "Spectrum Platinum 2.2mg" . &> /dev/null
                     userFolder=$(tr [:lower:] [:upper:] <<< $USER)
                     
                     for thisFolder in \
