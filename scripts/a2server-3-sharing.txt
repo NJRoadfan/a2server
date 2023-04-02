@@ -120,12 +120,12 @@ else
     cd /tmp/netatalk
     
     if [[ $useExternalURL ]]; then
-	wget -qO netatalk-2-230301.tar.gz "https://github.com/rdmark/netatalk-2.x/releases/download/netatalk-2-230301/netatalk-2.230301.tar.gz"
-	tar xzf netatalk-2-230301.tar.gz &> /dev/null
+	wget -qO netatalk-2-230302.tar.gz "https://github.com/rdmark/netatalk-2.x/releases/download/netatalk-2-230302/netatalk-2.230302.tar.gz"
+	tar xzf netatalk-2-230302.tar.gz &> /dev/null
 
     fi
 
-    cd netatalk-2.230301
+    cd netatalk-2.230302
 
     # prepare to build Netatalk
     ./configure --enable-systemd --enable-cups --disable-quota
