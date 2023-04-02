@@ -4,7 +4,7 @@
 
 [Unit]
 Description=MacIP Gateway daemon
-After=syslog.target network.target atalkd.service
+After=network.target atalkd.service
 Requires=atalkd.service
 
 [Service]
