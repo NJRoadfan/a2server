@@ -79,6 +79,16 @@
                  
 1.5.3a2: July 2020: initial support for Debian/Raspbian Buster
 
+1.5.5: April 2023:  support for Debian/Raspbain Bullseye;
+                    added GS/OS 6.0.4 install option;
+                    added netatalk 2.2.6 patches for modern distros;
+                    fixed dead URLs for various utilities;
+                    fixed cppo's creation of AppleDouble headers;
+                    fixed appletalk kernel module compilation to work with linux 5.x;
+                    updated Marinetti and link Layers to latest releases;
+                    updated Spectrum to latest release;
+                    added The Networker2 and Webber installation;
+
 Big thanks to: Anthony Martino, Henry Courbis, Joseph Carter, Jason King,
 Andy McFadden, Steven Hirsch, Geoff Body, Peter Wong, Tony Diaz, David Schmidt,
 David Schmenk, Ewen Wannop, Andrew Roughan, Antoine Vignau, Martin Haye,
