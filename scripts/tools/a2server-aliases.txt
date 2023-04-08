@@ -40,11 +40,6 @@ alias netatalk-eth='sudo sed -i 's/^wlan0/enp0s3/' /usr/local/etc/netatalk/atalk
 alias netatalk-wifi='sudo sed -i 's/^enp0s3/wlan0/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
 
 
-
-alias appletalk-off='sudo sed -i "s/ATALKD_RUN=yes/ATALKD_RUN=no/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart'
-alias appletalk-on='sudo sed -i "s/ATALKD_RUN=no/ATALKD_RUN=yes/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart'
-
-
 NETATALK="/usr/local/etc/netatalk"
 A2FILES="/srv/A2SERVER/A2FILES"
 GSFILES="/srv/A2SERVER/GSFILES"
