@@ -241,7 +241,7 @@ sudo sed -i "/MaxLogSize/a PreserveJobHistory No" /etc/cups/cupsd.conf
 sudo cupsctl --remote-admin WebInterface=yes
 # Allow current user to add/remove CUPS printer queues
 sudo usermod -a -G lpadmin $USER
-sudo service cups restart
+sudo systemctl restart cups cups-browsed
 
 # 1.3.0: we are no longer setting up new GSFILES
 # set up GSFILES share (for GS data files, not GSOS system)
