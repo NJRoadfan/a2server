@@ -23,8 +23,8 @@ alias showip-wifi='ip a show dev wlan0 | grep "inet " | cut -dt -f2 | cut -db -f
 alias showmac-wifi='ip a show dev wlan0 | grep "link/ether" | cut -dr -f2 | cut -db -f1'
 
 alias netatalk-stop="sudo systemctl stop atalkd cnid afpd papd timelord a2boot macipgw; bonjour-off"
-alias netatalk-start="sudo systemctl start atalkd cnid afpd papd timelord a2boot macipgw; bonjour-on"
-alias netatalk-restart="sudo systemctl restart atalkd cnid afpd papd timelord a2boot macipgw; bonjour-on"
+alias netatalk-start="sudo systemctl start atalkd cnid afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
+alias netatalk-restart="sudo systemctl restart atalkd cnid afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
 alias netatalk-off='sudo systemctl stop atalkd cnid afpd papd timelord a2boot macipgw; sudo systemctl disable atalkd cnid afpd papd a2boot timelord macipgw'
 alias netatalk-on='bonjour-on; sudo systemctl enable atalkd cnid afpd papd a2boot timelord macipgw'
 
