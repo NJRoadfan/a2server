@@ -110,7 +110,7 @@ else
     }
     
     # Dependencies: build-deps for netatalk 2.x
-    sudo apt-get install --no-install-recommends --assume-yes build-essential cups cups-browsed libcups2-dev libssl-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev
+    sudo apt-get install --no-install-recommends --assume-yes build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libssl-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev
 
     sudo apt-get clean
     
@@ -611,4 +611,4 @@ sudo sed -i 's/^\(hosts.*\)$/\1 mdns/' /etc/nsswitch.conf
 if [[ ! -f /etc/avahi/services/afpd.service && ! -f /etc/avahi/services/afpd.service_disabled ]]; then
     echo -e '<?xml version="1.0" standalone="no"?><!--*-nxml-*-->\n<!DOCTYPE service-group SYSTEM "avahi-service.dtd">\n<service-group>\n    <name replace-wildcards="yes">%h</name>\n    <service>\n        <type>_afpovertcp._tcp</type>\n        <port>548</port>\n    </service>\n    <service>\n        <type>_device-info._tcp</type>\n        <port>0</port>\n        <txt-record>model=MacPro</txt-record>\n    </service>\n</service-group>' | sudo tee /etc/avahi/services/afpd.service > /dev/null
 fi
-sudo systemctl restart avahi-daemon papd &> /dev/null
+sudo systemctl restart avahi-daemon &> /dev/null
