@@ -228,7 +228,11 @@ if [[ $(tac /usr/local/etc/netatalk/atalkd.conf | sed '/./,$!d' | head -1 | cut 
     # enable netatalk on the default network interface
     # needs -router and -zone to prevent GS/OS AppleShare CDEV crash when used
     # with Dayna or Asante bridges
-    echo -e 'enp0s3 -router -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
+    if [ $isRpi ]; then
+	echo -e 'eth0 -router -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
+    else
+	echo -e 'enp0s3 -router -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
+    fi
 fi
 
 if [[ $(tac /usr/local/etc/netatalk/papd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
