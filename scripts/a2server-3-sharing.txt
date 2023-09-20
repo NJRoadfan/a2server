@@ -211,7 +211,7 @@ if [[ ! $(grep '^- -ddp.*uams_randnum.so' /usr/local/etc/netatalk/afpd.conf) ]];
     echo -n -e \
     "- -ddp -tcp -uamlist uams_guest.so,uams_clrtxt.so,uams_randnum.so" \
     | sudo tee -a /usr/local/etc/netatalk/afpd.conf > /dev/null
-    echo -e ",${dhx}uams_dhx2.so" \
+    echo -e ",${dhx}uams_dhx2.so -guestname \"user1\"" \
     | sudo tee -a /usr/local/etc/netatalk/afpd.conf > /dev/null
 fi
 
