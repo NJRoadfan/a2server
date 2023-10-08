@@ -99,7 +99,7 @@ while [[ $1 ]]; do
     fi
 done
 
-if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) < 110 )); }; then
+if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) < 200 )); }; then
     echo
     echo "WARNING: The current A2SERVER installer scripts haven't been tested for"
     echo "updating the earlier version of A2SERVER that you have. A fresh install"
@@ -115,28 +115,14 @@ if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A
 fi
 
 unsupportedOS=1
-if [[ $isRpi ]]; then #supported Raspbian? (16-Feb-15, 20-Jun-14, 09-Jan-14, etc)
-    fwhash=$(zcat /usr/share/doc/raspberrypi-bootloader/changelog.Debian.gz | grep -m 1 'as of' | awk '{print $NF}')
-    fwsupported="-8aca5762- -462f3e3f476f7b6- -c32bc633039cd9- -9d34d0475f9-
-            -d4f5315cfac4e- -6f4a90c8cb8817f- -5dd9b4962e- -17c8799375-
-            -960832a6c2590635216c296b6ee0bebf67b21d50-
-            -2a329e0c7d8ea19c085bac5633aa4fccee0f21be-
-            -b2420fc150ae4616f5d9ec24bdaedc630586a529-"
-    [[ "$fwsupported" == *-$fwhash-* ]] && unsupportedOS=
-    # [[ ($fwhash == "8aca5762") || ($fwhash == "462f3e3f476f7b6") || ($fwhash == "c32bc633039cd9") || ($fwhash == "9d34d0475f9") || ($fwhash == "d4f5315cfac4e") || ($fwhash == "6f4a90c8cb8817f") || ($fwhash == "5dd9b4962e") || ($fwhash == "17c8799375") ]] && unsupportedOS=
-elif [[ $isDebian ]]; then # supported Debian?
+
+if [[ $isDebian ]]; then # supported Debian?
      debianVersion=$(cat /etc/debian_version)
      debianSupported="-12.2- -11.8- -10.13-"
      [[ $debianSupported == *-$debianVersion-* ]] && unsupportedOS=
 fi
 
-if [[ $unsupportedOS && $isRpi ]]; then
-    echo
-    echo "A2SERVER and its installer scripts have been tested on Raspbian Bookworm, Bullseye,"
-    echo "and Buster, though not this specific firmware version (or the version check is broken)"
-    echo "(${fwhash:0:7}). Just FYI."
-    unsupportedOS=
-elif [[ $unsupportedOS && $isDebian ]]; then
+if [[ $unsupportedOS && $isDebian ]]; then
     echo
     echo "A2SERVER and its installer scripts have been tested on Debian 10/11/12,"
     echo "though not this specific point release ($debianVersion). Just FYI."
@@ -146,7 +132,7 @@ fi
 if [[ $unsupportedOS ]]; then
     echo
     echo "WARNING: A2SERVER and its installer scripts have only been tested on"
-    echo "Debian and Raspbian. Continuing is probably fine, but might not be."
+    echo "Debian and RPi OS. Continuing is probably fine, but might not be."
     echo "Theoretical worst case would be your operating system no longer works"
     echo "properly or data is lost, so consider backing up first."
 fi
