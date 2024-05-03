@@ -14,9 +14,9 @@ relatively modern piece of it.  As such they should be preserved as they are.
 
 ## Developer note
 
-To use the scripts with a specific GitHub tag:
+To use the scripts with the latest GitHub tag:
 ~~~ bash
-export A2SERVER_SCRIPT_URL=https://raw.githubusercontent.com/RasppleII/a2server/TAG_GOES_HERE/
+export A2SERVER_SCRIPT_URL=https://raw.githubusercontent.com/NJRoadfan/a2server/1.5.5/
 export A2SERVER_BINARY_URL=${A2SERVER_SCRIPT_URL}files
 wget -O setup ${A2SERVER_SCRIPT_URL}setup/index.txt; source setup
 ~~~
