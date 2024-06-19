@@ -123,7 +123,7 @@ else
     
     if [[ $useExternalURL ]]; then
 	wget -qO netatalk-2.3.2.tar.bz2 "https://github.com/Netatalk/netatalk/releases/download/netatalk-2-3-2/netatalk-2.3.2.tar.bz2"
-	tar xzf netatalk-2.3.2.tar.bz2 &> /dev/null
+	tar xf netatalk-2.3.2.tar.bz2 &> /dev/null
 
     fi
 
