@@ -221,6 +221,10 @@ fi
 sudo sed -i 's/^~/#share1\n\n#share2/' \
 /usr/local/etc/netatalk/AppleVolumes.default
 
+# disable home folder "name" in later netatalk builds
+sudo sed -i 's/"/#/g' \
+/usr/local/etc/netatalk/AppleVolumes.default
+
 # disable default volume options for Mac OS X clients
 sudo sed -i 's/^:DEFAULT/#:DEFAULT/' \
 /usr/local/etc/netatalk/AppleVolumes.default
