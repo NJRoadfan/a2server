@@ -889,7 +889,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cppo -ad -s -n uthernet2ll.bxy $gsosDir/System/TCPIP > /dev/null
 
                     # MacIP Link Layer settings for A2SERVER
-                    wget -qO- ${binaryURL}macip-prefs.tgz | tar Pxz
+                    wget -qO- ${scriptURL}files/macip-prefs.tgz | tar Pxz
 
                     afpsync -v $gsosDir > /dev/null
                 fi
