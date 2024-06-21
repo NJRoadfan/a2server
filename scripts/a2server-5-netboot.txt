@@ -1066,7 +1066,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    echo
 		    mkdir -p /tmp/netboot/netdisk
 		    cd /tmp/netboot/netdisk
-		    wget -qO https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
+		    wget -qO NetDisk10.shk https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
 		    userFolder=$(tr [:lower:] [:upper:] <<< $USER)
 		    cppo -ad -s NetDisk10.shk . > /dev/null
 		    cd NetDisk
