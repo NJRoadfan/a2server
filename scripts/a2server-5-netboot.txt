@@ -288,7 +288,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             afpsync -v $gsosDir > /dev/null
             afptype -p SYS -q $gsosDir/NETBOOT.GSOS
         fi
-	if [[ -f $p8Dir/ATalk.Tools.P8/LOGON ]]; then 
+	if [[ ! -f $p8Dir/ATalk.Tools.P8/LOGON ]]; then 
 	    echo
 	    echo "A2SERVER: Installing P8 AppleShare Utilities..."
 	    mkdir -p /tmp/netboot/p8tools
