@@ -82,7 +82,7 @@ else
     if [[ $(ps --no-headers -C afpd) ]]; then
         sudo /etc/init.d/netatalk stop &> /dev/null
         sudo /etc/init.d/samba stop &> /dev/null
-        sudo systemctl stop atalkd cnid afpd papd timelord a2boot macipgw &> /dev/null
+        sudo systemctl stop atalkd afpd papd timelord a2boot macipgw &> /dev/null
         sudo systemctl stop smbd &> /dev/null
     fi
     
@@ -192,7 +192,7 @@ fi
 echo "A2SERVER: Configuring Netatalk..."
 
 # enable netatalk services on startup
-sudo systemctl enable atalkd cnid afpd papd a2boot timelord macipgw
+sudo systemctl enable atalkd afpd papd a2boot timelord macipgw
 
 # allow Guest users to be able to network boot
 # sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/netatalk/netatalk.conf
@@ -251,7 +251,7 @@ sudo sed -i "/MaxLogSize/a PreserveJobHistory No" /etc/cups/cupsd.conf
 sudo cupsctl --remote-admin WebInterface=yes
 # Allow current user to add/remove CUPS printer queues
 sudo usermod -a -G lpadmin $USER
-sudo systemctl restart cups cups-browsed
+sudo systemctl restart cups
 
 # 1.3.0: we are no longer setting up new GSFILES
 # set up GSFILES share (for GS data files, not GSOS system)
@@ -446,7 +446,7 @@ kernelMajorMinor=$(cut -d '.' -f 1-2 <<< $kernelRelease)
 # if IPDDP module exists (e.g. Debian, but not Raspbian),
 #   AppleTalk kernel module has been compiled to support it and can't work with MacIP
 if [[ -f "/lib/modules/$kernelRelease/kernel/drivers/net/appletalk/ipddp.ko" ]]; then
-    sudo systemctl stop atalkd cnid afpd papd a2boot timelord macipgw &> /dev/null
+    sudo systemctl stop atalkd afpd papd a2boot timelord macipgw &> /dev/null
     sudo rmmod ipddp 2> /dev/null
     sudo rmmod appletalk 2> /dev/null
     echo "A2SERVER: Replacing AppleTalk kernel module (IPDDP disabled) for MacIP use..."
@@ -539,7 +539,7 @@ fi
 
 # --- Start Netatalk (if not running)
 
-sudo systemctl start atalkd cnid afpd papd a2boot timelord macipgw 2> /dev/null
+sudo systemctl start atalkd afpd papd a2boot timelord macipgw 2> /dev/null
 
 echo
 echo "A2SERVER: Netatalk is installed, configured, and running."
@@ -554,7 +554,7 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
         sudo modprobe appletalk
         if [[ $(lsmod | grep appletalk) ]]; then
             # if it loaded, restart netatalk
-            sudo systemctl restart atalkd cnid afpd papd a2boot timelord macipgw 2> /dev/null
+            sudo systemctl restart atalkd afpd papd a2boot timelord macipgw 2> /dev/null
         else
             # if we didn't load it successfully, delete it
             sudo rm -r /lib/modules/$kernelRelease/kernel/net/appletalk
@@ -574,7 +574,7 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
             sudo modprobe appletalk
             if [[ $(lsmod | grep appletalk) ]]; then
                 # if it loaded, restart netatalk
-                sudo systemctl restart atalkd cnid afpd papd a2boot timelord macipgw 2> /dev/null
+                sudo systemctl restart atalkd afpd papd a2boot timelord macipgw 2> /dev/null
             else
                 # if we didn't load it successfully, remove it
                 sudo rm -r /lib/modules/$kernelRelease/kernel/net/appletalk 2> /dev/null
