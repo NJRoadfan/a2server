@@ -544,8 +544,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 processScript $netInstallDir/Install/Scripts/Teach
                 echo "Script: AppleShare"
                 processScript $netInstallDir/Install/Scripts/Appleshare
+                echo "Script: ATImageWriter"
+                processScript $netInstallDir/Install/Scripts/ATImageWriter
+                echo "Script: ATImageWriterLQ"
+                processScript $netInstallDir/Install/Scripts/ATImageWriterLQ
                 echo "Script: LaserWriter"
                 processScript $netInstallDir/Install/Scripts/LaserWriter
+                echo "Script: Namer"
+                processScript $netInstallDir/Install/Scripts/Namer
                 echo "Script: Server.Sys.File"
                 processScript $netInstallDir/Install/Scripts/Server.Sys.File
     
