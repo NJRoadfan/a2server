@@ -737,7 +737,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         p8CommInstalled=
         [[ -f $commDir/ProTERM/PROTERM && -f $commDir/Z.Link/Z.LINK && -f $commDir/ADTPro/ADTPRO && -f $commDir/ADTPro/VSDRIVE ]] && p8CommInstalled=1
         gsosCommInstalled=
-        [[ -f $commDir/Spectrum/Spectrum && -f $commDir/SAM2/SAM2 && -f $commDir/SAFE2/SAFE2 && -f $commDir/SNAP/SNAP && -f $commDir/Webber/Webber && -f $commDir/Networker2/NetWorker2 && -f $gsosDir/System/CDevs/TCPIP ]] && gsosCommInstalled=1
+        [[ -f $commDir/Spectrum/Spectrum && -f $commDir/SAM2/SAM2 && -f $commDir/SAFE2/SAFE2 && -f $commDir/SNAP/SNAP && -f $commDir/Webber/Webber && -f $commDir/Networker2/NetWorker2 && -f $gsosDir/System/CDevs/TCPIP && -f $gsosDir/System/CDevs/NetDisk ]] && gsosCommInstalled=1
         commInstalled=
         if [[ $gsosInstalled ]]; then
             [[ $gsosCommInstalled && $p8CommInstalled ]] && commInstalled=1
@@ -1059,6 +1059,22 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     mv Help/Help.Files/NetWorker2 $gsosDir/System/Desk.Accs/Help.Files 
                     afpsync -v $gsosDir > /dev/null
                 fi
+		echo -n "NetDisk 1.0"
+		if [[ -f $gsosDir/System/CDevs/NetDisk ]]; then
+		    echo " is already installed."
+		else
+		    echo
+		    mkdir -p /tmp/netboot/netdisk
+		    cd /tmp/netboot/netdisk
+		    wget -qO https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
+		    userFolder=$(tr [:lower:] [:upper:] <<< $USER)
+		    cppo -ad -s NetDisk10.shk . > /dev/null
+		    cd NetDisk
+		    cpAD NetDiskInit $gsosDir/System/System.Setup
+		    cpAD NetDisk $gsosDir/System/CDevs
+		    cpAD DiskBrowser $gsosDir/USERS/$userFolder/FinderExtras
+		    afpsync -v $gsosDir > /dev/null
+		fi
              fi
 
             echo -n "ProTERM 3.1"
@@ -1149,6 +1165,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             echo "Note: Farallon bridges can only be used in GS/OS (with this patch)"
             echo "and Apple IIe computers. Apple IIgs computers which network boot"
             echo "directly into ProDOS 8 will freeze after a few minutes."
+	    afpsync -v $gsosDir > /dev/null
         fi
     fi
 fi
