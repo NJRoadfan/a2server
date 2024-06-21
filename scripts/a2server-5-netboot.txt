@@ -1082,9 +1082,9 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    echo
 		    mkdir -p /tmp/netboot/afpbridge
 		    cd /tmp/netboot/afpbridge
-		    wget -qO AFPBridge1.0b1.shk https://github.com/sheumann/AFPBridge/releases/download/v1.0b1/AFPBridgeB1.shk
-		    cppo -ad -s AFPBridge1.0b1.shk . > /dev/null
-		    cd AFPBridge1.0b1.shk
+		    wget -qO AFPBridgeB1.shk https://github.com/sheumann/AFPBridge/releases/download/v1.0b1/AFPBridgeB1.shk
+		    cppo -ad -s AFPBridgeB1.shk . > /dev/null
+		    cd AFPBridge.1.0b1
 		    cpAD AFPBridge $gsosDir/System/System.Setup
 		    cpAD AFPMounter $gsosDir/System/CDevs
 		    afpsync -v $gsosDir > /dev/null
