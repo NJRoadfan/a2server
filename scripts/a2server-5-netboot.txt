@@ -316,9 +316,9 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 	afpsync -v $gsosDir > /dev/null
 	# setup correct filetypes for ATINIT files.
 	userFolder=$(tr [:lower:] [:upper:] <<< $USER)
-	afptype -p E2 -a 2000 $gsosDir/USERS/$userFolder/SETUP/ATINIT
+	afptype -p E2 -a 2000 -q $gsosDir/USERS/$userFolder/SETUP/ATINIT
 	cd $gsosDir/USERS/"<ANY USER>"/SETUP
-	afptype -p E2 -a 2000 ATINIT
+	afptype -p E2 -a 2000 -q ATINIT
 	afpsync -v $gsosDir > /dev/null
 
         netbootInstalled=1
