@@ -22,11 +22,11 @@ alias showmac='ip a show dev enp0s3 | grep "link/ether" | cut -dr -f2 | cut -db 
 alias showip-wifi='ip a show dev wlan0 | grep "inet " | cut -dt -f2 | cut -db -f1'
 alias showmac-wifi='ip a show dev wlan0 | grep "link/ether" | cut -dr -f2 | cut -db -f1'
 
-alias netatalk-stop="sudo systemctl stop atalkd cnid afpd papd timelord a2boot macipgw; bonjour-off"
-alias netatalk-start="sudo systemctl start atalkd cnid afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
-alias netatalk-restart="sudo systemctl restart atalkd cnid afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
-alias netatalk-off='sudo systemctl stop atalkd cnid afpd papd timelord a2boot macipgw; sudo systemctl disable atalkd cnid afpd papd a2boot timelord macipgw'
-alias netatalk-on='bonjour-on; sudo systemctl enable atalkd cnid afpd papd a2boot timelord macipgw'
+alias netatalk-stop="sudo systemctl stop atalkd afpd papd timelord a2boot macipgw; bonjour-off"
+alias netatalk-start="sudo systemctl start atalkd afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
+alias netatalk-restart="sudo systemctl restart atalkd  afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
+alias netatalk-off='sudo systemctl stop atalkd afpd papd timelord a2boot macipgw; sudo systemctl disable atalkd afpd papd a2boot timelord macipgw'
+alias netatalk-on='bonjour-on; sudo systemctl enable atalkd afpd papd a2boot timelord macipgw'
 
 alias bonjour-off="sudo mv /etc/avahi/services/afpd.service /etc/avahi/services/afpd.service_disabled &> /dev/null"
 alias bonjour-on="sudo mv /etc/avahi/services/afpd.service_disabled /etc/avahi/services/afpd.service &> /dev/null"
