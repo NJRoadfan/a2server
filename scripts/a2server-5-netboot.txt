@@ -1094,6 +1094,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    cd NetDisk
 		    cpAD NetDiskInit $gsosDir/System/System.Setup
 		    cpAD NetDisk $gsosDir/System/CDevs
+		    mkdir -p $gsosDir/USERS/$userFolder/FinderExtras
 		    cpAD DiskBrowser $gsosDir/USERS/$userFolder/FinderExtras
 		    afpsync -v $gsosDir > /dev/null
 		fi
