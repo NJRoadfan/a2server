@@ -83,7 +83,7 @@ else
         sudo /etc/init.d/netatalk stop &> /dev/null
         sudo /etc/init.d/samba stop &> /dev/null
         sudo systemctl stop atalkd afpd papd timelord a2boot macipgw &> /dev/null
-        sudo systemctl stop smbd &> /dev/null
+        sudo systemctl stop smbd nmbd &> /dev/null
     fi
     
     if [[ ! -f /tmp/a2server-packageReposUpdated ]]; then
