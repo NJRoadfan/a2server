@@ -306,7 +306,11 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
                 cp -R APPLESHARE2.WS/${thisFolder%%^*}/.AppleDouble/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
             done
-	    cpAD APPLESHARE2.WS/SYS.APPS/LOGON $p8Dir/ATalk.Tools.P8
+	    # Get updated LOGON 1.5 program to match boot blocks.
+	    wget -qO p8.atalk.po http://apple2.guidero.us/lib/exe/fetch.php/projects/p8.atalk.po
+	    cppo -ad -s p8.atalk.po . > /dev/null
+	    cpAD P8.ATALK/LOGON $p8Dir/ATalk.Tools.P8
+	    #cpAD APPLESHARE2.WS/SYS.APPS/LOGON $p8Dir/ATalk.Tools.P8
 	    cpAD APPLESHARE2.WS/SYS.APPS/LOGOFF $p8Dir/ATalk.Tools.P8
 	    afpsync -v $p8Dir > /dev/null
 	fi
