@@ -178,7 +178,8 @@ if [[ -f /usr/local/etc/netatalk/a2boot/ProDOS16\ Boot\ Blocks && \
     -f /usr/local/etc/netatalk/a2boot/p8 && \
     -f /usr/local/etc/netatalk/a2boot/Basic.System && \
     -f $gsosDir/USERS/USER1/SETUP/ATINIT && \
-    -f $gsosDir/USERS/"<ANY USER>"/SETUP/ATINIT ]] ; then
+    -f $gsosDir/USERS/"<ANY USER>"/SETUP/ATINIT && \
+    -f $p8Dir/ATalk.Tools.P8/LOGON ]] ; then
     netbootInstalled=1
 fi
 REPLY=
