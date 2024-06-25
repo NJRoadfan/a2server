@@ -180,7 +180,7 @@ if ! hash macipgw &> /dev/null; then
         rm -rf /tmp/macipgw
     fi
     #copy over files required to setup macipgw on boot
-    sudo wget -q -O /lib/systemd/system/macipgw.service "${scriptURL}files/macipgw.service.txt"
+    sudo wget -q -O /usr/lib/systemd/system/macipgw.service "${scriptURL}files/macipgw.service.txt"
     sudo wget -q -O /usr/local/sbin/macipgw-start.sh "${scriptURL}files/macipgw-start.sh.txt"
     sudo chmod ugo+x /usr/local/sbin/macipgw-start.sh
 else
