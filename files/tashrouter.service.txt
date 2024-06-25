@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 User=root
 Type=simple
-ExecStart=/usr/bin/python3 /usr/local/sbin/route.py
+ExecStart=/usr/bin/python3 /usr/local/sbin/tashrouter.py
 
 [Install]
 WantedBy=multi-user.target
