@@ -1,0 +1,8 @@
+#This file should be in /etc/network/interfaces.d/
+#Creates a persistent TAP interface named "tash0" to link TashRouter and atalkd.
+
+auto tash0
+iface tash0 inet manual
+   pre-up tunctl -t tash0 -u root
+   up ip link set dev tash0 up
+   down ip link set dev tash0 down
