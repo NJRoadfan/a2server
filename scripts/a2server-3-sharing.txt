@@ -229,15 +229,34 @@ sudo sed -i $'s/"$u\'s Home Directory"//g' \
 sudo sed -i 's/^:DEFAULT/#:DEFAULT/' \
 /usr/local/etc/netatalk/AppleVolumes.default
 
+echo "A2SERVER: Configuring TashRouter..."
+
+sudo systemctl stop tashrouter &> /dev/null
+mkdir /tmp/tashrouter
+cd /tmp/tashrouter
+wget -qO tashrouter.zip "https://github.com/lampmerchant/tashrouter/archive/refs/heads/main.zip"
+unzip tashrouter.zip &> /dev/null
+cd tashrouter
+sudo cp -r tashrouter /usr/local/sbin
+sudo wget -q -O /usr/lib/systemd/system/tashrouter.service "${scriptURL}files/tashrouter.service.txt"
+sudo wget -q -O /usr/local/sbin/tashrouter.py "${scriptURL}files/tashrouter.py"
+
+# create tap interface to link netatalk and tashrouter
+sudo ip tuntap add mode tap tash0
+sudo ip link set dev tash0 up
+# make sure it comes up after reboot
+sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
+sudo systemctl enable tashrouter
+
 # if [[ ! $(grep ^eth0 /usr/local/etc/netatalk/atalkd.conf) && ! $(grep ^wlan0 /usr/local/etc/netatalk/atalkd.conf) ]]; then
 if [[ $(tac /usr/local/etc/netatalk/atalkd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
+    # enable tap interface for tashrouter
+    echo -e 'tash0 -seed -phase 2 -net 6502 -addr 6502.16 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
     # enable netatalk on the default network interface
-    # needs -router and -zone to prevent GS/OS AppleShare CDEV crash when used
-    # with Dayna or Asante bridges
     if [ $isRpi ]; then
-	echo -e 'eth0 -router -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
+	echo -e 'eth0 -seed -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
     else
-	echo -e 'enp0s3 -router -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
+	echo -e 'enp0s3 -seed -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
     fi
 fi
 
@@ -538,7 +557,7 @@ fi
 
 # --- Start Netatalk (if not running)
 
-sudo systemctl start atalkd afpd papd a2boot timelord macipgw 2> /dev/null
+sudo systemctl start atalkd afpd papd a2boot timelord macipgw tashrouter 2> /dev/null
 
 echo
 echo "A2SERVER: Netatalk is installed, configured, and running."
