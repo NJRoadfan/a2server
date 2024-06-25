@@ -294,8 +294,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 	    echo "A2SERVER: Installing P8 AppleShare Utilities..."
 	    mkdir -p /tmp/netboot/p8tools
             cd /tmp/netboot/p8tools
-	    wget -qO ASWS.po https://mirrors.apple2.org.za/Apple%20II%20Documentation%20Project/Interface%20Cards/Network/Apple%20II%20Workstation%20Card/Disk%20Images/AppleShare%20IIe%20Workstation.po
-	    cppo -ad -s ASWS.po . > /dev/null
+	    wget -qO A2GS.WS.HDV ${binaryURL}/appleii/a2ws/A2GS.WS.HDV
+	    cppo -ad -s A2GS.WS.HDV . > /dev/null
 	    mkdir -p $p8Dir/ATalk.Tools.P8
             for thisFolder in \
             	SYS.APPS/ACCESS^ACCESS \
@@ -303,16 +303,16 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             	SYS.APPS/CHOOSER^CHOOSER
             do
                 mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
-                cp -R APPLESHARE2.WS/${thisFolder%%^*}/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
+                cp -R ASIIGS.WS/${thisFolder%%^*}/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
                 mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
-                cp -R APPLESHARE2.WS/${thisFolder%%^*}/.AppleDouble/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
+                cp -R ASIIGS.WS/${thisFolder%%^*}/.AppleDouble/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
             done
 	    # Get updated LOGON 1.5 program to match boot blocks.
 	    wget -qO p8.atalk.po http://apple2.guidero.us/lib/exe/fetch.php/projects/p8.atalk.po
 	    cppo -ad -s p8.atalk.po . > /dev/null
 	    cpAD P8.ATALK/LOGON $p8Dir/ATalk.Tools.P8
-	    #cpAD APPLESHARE2.WS/SYS.APPS/LOGON $p8Dir/ATalk.Tools.P8
-	    cpAD APPLESHARE2.WS/SYS.APPS/LOGOFF $p8Dir/ATalk.Tools.P8
+	    #cpAD ASIIGS.WS/SYS.APPS/LOGON $p8Dir/ATalk.Tools.P8
+	    cpAD ASIIGS.WS/SYS.APPS/LOGOFF $p8Dir/ATalk.Tools.P8
 	    afpsync -v $p8Dir > /dev/null
 	fi
     
