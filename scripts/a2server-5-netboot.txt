@@ -319,12 +319,6 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         mkatinit -gs -d -f     # GS/OS registered user and Guest starts up with SYSTEM/FINDER
         mkatinit -d -f guest   # ProDOS 8 Guest starts up with BASIC.SYSTEM (no registered user)
 	afpsync -v $gsosDir > /dev/null
-	# setup correct filetypes for ATINIT files.
-	userFolder=$(tr [:lower:] [:upper:] <<< $USER)
-	afptype -p E2 -a 2000 -q $gsosDir/USERS/$userFolder/SETUP/ATINIT
-	cd $gsosDir/USERS/"<ANY USER>"/SETUP
-	afptype -p E2 -a 2000 -q ATINIT
-	afpsync -v $gsosDir > /dev/null
 
         netbootInstalled=1
     fi
