@@ -236,7 +236,7 @@ mkdir /tmp/tashrouter
 cd /tmp/tashrouter
 wget -qO tashrouter.zip "https://github.com/lampmerchant/tashrouter/archive/refs/heads/main.zip"
 unzip tashrouter.zip &> /dev/null
-cd tashrouter
+cd tashrouter-main
 sudo cp -r tashrouter /usr/local/sbin
 sudo wget -q -O /usr/lib/systemd/system/tashrouter.service "${scriptURL}files/tashrouter.service.txt"
 sudo wget -q -O /usr/local/sbin/tashrouter.py "${scriptURL}files/tashrouter.py"
