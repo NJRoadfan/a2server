@@ -231,6 +231,7 @@ sudo sed -i 's/^:DEFAULT/#:DEFAULT/' \
 
 echo "A2SERVER: Configuring TashRouter..."
 
+sudo apt-get install --no-install-recommends --assume-yes uml-utilities
 sudo systemctl stop tashrouter &> /dev/null
 mkdir /tmp/tashrouter
 cd /tmp/tashrouter
