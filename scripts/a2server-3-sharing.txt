@@ -112,37 +112,51 @@ else
     }
     
     # Dependencies: build-deps for netatalk 2.x
-    sudo apt-get install --no-install-recommends --assume-yes build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libssl-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev uml-utilities
+    sudo apt-get install --no-install-recommends --assume-yes build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libssl-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev ninja-build uml-utilities
 
     sudo apt-get clean
-    
+
+    # bullseye needs to get meson from pip
+    if [[ $debianName == "bullseye" ]]; then
+	sudo apt-get install --assume-yes python3-pip
+	sudo pip install meson
+    else
+	sudo apt-get install --assume-yes meson
+    fi
+
     # get Netatalk
     rm -rf /tmp/netatalk &> /dev/null
     mkdir /tmp/netatalk
     cd /tmp/netatalk
     
     if [[ $useExternalURL ]]; then
-	wget -qO netatalk-2.3.2.tar.bz2 "https://github.com/Netatalk/netatalk/releases/download/netatalk-2-3-2/netatalk-2.3.2.tar.bz2"
-	tar xf netatalk-2.3.2.tar.bz2 &> /dev/null
-
+	wget -qO netatalk-2.4.0.tar.bz2 "https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-0/netatalk-2.4.0.tar.xz"
+	tar xf netatalk-2.4.0.tar.bz2 &> /dev/null
     fi
 
-    cd netatalk-2.3.2
+    cd netatalk-2.4.0
 
     # prepare to build Netatalk
-    ./configure --enable-systemd --enable-cups --disable-quota
+    #./configure --enable-systemd --enable-cups --disable-quota
+    meson setup build -Denable-pgp-uam=disabled -Dwith-embedded-ssl=true -Dwith-quota=false -Denable-systemd=true
 
     # uninstall Netatalk if already installed
-    [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
+    #[[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
 
     # compile and install Netatalk
     if [[ -f /tmp/a2server-multiThreadedCompilation ]]; then
 	echo "Compiling Netatalk with $(nproc) threads..."
-	make all -j "$(nproc)"
+	#make all -j "$(nproc)"
+	meson compile -C build
     else
-	make all
+	#make all
+	meson compile -C build
     fi
-    sudo make install
+    # uninstall Netatalk if already installed
+    [[ -f /usr/local/sbin/afpd ]] && sudo ninja -C build uninstall
+
+    #sudo make install
+    sudo meson install -C build
 
     # to remove the Netatalk source code (optional), type:
     cd
