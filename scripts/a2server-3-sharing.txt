@@ -262,7 +262,7 @@ sudo ip link set dev tash0 up
 sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
 sudo systemctl enable tashrouter
 cd /tmp/
-rm -rf tashrouter-main
+rm -rf tashrouter
 
 # if [[ ! $(grep ^eth0 /usr/local/etc/netatalk/atalkd.conf) && ! $(grep ^wlan0 /usr/local/etc/netatalk/atalkd.conf) ]]; then
 if [[ $(tac /usr/local/etc/netatalk/atalkd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
