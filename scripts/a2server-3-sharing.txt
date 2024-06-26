@@ -138,7 +138,7 @@ else
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
-    meson setup build -Denable-pgp-uam=disabled -Dwith-embedded-ssl=true -Dwith-quota=false -Denable-systemd=true
+   ./meson setup build -Dwith-embedded-ssl=true -Dwith-quota=false -Dwith-init-style=debian-systemd
 
     # uninstall Netatalk if already installed
     #[[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
@@ -261,6 +261,8 @@ sudo ip link set dev tash0 up
 # make sure it comes up after reboot
 sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
 sudo systemctl enable tashrouter
+cd /tmp/
+rm -rf tashrouter-main
 
 # if [[ ! $(grep ^eth0 /usr/local/etc/netatalk/atalkd.conf) && ! $(grep ^wlan0 /usr/local/etc/netatalk/atalkd.conf) ]]; then
 if [[ $(tac /usr/local/etc/netatalk/atalkd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
