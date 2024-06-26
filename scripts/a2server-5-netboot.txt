@@ -1100,8 +1100,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    mkdir -p /tmp/netboot/checkfile
                     cd /tmp/netboot/checkfile
                     if [[ $useExternalURL ]]; then
-                        [[ ! $checkfileUrl ]] && networkerUrl="http://speccie.uk/speccie/downloads/chkfile108.bxy"
-                        wget -qO checkfile.bxy "$networkerUrl"
+                        [[ ! $checkfileUrl ]] && checkfileUrl="http://speccie.uk/speccie/downloads/chkfile108.bxy"
+                        wget -qO checkfile.bxy "$checkfileUrl"
                         cppo -s -ad checkfile.bxy . &> /dev/null
                     fi
                     if [[ ! -f Check.File/CheckFile ]]; then
@@ -1110,7 +1110,6 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     fi
                     cd Check.File
                     cpAD CheckFile $gsosDir/System/System.Setup
-		    rm -r $gsosDir/System/Desk.Accs/Help.Files/NetWorker2 2> /dev/null
                     afpsync -v $gsosDir > /dev/null
 
 		echo -n "NetDisk 1.0"
