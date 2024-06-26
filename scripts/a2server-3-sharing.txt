@@ -130,15 +130,15 @@ else
     cd /tmp/netatalk
     
     if [[ $useExternalURL ]]; then
-	wget -qO netatalk-2.4.0.tar.bz2 "https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-0/netatalk-2.4.0.tar.xz"
-	tar xf netatalk-2.4.0.tar.bz2 &> /dev/null
+	wget -qO netatalk-2.4.0.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-0/netatalk-2.4.0.tar.xz"
+	tar xf netatalk-2.4.0.tar.xz &> /dev/null
     fi
 
     cd netatalk-2.4.0
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
-   ./meson setup build -Dwith-embedded-ssl=true -Dwith-quota=false -Dwith-init-style=debian-systemd
+   meson setup build -Dwith-embedded-ssl=true -Dwith-quota=false -Dwith-init-style=debian-systemd
 
     # uninstall Netatalk if already installed
     #[[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
