@@ -1064,7 +1064,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpAD Tools/TOOL132 $gsosDir/System/Tools
                     afpsync -v $gsosDir > /dev/null
                 fi
-                echo -n "NetWorker2 $networkerVer"
+
+		echo -n "NetWorker2 $networkerVer"
                 if [[ -f $commDir/Networker2/NetWorker2 ]]; then
                     echo " is already installed."
                 else
@@ -1096,7 +1097,9 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     mv Help/Help.Files/NetWorker2 $gsosDir/System/Desk.Accs/Help.Files 
                     afpsync -v $gsosDir > /dev/null
                 fi
+
 		echo -n "Check File INIT $checkfileVer"
+		    echo
 		    mkdir -p /tmp/netboot/checkfile
                     cd /tmp/netboot/checkfile
                     if [[ $useExternalURL ]]; then
