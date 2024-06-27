@@ -256,8 +256,10 @@ sudo wget -q -O /usr/lib/systemd/system/tashrouter.service "${scriptURL}files/ta
 sudo wget -q -O /usr/local/sbin/tashrouter.py "${scriptURL}files/tashrouter.py"
 
 # create tap interface to link netatalk and tashrouter
-sudo ip tuntap add mode tap tash0
-sudo ip link set dev tash0 up
+if [[ ! $(ip a | grep 'tash0') ]]; then
+    sudo ip tuntap add mode tap tash0
+    sudo ip link set dev tash0 up
+fi
 # make sure it comes up after reboot
 sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
 sudo systemctl enable tashrouter
