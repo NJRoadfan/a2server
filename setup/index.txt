@@ -123,7 +123,7 @@ unsupportedOS=1
 
 if [[ $isDebian ]]; then # supported Debian?
      debianVersion=$(cat /etc/debian_version)
-     debianSupported="-12.5- -11.9-"
+     debianSupported="-12.6- -11.10-"
      [[ $debianSupported == *-$debianVersion-* ]] && unsupportedOS=
 fi
 
