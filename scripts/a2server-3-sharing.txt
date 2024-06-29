@@ -363,7 +363,7 @@ if [[ $(tac /usr/local/etc/netatalk/papd.conf | sed '/./,$!d' | head -1 | cut -c
 fi
 
 # Enable CUPS web interface and disable storing of old print jobs
-if [[ ! $(sudo grep "PreserveJobHistory No" /etc/cups/cupsd.conf) ]]
+if [[ ! $(sudo grep "PreserveJobHistory No" /etc/cups/cupsd.conf) ]]; then
     sudo sed -i "/MaxLogSize/a PreserveJobHistory No" /etc/cups/cupsd.conf
 fi
 sudo cupsctl --remote-admin WebInterface=yes
