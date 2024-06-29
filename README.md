@@ -16,7 +16,7 @@ relatively modern piece of it.  As such they should be preserved as they are.
 
 To use the scripts with a specific GitHub tag:
 ~~~ bash
-export A2SERVER_SCRIPT_URL=https://raw.githubusercontent.com/RasppleII/a2server/TAG_GOES_HERE/
+export A2SERVER_SCRIPT_URL=https://raw.githubusercontent.com/NJRoadfan/a2server/TAG_GOES_HERE/
 export A2SERVER_BINARY_URL=${A2SERVER_SCRIPT_URL}files
 wget -O setup ${A2SERVER_SCRIPT_URL}setup/index.txt; source setup
 ~~~
@@ -73,32 +73,6 @@ wget -O setup ${A2SERVER_SCRIPT_URL}setup/index.txt; source setup
 
 Offline install:
 
-Using locally hosted binaries and external dependencies, it's possible to
-install completely offline if dependent packages have been installed.
-
-If precompiled binaries are available, on Wheezy:
-
-~~~
-sudo apt-get -y install unzip libgnustep-base1.22 libdb5.1 libgcrypt11 libssl1.0.0 attr fuse libglib2.0-0 libattr1 libfuse2
-~~~
-
-If precompiled binaries are available, on Jessie:
-
-~~~
-sudo apt-get -y install unzip unar libdb5.3 libgcrypt20 libssl1.0.0 attr fuse libglib2.0-0 libattr1 libfuse2
-~~~
-
-If precompiled binaries are not available, on Wheezy:
-
-~~~
-sudo apt-get -y install unzip build-essential zlib1g-dev libgnustep-base-dev libz-dev libbz2-dev libssl-dev libicu-dev libdb5.1-dev libgcrypt11-dev libglib2.0-dev libattr1-dev libfuse-dev
-~~~
-
-If precompiled binaries are not available, on Jessie:
-
-~~~
-sudo apt-get -y install unzip unar build-essential zlib1g-dev unzip libssl-dev libdb5.3-dev libgcrypt11-dev libglib2.0-dev libattr1-dev libfuse-dev
-~~~
-
+Offline installs are no longer supported with A2SERVER 2.x.
 
 [Ivan's site]: http://appleii.ivanx.com/a2server/
