@@ -43,6 +43,15 @@ wget -O files/external/appleii/webber.bxy "$webberUrl"
 wget -O files/external/appleii/networker.bxy "$networkerUrl"
 wget -O files/external/appleii/checkfile.bxy "$checkfileUrl"
 
+mkdir -p files/external/appleii/a2ws
+wget -O files/external/appleii/a2ws/A2GS.WS.HDV https://appleii.ivanx.com/a2server/files/appleii/a2ws/A2GS.WS.HDV
+wget -O files/external/appleii/MarinettiB1.SHK https://appleii.ivanx.com/a2server/files/appleii/MarinettiB1.SHK
+wget -O files/external/appleii/FARALLON.B1.PO https://appleii.ivanx.com/a2server/files/appleii/FARALLON.B1.PO
+wget -O files/external/appleii/A2CLOUD.HDV https://appleii.ivanx.com/a2server/files/appleii/A2CLOUD.HDV
+wget -O files/safe2-setup.tgz https://appleii.ivanx.com/a2server/files/safe2-setup.tgz
+wget -O files/snap-groups.tgz https://appleii.ivanx.com/a2server/files/snap-groups.tgz
+wget -O files/snap-setup.tgz https://appleii.ivanx.com/a2server/files/snap-setup.tgz
+
 for gsosInstall in {1..4}; do
     activeDisk=0
     mkdir -p files/external/appleii/gsos60${gsosInstall}
