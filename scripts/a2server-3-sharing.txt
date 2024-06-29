@@ -320,6 +320,8 @@ if [[ $isRpi ]];then
             read
         else
             echo "A2SERVER: TashTalk Hat already set up."
+            sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#from tashrouter.port.localtalk.tashtalk/from tashrouter.port.localtalk.tashtalk/"
+            sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#TashTalkPort/TashTalkPort/"
         fi
     fi
     if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
@@ -359,7 +361,9 @@ if [[ $(tac /usr/local/etc/netatalk/papd.conf | sed '/./,$!d' | head -1 | cut -c
 fi
 
 # Enable CUPS web interface and disable storing of old print jobs
-sudo sed -i "/MaxLogSize/a PreserveJobHistory No" /etc/cups/cupsd.conf
+if [[ ! $(sudo grep "PreserveJobHistory No" /etc/cups/cupsd.conf) ]]
+    sudo sed -i "/MaxLogSize/a PreserveJobHistory No" /etc/cups/cupsd.conf
+fi
 sudo cupsctl --remote-admin WebInterface=yes
 # Allow current user to add/remove CUPS printer queues
 sudo usermod -a -G lpadmin $USER
