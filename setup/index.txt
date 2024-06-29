@@ -64,6 +64,10 @@ while [[ $1 ]]; do
         shift
         setupNetBoot="-b"
         touch /tmp/a2server-setupNetBoot
+    elif [[ $1 == "-h" ]]; then
+        shift
+        setupTashtalk="-h"
+        touch /tmp/a2server-setupTashtalk
     elif [[ $1 == "-w" ]]; then
         shift
         setupWindowsSharing="-w"
@@ -91,6 +95,7 @@ while [[ $1 ]]; do
         echo "-y: auto-answer yes to all prompts"
         echo "-r: don't update package repositories"
         echo "-b: auto-setup network boot (use with -y)"
+        echo "-h: auto-setup TashTalk Hat on RPi (use with -y)"
         echo "-w: auto-setup Windows file sharing (use with -y)"
         echo "-c: compile non-package items, rather than downloading binaries"
         echo "-t: use all available CPU cores for multi threaded compilation"
@@ -118,7 +123,7 @@ unsupportedOS=1
 
 if [[ $isDebian ]]; then # supported Debian?
      debianVersion=$(cat /etc/debian_version)
-     debianSupported="-12.2- -11.8- -10.13-"
+     debianSupported="-12.5- -11.9-"
      [[ $debianSupported == *-$debianVersion-* ]] && unsupportedOS=
 fi
 
@@ -287,7 +292,7 @@ if (( $doSetup )); then
             echo
         elif [[ -f /tmp/rpiUpdate ]]; then
             echo "A2SERVER is now configured, but Apple II clients will not be able"
-            echo "to connect until you restart your Raspberry Pi."
+            echo "to connect via your TashTalk Hat until you restart your Raspberry Pi."
             echo
             if [[ ! $autoAnswerYes ]]; then
                 echo -n "Restart now? "
