@@ -278,6 +278,81 @@ if [[ $(tac /usr/local/etc/netatalk/atalkd.conf | sed '/./,$!d' | head -1 | cut 
     fi
 fi
 
+if [[ $isRpi ]];then
+    # find config.txt
+    if [ -e /boot/firmware/config.txt ] ; then
+        FIRMWARE=/firmware
+    else
+        FIRMWARE=
+    fi
+    if [ -e /proc/device-tree/chosen/os_prefix ]; then
+        PREFIX="$(tr -d '\0' < /proc/device-tree/chosen/os_prefix)"
+    fi
+    # set location for config.txt and cmdline.txt
+    CMDLINE="/boot${FIRMWARE}/${PREFIX}cmdline.txt"
+    CONFIG=/boot${FIRMWARE}/config.txt
+    
+    # check for existing install
+    tashtalkInstalled=
+    if [[ $(grep "dtoverlay=miniuart-bt" $CONFIG) && \
+        $(grep "gpio=16-17=a3" $CONFIG) && \
+        $(grep "enable_uart=1" $CONFIG) ]]; then
+        tashtalkInstalled=1
+    fi
+    # check for serial port console
+    consoleInstalled=
+    if [[ $(grep "console=ttyAMA0" $CMDLINE) || \
+        $(grep "console=serial0" $CMDLINE) ]];then
+        consoleInstalled=1
+    fi
+    [[ -f /tmp/a2server-autoAnswerYes ]] && autoAnswerYes=1 || autoAnswerYes=
+    REPLY=
+    if [[ ! $autoAnswerYes || -f /tmp/a2server-setupTashtalk ]]; then
+        if [[ ! $tashtalkInstalled || $consoleInstalled ]];then
+            echo
+            echo "A2SERVER supports LocalTalk connectivity via a TashTalk Hat."
+            echo "If you own one of these devices, you can set it up now."
+            echo
+            echo "NOTE: This will disable any serial consoles set up on this machine."
+            echo "You will be prompted to reboot after A2SERVER setup to activate your TashTalk."
+            echo
+            echo -n "Do you want to setup a TashTalk Hat to use with A2SERVER? "
+            read
+        else
+            echo "TashTalk Hat already set up."
+        fi
+    fi
+    if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
+        sudo true
+        sudo apt-get install --no-install-recommends --assume-yes python3-serial
+        # disable serial console
+        sudo sed -i $CMDLINE -e "s/console=ttyAMA0,[0-9]\+ //"
+        sudo sed -i $CMDLINE -e "s/console=serial0,[0-9]\+ //"
+
+        # add required lines to config.txt
+        if [[ ! $(grep "dtoverlay=miniuart-bt" $CONFIG) ]];then
+            sudo echo -e "dtoverlay=miniuart-bt" | tee -a $CONFIG > /dev/null
+        fi
+
+        if [[ ! $(grep "gpio=16-17=a3" $CONFIG) ]];then
+            sudo echo -e "gpio=16-17=a3" | tee -a $CONFIG > /dev/null
+        fi
+
+        if [[ $(grep "enable_uart=" $CONFIG) ]];then
+            if [[ $(grep "enable_uart=0" $CONFIG) ]];then
+                sudo sed -i $CONFIG -e "s/enable_uart=0/enable_uart=1/"
+            fi
+        else
+            sudo echo -e "enable_uart=1" | tee -a $CONFIG > /dev/null
+        fi
+
+        # alter tashrouter configuration
+        sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#from tashrouter.port.localtalk.tashtalk/from tashrouter.port.localtalk.tashtalk/"
+        sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#TashTalkPort/TashTalkPort/"
+        touch /tmp/rPiupdate
+    fi
+fi
+
 if [[ $(tac /usr/local/etc/netatalk/papd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
     # enable papd's auto sharing of CUPS printer queues
     echo -e 'cupsautoadd:op=root:' | sudo tee -a /usr/local/etc/netatalk/papd.conf > /dev/null
