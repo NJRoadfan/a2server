@@ -331,11 +331,11 @@ if [[ $isRpi ]];then
 
         # add required lines to config.txt
         if [[ ! $(grep "dtoverlay=miniuart-bt" $CONFIG) ]];then
-            sudo echo -e "dtoverlay=miniuart-bt" | tee -a $CONFIG > /dev/null
+            echo -e "dtoverlay=miniuart-bt" | sudo tee -a $CONFIG > /dev/null
         fi
 
         if [[ ! $(grep "gpio=16-17=a3" $CONFIG) ]];then
-            sudo echo -e "gpio=16-17=a3" | tee -a $CONFIG > /dev/null
+            echo -e "gpio=16-17=a3" | sudo tee -a $CONFIG > /dev/null
         fi
 
         if [[ $(grep "enable_uart=" $CONFIG) ]];then
@@ -343,7 +343,7 @@ if [[ $isRpi ]];then
                 sudo sed -i $CONFIG -e "s/enable_uart=0/enable_uart=1/"
             fi
         else
-            sudo echo -e "enable_uart=1" | tee -a $CONFIG > /dev/null
+            echo -e "enable_uart=1" | sudo tee -a $CONFIG > /dev/null
         fi
 
         # alter tashrouter configuration
