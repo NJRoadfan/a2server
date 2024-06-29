@@ -37,7 +37,7 @@ export A2SERVER_BINARY_URL=http://yoururl.com/files/
 
 You do not need to use a subdirectory called "files", or the same server, but
 that's the normal arrangement. The precompiled packages are available here:
-`http://ivanx.com/a2server/files/dist/a2serverbinaries.tar.gz`
+`http://appleii.ivanx.com/a2server/files/dist/a2serverbinaries.tar.gz`
 
 Several Apple II third-party binaries are downloaded during installation, as
 well as third-party source code if precompiled binaries are unavailable or
@@ -46,7 +46,7 @@ during development, they need to go into a folder called "external" in
 the binaries URL, and that needs to contain folders called "appleii" and
 "source". To download all of these external packages, download and run the
 shell script at
-`http://ivanx.com/a2server/files/dist/getexternal.sh`.
+`http://appleii.ivanx.com/a2server/files/dist/getexternal.sh`.
 
 Once you have those:
 
@@ -61,7 +61,7 @@ computer on your LAN, type the following, and export "http://localhost:8000/"
 or "http://lan.ip.address:8000/" for the above URL's.
 
 ~~~
-python -m SimpleHTTPServer
+python3 -m http.server
 ~~~
 
 Once you're set, you can then run the following snippet to install A2SERVER:
