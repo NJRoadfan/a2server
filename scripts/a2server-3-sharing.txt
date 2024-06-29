@@ -349,7 +349,7 @@ if [[ $isRpi ]];then
         # alter tashrouter configuration
         sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#from tashrouter.port.localtalk.tashtalk/from tashrouter.port.localtalk.tashtalk/"
         sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#TashTalkPort/TashTalkPort/"
-        touch /tmp/rPiupdate
+        touch /tmp/rpiUpdate
     fi
 fi
 
