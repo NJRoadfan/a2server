@@ -12,8 +12,6 @@ system-restart: shut down and restart the server
 
  Raspberry Pi commands, if you're using one:
 raspi-config: utilize all space on RPi SD card & other options
-raspbian-update : update Raspbian operating system
-rasppleii-update : update Raspbian OS, A2CLOUD, A2SERVER, Apple II Pi
 
 welcome-message-edit: change the welcome message
 
@@ -21,7 +19,6 @@ showip: show the current ethernet IP address of the server
 showmac: show the MAC (Ethernet hardware) address of the server
 showip-wifi: show the current wifi IP address of the server
 showmac-wifi: show the MAC (wifi hardware) address of the server
-ifreset: reset all network interfaces (requires restart)
 
 netatalk-stop: stop the netatalk service until reboot
 netatalk-start: start the netatalk service
@@ -41,9 +38,6 @@ netatalk-eth: use wired ethernet interface for netatalk (default)
 netatalk-wifi: use wifi interface for netatalk
     note: if an interface isn't available, netatalk will be reset with
     router mode off; use "netatalk-router-on" to correct this if needed
-
-appletalk-off: disable AppleTalk networking (even after reboot)
-appletalk-on : enable AppleTalk networking
 
 environment variables:
 $NETATALK: directory containing netatalk configuration files

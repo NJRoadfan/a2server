@@ -70,6 +70,18 @@ gsstartprog="$prefix/SYSTEM/FINDER"
 filename="ATINIT"
 user=$(whoami)
 
+if [[ ! -f /usr/local/bin/afpsync ]]; then
+    echo "ERROR: You need the \"afpsync\" program to run mkatinit!"
+    echo "Please re-run A2SERVER setup to ensure that all user tools are installed."
+    exit 1
+fi
+
+if [[ ! -f /usr/local/bin/afptype ]]; then
+    echo "ERROR: You need the \"afptype\" program to run mkatinit!"
+    echo "Please re-run A2SERVER setup to ensure that all user tools are installed."
+    exit 1
+fi
+
 echo
 
 usersfolder=1
@@ -272,6 +284,12 @@ while : ; do
     ( decToChar "${#username}"; echo -n "$username"; ) | writechars "$filepath" 143
 
     echo "Created $filepath"
+
+    #add the correct ProDOS filetype to the newly created file
+    cd "$sharepath/USERS/$username/SETUP"
+    afpsync $sharepath > /dev/null
+    afptype -p E2 -a 2000 -q ATINIT
+
     if [ ! $alsoguest ]; then
         break
     fi

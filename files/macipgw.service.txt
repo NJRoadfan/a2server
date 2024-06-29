@@ -1,0 +1,19 @@
+# This is experimental service file.
+# See distrib/systemd/README
+# This file is part of Netatalk 2.221101.
+
+[Unit]
+Description=MacIP Gateway daemon
+After=network.target atalkd.service
+Requires=atalkd.service
+
+[Service]
+Type=forking
+GuessMainPID=no
+ExecStart=/usr/local/sbin/macipgw-start.sh
+Restart=always
+RestartSec=1
+
+[Install]
+WantedBy=multi-user.target
+Also=atalkd.service

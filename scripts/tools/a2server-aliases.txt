@@ -17,33 +17,27 @@ alias rasppleii-update='raspbian-update a2cloud a2server'
 
 alias welcome-message-edit='sudo nano /etc/motd'
 
-alias showip='ifconfig eth0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1'
-alias showmac='ifconfig eth0 | grep "HWaddr" | cut -dH -f2 | cut -c7-23'
-alias showip-wifi='ifconfig wlan0 | grep "inet\ addr" | cut -d: -f2 | cut -d" " -f1'
-alias showmac-wifi='ifconfig wlan0 | grep "HWaddr" | cut -dH -f2 | cut -c7-23'
-alias ifreset='sudo rm /etc/udev/rules.d/70-persistent-net.rules; echo Interfaces removed. You should system-restart now.'
+alias showip='ip a show dev enp0s3 | grep "inet " | cut -dt -f2 | cut -db -f1'
+alias showmac='ip a show dev enp0s3 | grep "link/ether" | cut -dr -f2 | cut -db -f1'
+alias showip-wifi='ip a show dev wlan0 | grep "inet " | cut -dt -f2 | cut -db -f1'
+alias showmac-wifi='ip a show dev wlan0 | grep "link/ether" | cut -dr -f2 | cut -db -f1'
 
-alias netatalk-stop="sudo /etc/init.d/netatalk stop; bonjour-off"
-alias netatalk-start="sudo /etc/init.d/netatalk start; bonjour-on; grep -q 'ATALKD_RUN=yes' /etc/default/netatalk"
-alias netatalk-restart="sudo /etc/init.d/netatalk restart; bonjour-on; grep -q 'ATALKD_RUN=yes' /etc/default/netatalk"
-alias netatalk-off='sudo /etc/init.d/netatalk stop; bonjour-off; sudo update-rc.d -f netatalk remove &> /dev/null'
-alias netatalk-on='sudo update-rc.d netatalk defaults &> /dev/null; bonjour-on; sudo /etc/init.d/netatalk restart'
+alias netatalk-stop="sudo systemctl stop atalkd afpd papd timelord a2boot macipgw; bonjour-off"
+alias netatalk-start="sudo systemctl start atalkd afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
+alias netatalk-restart="sudo systemctl restart atalkd  afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
+alias netatalk-off='sudo systemctl stop atalkd afpd papd timelord a2boot macipgw; sudo systemctl disable atalkd afpd papd a2boot timelord macipgw'
+alias netatalk-on='bonjour-on; sudo systemctl enable atalkd afpd papd a2boot timelord macipgw'
 
 alias bonjour-off="sudo mv /etc/avahi/services/afpd.service /etc/avahi/services/afpd.service_disabled &> /dev/null"
 alias bonjour-on="sudo mv /etc/avahi/services/afpd.service_disabled /etc/avahi/services/afpd.service &> /dev/null"
 
 
-alias netatalk-router-on='sudo sed -i '"'"'s/^\([^# ]*\)\( .*\)$/\1 -router\2 -zone "A2SERVER"/'"'"' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
-alias netatalk-router-off='sudo sed -i '"'"'s/^\([^#].*\) -router\(.*\) -zone [^ ]*\(.*\)$/\1\2\3/'"'"' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
+#alias netatalk-router-on='sudo sed -i '"'"'s/^\([^# ]*\)\( .*\)$/\1 -router\2 -zone "A2SERVER"/'"'"' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
+#alias netatalk-router-off='sudo sed -i '"'"'s/^\([^#].*\) -router\(.*\) -zone [^ ]*\(.*\)$/\1\2\3/'"'"' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
 
 
-alias netatalk-eth='sudo sed -i 's/^wlan0/eth0/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
-alias netatalk-wifi='sudo sed -i 's/^eth0/wlan0/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
-
-
-
-alias appletalk-off='sudo sed -i "s/ATALKD_RUN=yes/ATALKD_RUN=no/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart'
-alias appletalk-on='sudo sed -i "s/ATALKD_RUN=no/ATALKD_RUN=yes/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart'
+alias netatalk-eth='sudo sed -i 's/^wlan0/enp0s3/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
+alias netatalk-wifi='sudo sed -i 's/^enp0s3/wlan0/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
 
 
 NETATALK="/usr/local/etc/netatalk"
@@ -58,16 +52,15 @@ alias netboot-p8-guest="mkatinit -d -f guest"
 
 
 
-alias guest-off="sudo sed -i 's/uams_guest.so,//' /usr/local/etc/netatalk/afpd.conf; [[ -f /etc/samba/smb.conf ]] && sudo sed -i 's/^    guest ok = yes/    guest ok = no/' /etc/samba/smb.conf; sudo /etc/init.d/netatalk restart"
-alias guest-on="sudo sed -i 's/-uamlist uams_clrtxt.so/-uamlist uams_guest.so,uams_clrtxt.so/' /usr/local/etc/netatalk/afpd.conf; [[ -f /etc/samba/smb.conf ]] && sudo sed -i 's/^    guest ok = no/    guest ok = yes/' /etc/samba/smb.conf; sudo /etc/init.d/netatalk restart"
+alias guest-off="sudo sed -i 's/uams_guest.so,//' /usr/local/etc/netatalk/afpd.conf; [[ -f /etc/samba/smb.conf ]] && sudo sed -i 's/^    guest ok = yes/    guest ok = no/' /etc/samba/smb.conf; netatalk-restart"
+alias guest-on="sudo sed -i 's/-uamlist uams_clrtxt.so/-uamlist uams_guest.so,uams_clrtxt.so/' /usr/local/etc/netatalk/afpd.conf; [[ -f /etc/samba/smb.conf ]] && sudo sed -i 's/^    guest ok = no/    guest ok = yes/' /etc/samba/smb.conf; netatalk-restart"
 
 
-
-alias samba-off='sudo /etc/init.d/samba stop; sudo update-rc.d -f samba remove &> /dev/null'
-alias samba-on='sudo update-rc.d samba defaults &> /dev/null; sudo /etc/init.d/samba restart'
-alias samba-stop='sudo /etc/init.d/samba stop'
-alias samba-start='sudo /etc/init.d/samba start'
-alias samba-restart='sudo /etc/init.d/samba restart'
+alias samba-off='sudo systemctl stop smbd nmbd; sudo systemctl disable smbd nmbd &> /dev/null'
+alias samba-on='sudo systemctl enable smbd nmbd &> /dev/null; sudo systemctl start smbd nmbd'
+alias samba-stop='sudo systemctl stop smbd nmbd'
+alias samba-start='sudo systemctl start smbd nmbd'
+alias samba-restart='sudo systemctl restart smbd nmbd'
 
 alias a2files-share="sudo sed -i 's/^#share2/\/srv\/A2SERVER\/A2FILES\ A2FILES options:prodos ea:ad/' /usr/local/etc/netatalk/AppleVolumes.default; [[ -d /srv/A2SERVER/A2FILES ]] || mkdir /srv/A2SERVER/A2FILES"
 alias a2files-unshare="sudo sed -i 's/^\/srv\/A2SERVER\/A2FILES.*$/#share2/' /usr/local/etc/netatalk/AppleVolumes.default"

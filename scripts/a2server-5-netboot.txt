@@ -178,7 +178,8 @@ if [[ -f /usr/local/etc/netatalk/a2boot/ProDOS16\ Boot\ Blocks && \
     -f /usr/local/etc/netatalk/a2boot/p8 && \
     -f /usr/local/etc/netatalk/a2boot/Basic.System && \
     -f $gsosDir/USERS/USER1/SETUP/ATINIT && \
-    -f $gsosDir/USERS/"<ANY USER>"/SETUP/ATINIT ]] ; then
+    -f $gsosDir/USERS/"<ANY USER>"/SETUP/ATINIT && \
+    -f $p8Dir/ATalk.Tools.P8/LOGON ]] ; then
     netbootInstalled=1
 fi
 REPLY=
@@ -288,9 +289,36 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             afpsync -v $gsosDir > /dev/null
             afptype -p SYS -q $gsosDir/NETBOOT.GSOS
         fi
+	if [[ ! -f $p8Dir/ATalk.Tools.P8/LOGON ]]; then 
+	    echo
+	    echo "A2SERVER: Installing P8 AppleShare Utilities..."
+	    mkdir -p /tmp/netboot/p8tools
+            cd /tmp/netboot/p8tools
+	    wget -qO A2GS.WS.HDV ${binaryURL}/appleii/a2ws/A2GS.WS.HDV
+	    cppo -ad -s A2GS.WS.HDV . > /dev/null
+	    mkdir -p $p8Dir/ATalk.Tools.P8
+            for thisFolder in \
+            	SYS.APPS/ACCESS^ACCESS \
+            	SYS.APPS/NAMER^NAMER \
+            	SYS.APPS/CHOOSER^CHOOSER
+            do
+                mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
+                cp -R ASIIGS.WS/${thisFolder%%^*}/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
+                mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
+                cp -R ASIIGS.WS/${thisFolder%%^*}/.AppleDouble/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
+            done
+	    # Get updated LOGON 1.5 program to match boot blocks.
+	    wget -qO p8.atalk.po http://apple2.guidero.us/lib/exe/fetch.php/projects/p8.atalk.po
+	    cppo -ad -s p8.atalk.po . > /dev/null
+	    cpAD P8.ATALK/LOGON $p8Dir/ATalk.Tools.P8
+	    #cpAD ASIIGS.WS/SYS.APPS/LOGON $p8Dir/ATalk.Tools.P8
+	    cpAD ASIIGS.WS/SYS.APPS/LOGOFF $p8Dir/ATalk.Tools.P8
+	    afpsync -v $p8Dir > /dev/null
+	fi
     
         mkatinit -gs -d -f     # GS/OS registered user and Guest starts up with SYSTEM/FINDER
         mkatinit -d -f guest   # ProDOS 8 Guest starts up with BASIC.SYSTEM (no registered user)
+	afpsync -v $gsosDir > /dev/null
 
         netbootInstalled=1
     fi
@@ -515,8 +543,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 processScript $netInstallDir/Install/Scripts/Teach
                 echo "Script: AppleShare"
                 processScript $netInstallDir/Install/Scripts/Appleshare
+                echo "Script: ATImageWriter"
+                processScript $netInstallDir/Install/Scripts/ATImageWriter
+                echo "Script: ATImageWriterLQ"
+                processScript $netInstallDir/Install/Scripts/ATImageWriterLQ
                 echo "Script: LaserWriter"
                 processScript $netInstallDir/Install/Scripts/LaserWriter
+                echo "Script: Namer"
+                processScript $netInstallDir/Install/Scripts/Namer
                 echo "Script: Server.Sys.File"
                 processScript $netInstallDir/Install/Scripts/Server.Sys.File
     
@@ -737,7 +771,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         p8CommInstalled=
         [[ -f $commDir/ProTERM/PROTERM && -f $commDir/Z.Link/Z.LINK && -f $commDir/ADTPro/ADTPRO && -f $commDir/ADTPro/VSDRIVE ]] && p8CommInstalled=1
         gsosCommInstalled=
-        [[ -f $commDir/Spectrum/Spectrum && -f $commDir/SAM2/SAM2 && -f $commDir/SAFE2/SAFE2 && -f $commDir/SNAP/SNAP && -f $commDir/Webber/Webber && -f $commDir/Networker2/NetWorker2 && -f $gsosDir/System/CDevs/TCPIP ]] && gsosCommInstalled=1
+        [[ -f $commDir/Spectrum/Spectrum && -f $commDir/SAM2/SAM2 && -f $commDir/SAFE2/SAFE2 && -f $commDir/SNAP/SNAP && -f $commDir/Webber/Webber && -f $commDir/Networker2/NetWorker2 && -f $gsosDir/System/CDevs/TCPIP && -f $gsosDir/System/CDevs/NetDisk && -f $gsosDir/System/CDevs/AFPMounter ]] && gsosCommInstalled=1
         commInstalled=
         if [[ $gsosInstalled ]]; then
             [[ $gsosCommInstalled && $p8CommInstalled ]] && commInstalled=1
@@ -764,18 +798,21 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 
             if [[ $gsosInstalled ]]; then
 
-                unset safeUrl samUrl snapUrl webberUrl networkerUrl safeVer samVer snapVer webberVer networkerVer
+                unset safeUrl samUrl snapUrl webberUrl networkerUrl checkfileUrl safeVer samVer snapVer webberVer networkerVer checkfileVer
                 if [[ $useExternalURL ]]; then
 					safeUrl=$(wget -qO- http://speccie.uk/software/safe2/ | grep -i 'safe2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					samUrl=$(wget -qO- http://speccie.uk/software/sam2/ | grep -i 'sam2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					snapUrl=$(wget -qO- http://speccie.uk/software/snap/ | grep -i 'snap.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					webberUrl=$(wget -qO- http://speccie.uk/software/webber/ | grep -i 'webber.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					networkerUrl=$(wget -qO- http://speccie.uk/software/networker2/ | grep -i 'netwrk.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
+					checkfileUrl=$(wget -qO- http://speccie.uk/software/check-file-permanent-initialisation-file/ | grep -i 'chkfile.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 					safeVer=$(echo $safeUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
 					samVer=$(echo $samUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 4- | sed 's/./.&/g' | cut -c 2-)
 					snapVer=$(echo $snapUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 5- | sed 's/./.&/g' | cut -c 2-)
 					webberVer=$(echo $webberUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 7- | sed 's/./.&/g' | cut -c 2-)
 					networkerVer=$(echo $networkerUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 1- | sed 's/./.&/g' | cut -c 2-)
+					checkfileVer=$(echo $checkfileUrl | rev | cut -d '/' -f 1 | cut -d '.' -f 2 | rev | cut -c 8- | sed 's/./.&/g' | cut -c 2-)
+					
                 fi
                 
                 echo -n "Spectrum"
@@ -889,7 +926,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cppo -ad -s -n uthernet2ll.bxy $gsosDir/System/TCPIP > /dev/null
 
                     # MacIP Link Layer settings for A2SERVER
-                    wget -qO- ${binaryURL}a2server/macip-prefs.tgz | tar Pxz
+                    wget -qO- ${scriptURL}files/macip-prefs.tgz | tar Pxz
 
                     afpsync -v $gsosDir > /dev/null
                 fi
@@ -903,7 +940,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     mkdir -p /tmp/netboot/safe2
                     cd /tmp/netboot/safe2
                     if [[ $useExternalURL ]]; then
-                        [[ ! $safeUrl ]] && safeUrl="http://speccie.uk/speccie/downloads/safe230.bxy"
+                        [[ ! $safeUrl ]] && safeUrl="http://speccie.uk/speccie/downloads/safe236.bxy"
                         wget -qO safe2.bxy "$safeUrl"
                         cppo -s -ad safe2.bxy . &> /dev/null
                     fi
@@ -922,7 +959,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpAD TimeZone/Tool056 $gsosDir/System/Tools
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SAFE2 2> /dev/null
                     mv Help/Help.Files/SAFE2 $gsosDir/System/Desk.Accs/Help.Files
-                    wget -qO- ${binaryURL}appleii/safe2-setup.tgz | tar Pzx
+                    wget -qO- ${binaryURL}safe2-setup.tgz | tar Pzx
 
                     afpsync -v $gsosDir > /dev/null
                 fi
@@ -937,7 +974,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     mkdir -p /tmp/netboot/sam2
                     cd /tmp/netboot/sam2
                     if [[ $useExternalURL ]]; then
-                        [[ ! $samUrl ]] && samUrl="http://speccie.uk/speccie/downloads/sam206.bxy"
+                        [[ ! $samUrl ]] && samUrl="http://speccie.uk/speccie/downloads/sam209.bxy"
                         wget -qO sam2.bxy "$samUrl"
                         cppo -s -ad sam2.bxy . &> /dev/null
                     fi
@@ -974,7 +1011,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     mkdir -p /tmp/netboot/snap
                     cd /tmp/netboot/snap
                     if [[ $useExternalURL ]]; then
-                        [[ ! $snapUrl ]] && snapUrl="http://speccie.uk/speccie/downloads/snap118.bxy"
+                        [[ ! $snapUrl ]] && snapUrl="http://speccie.uk/speccie/downloads/snap123.bxy"
                         wget -qO snap.bxy "$snapUrl"
                         cppo -s -ad snap.bxy . &> /dev/null
                     fi
@@ -992,7 +1029,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpAD Quick.Start $commDir/SNAP
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SNAP 2> /dev/null
                     mv Help/Help.Files/SNAP $gsosDir/System/Desk.Accs/Help.Files
-                    wget -qO- ${binaryURL}appleii/snap-setup.tgz | tar Pzx
+                    wget -qO- ${binaryURL}snap-setup.tgz | tar Pzx
                     # cpAD Fonts/SIS.3.10 $gsosDir/System/Fonts
                     # cpAD Fonts/SIS.4.10 $gsosDir/System/Fonts
                     # cpAD Tools/HTMLTool/TOOL130 $gsosDir/System/Tools
@@ -1027,7 +1064,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpAD Tools/TOOL132 $gsosDir/System/Tools
                     afpsync -v $gsosDir > /dev/null
                 fi
-                echo -n "NetWorker2 $networkerVer"
+
+		echo -n "NetWorker2 $networkerVer"
                 if [[ -f $commDir/Networker2/NetWorker2 ]]; then
                     echo " is already installed."
                 else
@@ -1059,6 +1097,55 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     mv Help/Help.Files/NetWorker2 $gsosDir/System/Desk.Accs/Help.Files 
                     afpsync -v $gsosDir > /dev/null
                 fi
+
+		echo -n "Check File INIT $checkfileVer"
+		    echo
+		    mkdir -p /tmp/netboot/checkfile
+                    cd /tmp/netboot/checkfile
+                    if [[ $useExternalURL ]]; then
+                        [[ ! $checkfileUrl ]] && checkfileUrl="http://speccie.uk/speccie/downloads/chkfile108.bxy"
+                        wget -qO checkfile.bxy "$checkfileUrl"
+                        cppo -s -ad checkfile.bxy . &> /dev/null
+                    fi
+                    if [[ ! -f Check.File/CheckFile ]]; then
+                        wget -qO checkfile.bxy ${binaryURL}external/appleii/checkfile.bxy
+                        cppo -s -ad checkfile.bxy . &> /dev/null
+                    fi
+                    cd Check.File
+                    cpAD CheckFile $gsosDir/System/System.Setup
+                    afpsync -v $gsosDir > /dev/null
+
+		echo -n "NetDisk 1.0"
+		if [[ -f $gsosDir/System/CDevs/NetDisk ]]; then
+		    echo " is already installed."
+		else
+		    echo
+		    mkdir -p /tmp/netboot/netdisk
+		    cd /tmp/netboot/netdisk
+		    wget -qO NetDisk10.shk https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
+		    userFolder=$(tr [:lower:] [:upper:] <<< $USER)
+		    cppo -ad -s NetDisk10.shk . > /dev/null
+		    cd NetDisk
+		    cpAD NetDiskInit $gsosDir/System/System.Setup
+		    cpAD NetDisk $gsosDir/System/CDevs
+		    mkdir -p $gsosDir/USERS/$userFolder/FinderExtras
+		    cpAD DiskBrowser $gsosDir/USERS/$userFolder/FinderExtras
+		    afpsync -v $gsosDir > /dev/null
+		fi
+		echo -n "AFPBridge 1.0b1"
+		if [[ -f $gsosDir/System/CDevs/AFPMounter ]]; then
+		    echo " is already installed."
+		else
+		    echo
+		    mkdir -p /tmp/netboot/afpbridge
+		    cd /tmp/netboot/afpbridge
+		    wget -qO AFPBridgeB1.shk https://github.com/sheumann/AFPBridge/releases/download/v1.0b1/AFPBridgeB1.shk
+		    cppo -ad -s AFPBridgeB1.shk . > /dev/null
+		    cd AFPBridge.1.0b1
+		    cpAD AFPBridge $gsosDir/System/System.Setup
+		    cpAD AFPMounter $gsosDir/System/CDevs
+		    afpsync -v $gsosDir > /dev/null
+		fi
              fi
 
             echo -n "ProTERM 3.1"
@@ -1149,6 +1236,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             echo "Note: Farallon bridges can only be used in GS/OS (with this patch)"
             echo "and Apple IIe computers. Apple IIgs computers which network boot"
             echo "directly into ProDOS 8 will freeze after a few minutes."
+	    afpsync -v $gsosDir > /dev/null
         fi
     fi
 fi

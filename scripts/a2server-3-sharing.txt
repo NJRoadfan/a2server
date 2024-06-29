@@ -4,7 +4,7 @@
 # A2SERVER -- a virtual machine for sharing files to Apple II clients
 # by Ivan X, ivan@ivanx.com
 
-# Installs Netatalk 2.2.6 for debian/raspbian (Wheezy or Jessie)
+# Installs Netatalk 2.x for debian/raspbian
 
 # Thanks to Steven Hirsch, Geoff Body, Peter Wong, Tony Diaz, and others
 # at comp.sys.apple2 for the work they've done and insight they've
@@ -44,7 +44,11 @@ fi
 debianName=
 if [[ $debianVersion ]]; then
     debianMajor=$(cut -d . -f 1 <<< $debianVersion)
-    if [[ $debianMajor == "10" ]]; then
+    if [[ $debianMajor == "12" ]]; then
+        debianName="bookworm"
+    elif [[ $debianMajor == "11" ]]; then
+        debianName="bullseye"
+    elif [[ $debianMajor == "10" ]]; then
         debianName="buster"
     elif [[ $debianMajor == "9" ]]; then
         debianName="stretch"
@@ -66,7 +70,7 @@ else
 fi
 
 # skip this if already done
-if [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) >= 101 )); then
+if [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) >= 200 )); then
 
     echo "A2SERVER: Netatalk is already installed."
     
@@ -78,6 +82,8 @@ else
     if [[ $(ps --no-headers -C afpd) ]]; then
         sudo /etc/init.d/netatalk stop &> /dev/null
         sudo /etc/init.d/samba stop &> /dev/null
+        sudo systemctl stop atalkd afpd papd timelord a2boot macipgw &> /dev/null
+        sudo systemctl stop smbd nmbd &> /dev/null
     fi
     
     if [[ ! -f /tmp/a2server-packageReposUpdated ]]; then
@@ -104,162 +110,65 @@ else
             fi
         done
     }
-
-    compileFromSource=1
-    urls=
-    while [[ $arch ]]; do
-        # Install runtime libraries needed by Netatalk
-        if [[ $(apt-cache search '^libdb5.1$') ]]; then # Wheezy
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libdb5.1
-        elif [[ $(apt-cache search '^libdb5.3$') ]]; then # Jessie or Stretch
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libdb5.3
-        else
-            break
-        fi
-        if [[ $(apt-cache search '^libssl1.0.0$') ]]; then # Wheezy or Jessie
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libssl1.0.0
-        elif [[ $(apt-cache search '^libssl1.0.2$') ]]; then # Stretch
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libssl1.0.2
-        elif [[ $(apt-cache search '^libssl1.1$') ]]; then # Buster
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libssl1.1
-        else
-            break
-        fi
-        
-        if [[ $(apt-cache search '^libgcrypt11$') ]]; then # Wheezy
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libgcrypt11
-        elif [[ $(apt-cache search '^libgcrypt20$') ]]; then # Jessie, Stretch, Buster
-            # Dependencies: netatalk 2.2.6
-            sudo apt-get -y install libgcrypt20
-        else
-            break
-        fi
-        
-        # install Netatalk
-        if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
-            { wget -qO- "${binaryURL}precompiled/netatalk226-${arch}_${debianName}.tgz" | sudo tar Pzx; } &> /dev/null
-        fi
-        sudo mandb &> /dev/null
-        
-        [[ -f /usr/local/sbin/atalkd ]] && compileFromSource=
-
-        break
-    done
     
-    # install CUPS. Needed to build support into Netatalk
-    sudo apt-get -y install cups
-        
-    if [[ $compileFromSource ]]; then
-    
-        # Dependencies: build-deps for netatalk 2.2.6
-        sudo apt-get -y install build-essential
-        sudo apt-get -y install libcups2-dev
-        
-        if [[ $(dpkg -l | grep libssl-dev | tr -s ' ' | cut -d ' ' -f 3 | cut -c 1-3) == "1.1" ]]; then
-            echo "A2SERVER: WARNING: libssl-dev 1.1 is already installed; removing."
-            sudo apt-get -y purge libssl-dev
-            sudo apt -y autoremove
-        fi
+    # Dependencies: build-deps for netatalk 2.x
+    sudo apt-get install --no-install-recommends --assume-yes build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libssl-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev ninja-build uml-utilities
 
-        if [[ $(apt-cache search '^libssl1.0-dev$') ]]; then # Stretch
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libssl1.0-dev
-        else # Jessie or Wheezy (libssl-dev 1.0.x) or Buster (absent)
-            if [[ $(apt-cache madison libssl-dev | grep '^libssl' | head -1 | cut -d '|' -f 2 | tr -d ' ' | cut -c 1-3) == "1.1" ]]; then # Buster, so pull from Stretch
-                sudo apt-get -y install libssl-dev
-            else # Jessie or Wheezy
-            # Dependencies: build-deps for netatalk 2.2.6
-                sudo apt-get -y install libssl-dev
-            fi
-        fi
-        
-        if [[ $(apt-cache search '^libdb5.1-dev$') ]]; then # Wheezy
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libdb5.1-dev
-        elif [[ $(apt-cache search '^libdb5.3-dev$') ]]; then # Jessie, Stretch, Buster
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libdb5.3-dev
-        else
-            echo "A2SERVER: WARNING: unknown version of libdb-dev is being installed."
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libdb-dev
-        fi
-        
-        if [[ $(apt-cache search '^libgcrypt11-dev$') ]]; then # Stretch, Jessie or Wheezy
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install libgcrypt11-dev
-        elif [[ $(apt-cache search '^libgcrypt20-dev$') ]]; then # Buster
-            # Dependencies: build-deps for netatalk 2.2.6
-            echo "deb http://deb.debian.org/debian/ oldstable main" | sudo tee -a /etc/apt/sources.list > /dev/null
-            sudo apt-get -y update
-            sudo apt-get -y install libgcrypt11-dev            
-            sudo sed -i '$d' /etc/apt/sources.list
-            sudo apt-get -y update
-        else
-            echo "A2SERVER: WARNING: unknown version of libgcrypt-dev is being installed."
-            # Dependencies: build-deps for netatalk 2.2.6
-            sudo apt-get -y install $(apt-cache search '^libgcrypt.*dev$' | sort -r | head -1 | cut -d ' ' -f 1)
-        fi
+    sudo apt-get clean
 
-        sudo apt-get clean
-        
-        # get Netatalk
-        rm -rf /tmp/netatalk &> /dev/null
-        mkdir /tmp/netatalk
-        cd /tmp/netatalk
-        
-        if [[ $useExternalURL ]]; then
-            wget -qO netatalk-2.2.6.tar.gz "http://downloads.sourceforge.net/project/netatalk/netatalk/2.2.6/netatalk-2.2.6.tar.gz"
-            tar zxf netatalk-2.2.6.tar.gz &> /dev/null
-        fi
-        if [[ ! -d netatalk-2.2.6 ]]; then
-            wget -O netatalk-2.2.6.tar.gz "${binaryURL}external/source/netatalk-2.2.6.tar.gz"
-            tar zxf netatalk-2.2.6.tar.gz &> /dev/null
-        fi
-        cd netatalk-2.2.6
-        
-        # Patch the source so file dates are preserved during a GS/OS folder copy,
-        #   and the AsanteTalk bridge consistently starts up in AppleTalk Phase 2
-        #   and the Dayna bridge doesn't crash GS/OS
-        # Patch papd to work correctly with the current version of cups and
-        # to print with the Apple IIgs LaserWriter driver.
-        wget -O netatalkpatches.tar.gz "${scriptURL}files/netatalkpatches.tar.gz"
-        tar zxf netatalkpatches.tar.gz
-        
-        patch -p0 -i norouter.patch
-        patch -p0 -i daynatalk.patch
-        patch -p0 -i filedate.patch
-        patch -p0 -i gcc10.patch
-        patch -p0 -i openssl11.patch
-        patch -p0 -i print_cups.patch
-        patch -p0 -i papd.patch
-
-        # prepare to build Netatalk
-        ./configure --enable-debian --enable-ddp --enable-a2boot --enable-cups --disable-quota
-
-        # uninstall Netatalk if already installed
-        [[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
-        
-        # compile and install Netatalk
-        make
-        sudo make install
-        
-        # to remove the Netatalk source code (optional), type:
-        cd
-        rm -rf /tmp/netatalk
+    # bullseye needs to get meson from pip
+    if [[ $debianName == "bullseye" ]]; then
+	sudo apt-get install --assume-yes python3-pip
+	sudo apt-get clean
+	sudo pip install meson
+    else
+	sudo apt-get install --assume-yes meson
+	sudo apt-get clean
     fi
+
+    # get Netatalk
+    rm -rf /tmp/netatalk &> /dev/null
+    mkdir /tmp/netatalk
+    cd /tmp/netatalk
+    
+    if [[ $useExternalURL ]]; then
+	wget -qO netatalk-2.4.1.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-1/netatalk-2.4.1.tar.xz"
+	tar xf netatalk-2.4.1.tar.xz &> /dev/null
+    fi
+
+    cd netatalk-2.4.1
+
+    # prepare to build Netatalk
+    #./configure --enable-systemd --enable-cups --disable-quota
+   meson setup build -Dwith-embedded-ssl=true -Dwith-quota=false -Dwith-init-style=debian-systemd
+
+    # uninstall Netatalk if already installed
+    #[[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
+
+    # compile and install Netatalk
+    if [[ -f /tmp/a2server-multiThreadedCompilation ]]; then
+	echo "Compiling Netatalk with $(nproc) threads..."
+	#make all -j "$(nproc)"
+	meson compile -C build
+    else
+	#make all
+	meson compile -C build
+    fi
+    # uninstall Netatalk if already installed
+    [[ -f /usr/local/sbin/afpd ]] && sudo ninja -C build uninstall
+
+    #sudo make install
+    sudo meson install -C build
+
+    # to remove the Netatalk source code (optional), type:
+    cd
+    rm -rf /tmp/netatalk
 fi
 
 # --- Install MacIPgw
 if ! hash macipgw &> /dev/null; then
     echo "A2SERVER: Installing TCP over AppleTalk (MacIP)..."
-    
+
     if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
         { wget -qO- "${binaryURL}precompiled/macipgw-${arch}.tgz" | sudo tar Pzx; } 2> /dev/null
     fi
@@ -271,7 +180,7 @@ if ! hash macipgw &> /dev/null; then
         mkdir /tmp/macipgw
         cd /tmp/macipgw
         if [[ $useExternalURL ]]; then
-            wget -qO macipgw.zip "https://github.com/zero2sixd/macipgw/archive/2a5f6a7521a627e46b18468d44f4306fb0a7b7ab.zip"
+            wget -qO macipgw.zip "https://github.com/jasonking3/macipgw/archive/2a5f6a7521a627e46b18468d44f4306fb0a7b7ab.zip"
             unzip macipgw.zip 2> /dev/null
             rm macipgw.zip &> /dev/null
         fi
@@ -286,6 +195,10 @@ if ! hash macipgw &> /dev/null; then
         cd "$wd"
         rm -rf /tmp/macipgw
     fi
+    #copy over files required to setup macipgw on boot
+    sudo wget -q -O /usr/lib/systemd/system/macipgw.service "${scriptURL}files/macipgw.service.txt"
+    sudo wget -q -O /usr/local/sbin/macipgw-start.sh "${scriptURL}files/macipgw-start.sh.txt"
+    sudo chmod ugo+x /usr/local/sbin/macipgw-start.sh
 else
     echo "A2SERVER: TCP over AppleTalk (MacIP) has already been installed."
 fi
@@ -294,45 +207,17 @@ fi
 
 echo "A2SERVER: Configuring Netatalk..."
 
-# if missing Netatalk startup file, download a fresh one
-if [ ! -f /etc/init.d/netatalk ]; then
-    echo "A2SERVER: Downloading new Netatalk startup script..."
-    sudo wget -qO /etc/init.d/netatalk ${binaryURL}netatalk-init.d-clean.txt
-fi
-
-# make the Netatalk startup script work correctly
-sudo sed -i 's/bin\/sh/bin\/bash/' /etc/init.d/netatalk
-
-# enable AppleTalk networking support in Netatalk, and run in background
-sudo sed -i 's/#ATALKD_RUN=no/ATALKD_RUN=yes/' /etc/default/netatalk
-sudo sed -i 's/#ATALK_BGROUND=no/ATALK_BGROUND=yes/' /etc/default/netatalk
-if [[ ! $(grep 'kernelRelease' /etc/init.d/netatalk) ]]; then
-    sudo sed -i 's@\(\tif \[ x\"$ATALKD_RUN\)@\n\t# check for valid AppleTalk kernel module\n\t[[ $ATALKD_RUN == "yes" ]] \&\& { kernelRelease=$(uname -r); kernelMajor=$(cut -d "." -f 1  <<< $kernelRelease); kernelMinor=$(cut -d "." -f 2  <<< $kernelRelease | sed '"'"'s/\\(^[0-9]*\\)[^0-9].*$/\\1/'"'"'); kernelPatch=$(cut -d "." -f 3- <<< $kernelRelease | sed '"'"'s/\\(^[0-9]*\\)[^0-9].*$/\\1/'"'"'); [[ ( $kernelMajor -eq 3 \&\& $kernelMinor -ge 12 \&\& $kernelMinor -le 15 ) \&\& ( ! ( -f /usr/bin/raspi-config \&\& $kernelMinor -eq 12 \&\& $kernelPatch -ge 25 ) ) \&\& ( ( ! -f /lib/modules/$kernelRelease/kernel/net/appletalk/appletalk.ko ) || $(sha1sum /lib/modules/$kernelRelease/kernel/net/appletalk/appletalk.ko | cut -f 1 -d " ") != "ecb239fc084c36de93f6926e7749b80f6024f269" ) ]] \&\& { ATALKD_RUN=no; echo "[AppleTalk networking is not available.]" 1>\&2; } }\n\n\1@' /etc/init.d/netatalk
-fi
-sudo sed -i 's/Starting Netatalk services (this will take a while): /Starting Netatalk services"\n\t\t\t[[ $ATALKD_RUN == "yes" ]] \&\& echo -n " (this will take 45 seconds)"\n\t\t\techo -n ":/' /etc/init.d/netatalk
-sudo sed -i 's/Starting Netatalk services in the background./Netatalk services will be available in 45 seconds./' /etc/init.d/netatalk
-sudo sed -i 's/-n "Restarting Netatalk Daemons (this will take a while)"/"Restarting Netatalk Daemons."/' /etc/init.d/netatalk
-
-# enable MacIPgw support after launching atalkd
-if ! grep -q -i 'macipgw' /etc/init.d/netatalk; then
-    sudo sed -i ':a;N;$!ba;s@\(echo -n " atalkd"\)\(.*# prepare\)@\1\n\n\t\t# start MacIPgw (TCP over AppleTalk) service\n\t\tps aux | grep -q "[m]acipgw" \&\& sudo pkill macipgw || :\n\t\tatalkd_interface=$(grep "^[^ #]" /etc/netatalk/atalkd.conf | tail -1 | cut -d " " -f 1)\n\t\tsysctl -w net.ipv4.ip_forward=1 > /dev/null\n\t\tmacipgw -n 8.8.8.8 192.168.151.0 255.255.255.0\n\t\t/sbin/iptables -t nat -A POSTROUTING -o ${atalkd_interface} -j MASQUERADE\n\t\t/sbin/iptables -A FORWARD -i ${atalkd_interface} -o tun0 -m state --state RELATED,ESTABLISHED -j ACCEPT\n\t\t/sbin/iptables -A FORWARD -i tun1 -o ${atalkd_interface} -j ACCEPT\n\n\t\techo -n " macipgw"\n\2@' /etc/init.d/netatalk
-    sudo sed -i 's@\(start-stop-daemon --stop --quiet --oknodo --exec /usr/local/sbin/atalkd.*$\)@\1\n                    echo -n " macipgw"\n            sudo pkill macipgw 2> /dev/null@' /etc/init.d/netatalk
-fi
-
-# enable network boot support in netatalk
-sudo sed -i 's/timelord/a2boot/g' /etc/init.d/netatalk
-sudo sed -i 's/TIMELORD/A2BOOT/g' /etc/init.d/netatalk
-sudo sed -i 's/#A2BOOT_RUN=no/A2BOOT_RUN=yes/' /etc/default/netatalk
-sudo sed -i 's/#PAPD_RUN=no/PAPD_RUN=yes/' /etc/default/netatalk
+# enable netatalk services on startup
+sudo systemctl enable atalkd afpd papd a2boot timelord macipgw
 
 # allow Guest users to be able to network boot
-sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/default/netatalk
+# sudo sed -i "s/#AFPD_GUEST=nobody/AFPD_GUEST=$USER/" /etc/netatalk/netatalk.conf
 # (For a Guest user with different permissions than the compile-time user, create a
 # Linux user, and then specify that user for AFPD_GUEST instead.)
 
 # create a symbolic link to the startup configuration file in netatalk configuration folder
-[[ -L /usr/local/etc/netatalk/netatalk.conf ]] \
-|| sudo ln -s /etc/default/netatalk /usr/local/etc/netatalk/netatalk.conf
+#[[ -L /usr/local/etc/netatalk/netatalk.conf ]] \
+#|| sudo ln -s /etc/default/netatalk /usr/local/etc/netatalk/netatalk.conf
 
 # create a symbolic link to the netatalk configuration folder in /etc
 [[ -L /etc/netatalk ]] || sudo ln -s /usr/local/etc/netatalk /etc/netatalk
@@ -344,7 +229,7 @@ if [[ ! $(grep '^- -ddp.*uams_randnum.so' /usr/local/etc/netatalk/afpd.conf) ]];
     echo -n -e \
     "- -ddp -tcp -uamlist uams_guest.so,uams_clrtxt.so,uams_randnum.so" \
     | sudo tee -a /usr/local/etc/netatalk/afpd.conf > /dev/null
-    echo -e ",${dhx}uams_dhx2.so" \
+    echo -e ",${dhx}uams_dhx2.so -guestname \"user1\"" \
     | sudo tee -a /usr/local/etc/netatalk/afpd.conf > /dev/null
 fi
 
@@ -352,16 +237,124 @@ fi
 sudo sed -i 's/^~/#share1\n\n#share2/' \
 /usr/local/etc/netatalk/AppleVolumes.default
 
+# disable home folder "name" in later netatalk builds
+sudo sed -i $'s/"$u\'s Home Directory"//g' \
+/usr/local/etc/netatalk/AppleVolumes.default
+
 # disable default volume options for Mac OS X clients
 sudo sed -i 's/^:DEFAULT/#:DEFAULT/' \
 /usr/local/etc/netatalk/AppleVolumes.default
 
+echo "A2SERVER: Configuring TashRouter..."
+
+sudo systemctl stop tashrouter &> /dev/null
+mkdir /tmp/tashrouter
+cd /tmp/tashrouter
+wget -qO tashrouter.zip "https://github.com/lampmerchant/tashrouter/archive/refs/heads/main.zip"
+unzip tashrouter.zip &> /dev/null
+cd tashrouter-main
+sudo cp -r tashrouter /usr/local/sbin
+sudo wget -q -O /usr/lib/systemd/system/tashrouter.service "${scriptURL}files/tashrouter.service.txt"
+sudo wget -q -O /usr/local/sbin/tashrouter.py "${scriptURL}files/tashrouter.py"
+
+# create tap interface to link netatalk and tashrouter
+if [[ ! $(ip a | grep 'tash0') ]]; then
+    sudo ip tuntap add mode tap tash0
+    sudo ip link set dev tash0 up
+fi
+# make sure it comes up after reboot
+sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
+sudo systemctl enable tashrouter
+cd /tmp/
+rm -rf tashrouter
+
 # if [[ ! $(grep ^eth0 /usr/local/etc/netatalk/atalkd.conf) && ! $(grep ^wlan0 /usr/local/etc/netatalk/atalkd.conf) ]]; then
 if [[ $(tac /usr/local/etc/netatalk/atalkd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
+    # enable tap interface for tashrouter
+    echo -e 'tash0 -seed -phase 2 -net 6502 -addr 6502.16 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
     # enable netatalk on the default network interface
-    # needs -router and -zone to prevent GS/OS AppleShare CDEV crash when used
-    # with Dayna or Asante bridges
-    echo -e 'enp0s3 -router -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
+    if [ $isRpi ]; then
+	echo -e 'eth0 -seed -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
+    else
+	echo -e 'enp0s3 -seed -phase 2 -net 1 -zone "A2SERVER"' | sudo tee -a /usr/local/etc/netatalk/atalkd.conf > /dev/null
+    fi
+fi
+
+if [[ $isRpi ]];then
+    # find config.txt
+    if [ -e /boot/firmware/config.txt ] ; then
+        FIRMWARE=/firmware
+    else
+        FIRMWARE=
+    fi
+    if [ -e /proc/device-tree/chosen/os_prefix ]; then
+        PREFIX="$(tr -d '\0' < /proc/device-tree/chosen/os_prefix)"
+    fi
+    # set location for config.txt and cmdline.txt
+    CMDLINE="/boot${FIRMWARE}/${PREFIX}cmdline.txt"
+    CONFIG=/boot${FIRMWARE}/config.txt
+    
+    # check for existing install
+    tashtalkInstalled=
+    if [[ $(grep "dtoverlay=miniuart-bt" $CONFIG) && \
+        $(grep "gpio=16-17=a3" $CONFIG) && \
+        $(grep "enable_uart=1" $CONFIG) ]]; then
+        tashtalkInstalled=1
+    fi
+    # check for serial port console
+    consoleInstalled=
+    if [[ $(grep "console=ttyAMA0" $CMDLINE) || \
+        $(grep "console=serial0" $CMDLINE) ]];then
+        consoleInstalled=1
+    fi
+    [[ -f /tmp/a2server-autoAnswerYes ]] && autoAnswerYes=1 || autoAnswerYes=
+    REPLY=
+    if [[ ! $autoAnswerYes || -f /tmp/a2server-setupTashtalk ]]; then
+        if [[ ! $tashtalkInstalled || $consoleInstalled ]];then
+            echo
+            echo "A2SERVER supports LocalTalk connectivity via a TashTalk Hat."
+            echo "If you own one of these devices, you can set it up now."
+            echo
+            echo "NOTE: This will disable any serial consoles set up on this machine."
+            echo "You will be prompted to reboot after A2SERVER setup to activate your TashTalk."
+            echo
+            echo -n "Do you want to setup a TashTalk Hat to use with A2SERVER? "
+            read
+        else
+            echo "A2SERVER: TashTalk Hat already set up."
+            sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#from tashrouter.port.localtalk.tashtalk/from tashrouter.port.localtalk.tashtalk/"
+            sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#TashTalkPort/TashTalkPort/"
+        fi
+    fi
+    if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
+        sudo true
+        sudo apt-get install --no-install-recommends --assume-yes python3-serial
+        # disable serial console
+        sudo sed -i $CMDLINE -e "s/console=ttyAMA0,[0-9]\+ //"
+        sudo sed -i $CMDLINE -e "s/console=serial0,[0-9]\+ //"
+
+        # add required lines to config.txt
+        if [[ ! $(grep "dtoverlay=miniuart-bt" $CONFIG) ]];then
+            echo -e "dtoverlay=miniuart-bt" | sudo tee -a $CONFIG > /dev/null
+        fi
+
+        if [[ ! $(grep "gpio=16-17=a3" $CONFIG) ]];then
+            echo -e "gpio=16-17=a3" | sudo tee -a $CONFIG > /dev/null
+        fi
+
+        if [[ $(grep "enable_uart=" $CONFIG) ]];then
+            if [[ $(grep "enable_uart=0" $CONFIG) ]];then
+                sudo sed -i $CONFIG -e "s/enable_uart=0/enable_uart=1/"
+            fi
+        else
+            echo -e "enable_uart=1" | sudo tee -a $CONFIG > /dev/null
+        fi
+
+        # alter tashrouter configuration
+        sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#from tashrouter.port.localtalk.tashtalk/from tashrouter.port.localtalk.tashtalk/"
+        sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#TashTalkPort/TashTalkPort/"
+        touch /tmp/rpiUpdate
+    fi
 fi
 
 if [[ $(tac /usr/local/etc/netatalk/papd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
@@ -370,19 +363,12 @@ if [[ $(tac /usr/local/etc/netatalk/papd.conf | sed '/./,$!d' | head -1 | cut -c
 fi
 
 # Enable CUPS web interface and disable storing of old print jobs
-sudo sed -i "/MaxLogSize/a PreserveJobHistory No" /etc/cups/cupsd.conf
+if [[ ! $(sudo grep "PreserveJobHistory No" /etc/cups/cupsd.conf) ]]; then
+    sudo sed -i "/MaxLogSize/a PreserveJobHistory No" /etc/cups/cupsd.conf
+fi
 sudo cupsctl --remote-admin WebInterface=yes
 # Allow current user to add/remove CUPS printer queues
 sudo usermod -a -G lpadmin $USER
-sudo service cups restart
-
-# Raspberry Pi
-if [[ $isRpi ]]; then
-    # blink LED upon netatalk startup
-    if [[ ! $(grep 'led0' /etc/init.d/netatalk) ]]; then
-        sudo sed -i ':a;N;$!ba;s/fi\n}/fi\n\n    # blink LED on Raspberry Pi\n    ([[ -e \/sys\/class\/leds\/ACT ]] \&\& led=ACT || led=led0; echo none > \/sys\/class\/leds\/$led\/trigger; for i in {1..20}; do echo 1 > \/sys\/class\/leds\/$led\/brightness; sleep 0.25; echo 0 > \/sys\/class\/leds\/$led\/brightness; sleep 0.25; done; echo mmc0 > \/sys\/class\/leds\/$led\/trigger) \&\n}/' /etc/init.d/netatalk
-    fi
-fi
 
 # 1.3.0: we are no longer setting up new GSFILES
 # set up GSFILES share (for GS data files, not GSOS system)
@@ -537,8 +523,7 @@ if [[ -d /usr/local/adtpro/disks ]]; then # A2CLOUD/ADTPro installed
     fi
 fi
 
-# to make Netatalk start up when the server boots:
-sudo update-rc.d netatalk defaults &> /dev/null
+
 
 # prepare shared volumes for use
 afpsync -v < /dev/null
@@ -575,32 +560,10 @@ kernelMinor=$(cut -d '.' -f 2  <<< $kernelRelease | sed 's/\(^[0-9]*\)[^0-9].*$/
 kernelPatch=$(cut -d '.' -f 3- <<< $kernelRelease | sed 's/\(^[0-9]*\)[^0-9].*$/\1/')
 kernelMajorMinor=$(cut -d '.' -f 1-2 <<< $kernelRelease)
 
-# if on kernel 3.12 through 3.15, check if we need to delete AppleTalk module to prevent kernel panics
-if [[ $kernelMajor -eq 3 && $kernelMinor -ge 12 && $kernelMinor -le 15 ]]; then
-    # if not RPi, or RPi without ivanx-fixed AppleTalk module, delete the module
-    if [[ ! ( $isRpi && $kernelMinor -eq 12 && $kernelPatch -ge 25 ) ]]; then
-        if [[ -f /lib/modules/$kernelRelease/kernel/net/appletalk/appletalk.ko ]]; then
-            if [[ $(sha1sum /lib/modules/$kernelRelease/kernel/net/appletalk/appletalk.ko | cut -f 1 -d ' ') != "ecb239fc084c36de93f6926e7749b80f6024f269" ]]; then
-                # stop Netatalk
-                sudo /etc/init.d/netatalk stop &> /dev/null
-                echo "A2SERVER: Deleting defective AppleTalk kernel module..."
-                sudo rmmod appletalk 2> /dev/null
-                sudo rm -r /lib/modules/$kernelRelease/kernel/net/appletalk
-                # disable single-user mode on Pi (other Linux can use Recovery boot)
-                if [[ $isRpi && $(grep ' single' /boot/cmdline.txt 2> /dev/null) ]]; then
-                    echo "A2SERVER: Disabling single-user mode for next boot..."
-                    sudo sed -i 's/ single//' /boot/cmdline.txt
-                    touch /tmp/singleUser # so note to restart can display following install
-                fi
-            fi
-        fi
-    fi
-fi
-
 # if IPDDP module exists (e.g. Debian, but not Raspbian),
 #   AppleTalk kernel module has been compiled to support it and can't work with MacIP
 if [[ -f "/lib/modules/$kernelRelease/kernel/drivers/net/appletalk/ipddp.ko" ]]; then
-    sudo /etc/init.d/netatalk stop &> /dev/null
+    sudo systemctl stop atalkd afpd papd a2boot timelord macipgw &> /dev/null
     sudo rmmod ipddp 2> /dev/null
     sudo rmmod appletalk 2> /dev/null
     echo "A2SERVER: Replacing AppleTalk kernel module (IPDDP disabled) for MacIP use..."
@@ -682,7 +645,6 @@ if [[ -f "/lib/modules/$kernelRelease/kernel/drivers/net/appletalk/ipddp.ko" ]];
         sudo rm /lib/modules/$kernelRelease/kernel/drivers/net/appletalk/ipddp.ko 2> /dev/null
         sudo sed -i 's:^.*IPDDP.*$:# CONFIG_IPDDP is not set:gI' /boot/config-$kernelRelease
         sudo sed -i '$!N; /^\(# CONFIG_IPDDP is not set\)\n\1$/!P; D' /boot/config-$kernelRelease
-        sudo sed -i "s/ATALKD_RUN=no/ATALKD_RUN=yes/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart &> /dev/null
     else
         # if we didn't load it successfully, put back the one that was there
         echo "A2SERVER: Unable to replace AppleTalk module, replacing original."
@@ -694,13 +656,7 @@ fi
 
 # --- Start Netatalk (if not running)
 
-bground=
-if [[ $(grep 'ATALK_BGROUND=yes' /etc/default/netatalk) ]]; then
-    bground=1
-    sudo sed -i 's/ATALK_BGROUND=yes/ATALK_BGROUND=no/' /etc/default/netatalk
-fi
-
-[[ $(ps --no-headers -C afpd) ]] || sudo /etc/init.d/netatalk start 2> /dev/null
+sudo systemctl start atalkd afpd papd a2boot timelord macipgw tashrouter 2> /dev/null
 
 echo
 echo "A2SERVER: Netatalk is installed, configured, and running."
@@ -715,7 +671,7 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
         sudo modprobe appletalk
         if [[ $(lsmod | grep appletalk) ]]; then
             # if it loaded, restart netatalk
-            sudo sed -i "s/ATALKD_RUN=no/ATALKD_RUN=yes/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart
+            sudo systemctl restart atalkd afpd papd a2boot timelord macipgw 2> /dev/null
         else
             # if we didn't load it successfully, delete it
             sudo rm -r /lib/modules/$kernelRelease/kernel/net/appletalk
@@ -735,23 +691,11 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
             sudo modprobe appletalk
             if [[ $(lsmod | grep appletalk) ]]; then
                 # if it loaded, restart netatalk
-                sudo sed -i "s/ATALKD_RUN=no/ATALKD_RUN=yes/" /etc/default/netatalk; sudo /etc/init.d/netatalk restart
+                sudo systemctl restart atalkd afpd papd a2boot timelord macipgw 2> /dev/null
             else
                 # if we didn't load it successfully, remove it
                 sudo rm -r /lib/modules/$kernelRelease/kernel/net/appletalk 2> /dev/null
             fi
-        fi
-
-        # if we still don't have AppleTalk, try to use rpi-update
-        rm /tmp/rpiUpdate 2> /dev/null
-        if [[ ! $(ps aux | grep [a]talkd) ]]; then
-            # use specific rpi-update commit (at https://github.com/Hexxeh/rpi-firmware/)
-            # from when AppleTalk was fixed, so we have a consistent firmware that
-            # we're loading until the next proper release of Raspbian that includes it
-            # 07-23-14: when AppleTalk was fixed after kernel panics in Raspbian 2014-06-20 (kernel 3.12.22+)
-            sudo rm /boot/.firmware_revision
-            sudo rpi-update cfd9a203590737f9536de70a1e01db25a3e8e069
-            touch /tmp/rpiUpdate # so note to restart can display following install
         fi
 
         if [[ ! $(ps aux | grep [a]talkd) ]]; then
@@ -775,10 +719,6 @@ if [[ ( ! $(ps aux | grep [a]talkd) ) && ( $isRpi ) ]]; then
     fi
 fi
 
-if [[ $bground ]]; then
-    sudo sed -i 's/ATALK_BGROUND=no/ATALK_BGROUND=yes/' /etc/default/netatalk
-fi
-
 # --- Set up Avahi-Daemon (Bonjour/mDNS)
 # thanks to: http://missingreadme.wordpress.com/2010/05/08/how-to-set-up-afp-filesharing-on-ubuntu
 
@@ -798,4 +738,4 @@ sudo sed -i 's/^\(hosts.*\)$/\1 mdns/' /etc/nsswitch.conf
 if [[ ! -f /etc/avahi/services/afpd.service && ! -f /etc/avahi/services/afpd.service_disabled ]]; then
     echo -e '<?xml version="1.0" standalone="no"?><!--*-nxml-*-->\n<!DOCTYPE service-group SYSTEM "avahi-service.dtd">\n<service-group>\n    <name replace-wildcards="yes">%h</name>\n    <service>\n        <type>_afpovertcp._tcp</type>\n        <port>548</port>\n    </service>\n    <service>\n        <type>_device-info._tcp</type>\n        <port>0</port>\n        <txt-record>model=MacPro</txt-record>\n    </service>\n</service-group>' | sudo tee /etc/avahi/services/afpd.service > /dev/null
 fi
-sudo /etc/init.d/avahi-daemon restart &> /dev/null
+sudo systemctl restart avahi-daemon &> /dev/null

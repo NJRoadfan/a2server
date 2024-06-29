@@ -1,7 +1,7 @@
 #! /bin/bash
 # vim: set tabstop=4 shiftwidth=4 expandtab filetype=sh:
 
-# A2SERVER master setup script, last update 15-Jul-20
+# A2SERVER master setup script, last update 08-Oct-23
 # it downloads and executes several scripts related to the setup of
 # netatalk configured for Apple II use on Debian or Raspbian.
 # more info is at http://ivanx.com/a2server
@@ -9,7 +9,7 @@
 # to download and execute, type:
 # wget ivanx.com/a2server/setup; source setup
 
-a2serverVersion="155"
+a2serverVersion="200"
 
 # Ensure URL we'll use ends in a /
 case "$A2SERVER_SCRIPT_URL" in
@@ -64,6 +64,10 @@ while [[ $1 ]]; do
         shift
         setupNetBoot="-b"
         touch /tmp/a2server-setupNetBoot
+    elif [[ $1 == "-h" ]]; then
+        shift
+        setupTashtalk="-h"
+        touch /tmp/a2server-setupTashtalk
     elif [[ $1 == "-w" ]]; then
         shift
         setupWindowsSharing="-w"
@@ -72,6 +76,14 @@ while [[ $1 ]]; do
         shift
         compileAlways="-c"
         touch /tmp/a2server-compileAlways
+    elif [[ $1 == "-t" ]]; then
+        shift
+        multiThreadedCompilation="-t"
+        touch /tmp/a2server-multiThreadedCompilation
+    elif [[ $1 == "-l" ]]; then
+        shift
+        localScripts="-l"
+        touch /tmp/a2server-localScripts
     elif [[ $1 == "-v" ]]; then
         shift
         # Version was already printed
@@ -83,13 +95,16 @@ while [[ $1 ]]; do
         echo "-y: auto-answer yes to all prompts"
         echo "-r: don't update package repositories"
         echo "-b: auto-setup network boot (use with -y)"
+        echo "-h: auto-setup TashTalk Hat on RPi (use with -y)"
         echo "-w: auto-setup Windows file sharing (use with -y)"
         echo "-c: compile non-package items, rather than downloading binaries"
+        echo "-t: use all available CPU cores for multi threaded compilation"
+        echo "-l: use local scripts, rather than downloading from remote server"
         [[ $0 == "-bash" ]] && return 1 || exit 1
     fi
 done
 
-if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) < 110 )); }; then
+if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) < 200 )); }; then
     echo
     echo "WARNING: The current A2SERVER installer scripts haven't been tested for"
     echo "updating the earlier version of A2SERVER that you have. A fresh install"
@@ -105,30 +120,16 @@ if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A
 fi
 
 unsupportedOS=1
-if [[ $isRpi ]]; then #supported Raspbian? (16-Feb-15, 20-Jun-14, 09-Jan-14, etc)
-    fwhash=$(zcat /usr/share/doc/raspberrypi-bootloader/changelog.Debian.gz | grep -m 1 'as of' | awk '{print $NF}')
-    fwsupported="-8aca5762- -462f3e3f476f7b6- -c32bc633039cd9- -9d34d0475f9-
-            -d4f5315cfac4e- -6f4a90c8cb8817f- -5dd9b4962e- -17c8799375-
-            -960832a6c2590635216c296b6ee0bebf67b21d50-
-            -2a329e0c7d8ea19c085bac5633aa4fccee0f21be-
-            -b2420fc150ae4616f5d9ec24bdaedc630586a529-"
-    [[ "$fwsupported" == *-$fwhash-* ]] && unsupportedOS=
-    # [[ ($fwhash == "8aca5762") || ($fwhash == "462f3e3f476f7b6") || ($fwhash == "c32bc633039cd9") || ($fwhash == "9d34d0475f9") || ($fwhash == "d4f5315cfac4e") || ($fwhash == "6f4a90c8cb8817f") || ($fwhash == "5dd9b4962e") || ($fwhash == "17c8799375") ]] && unsupportedOS=
-elif [[ $isDebian ]]; then # supported Debian?
+
+if [[ $isDebian ]]; then # supported Debian?
      debianVersion=$(cat /etc/debian_version)
-     debianSupported="-11.6- -10.11- -9.2- -8.2- -7.9- -7.8- -7.6- -7.3-"
+     debianSupported="-12.6- -11.10-"
      [[ $debianSupported == *-$debianVersion-* ]] && unsupportedOS=
 fi
 
-if [[ $unsupportedOS && $isRpi ]]; then
+if [[ $unsupportedOS && $isDebian ]]; then
     echo
-    echo "A2SERVER and its installer scripts have been tested on Raspbian Bullseye, Buster,"
-    echo "Stretch, Jessie, and Wheezy, though not this specific firmware version"
-    echo "(${fwhash:0:7}). Just FYI."
-    unsupportedOS=
-elif [[ $unsupportedOS && $isDebian ]]; then
-    echo
-    echo "A2SERVER and its installer scripts have been tested on Debian 7/8/9/10/11,"
+    echo "A2SERVER and its installer scripts have been tested on Debian 10/11/12,"
     echo "though not this specific point release ($debianVersion). Just FYI."
     unsupportedOS=
 fi
@@ -136,7 +137,7 @@ fi
 if [[ $unsupportedOS ]]; then
     echo
     echo "WARNING: A2SERVER and its installer scripts have only been tested on"
-    echo "Debian and Raspbian. Continuing is probably fine, but might not be."
+    echo "Debian and RPi OS. Continuing is probably fine, but might not be."
     echo "Theoretical worst case would be your operating system no longer works"
     echo "properly or data is lost, so consider backing up first."
 fi
@@ -205,27 +206,29 @@ if (( $doSetup )); then
         sudo true
 
         echo
-        echo "A2SERVER: Downloading scripts..."
 
-        wget -q -O /tmp/1.storage "${scriptURL}scripts/a2server-1-storage.txt"
-        chmod ugo+x /tmp/1.storage
+	if [[ -f /tmp/a2server-localScripts ]]; then
+		echo "A2SERVER: Copying local scripts..."
+		baseDir=$(dirname "$(readlink -f "${0}")")
+		localScriptDir="$baseDir/../scripts"
+		cp "$localScriptDir/a2server-1-storage.txt" /tmp/1.storage || exit 1
+		cp "$localScriptDir/a2server-2-tools.txt" /tmp/2.tools || exit 1
+		cp "$localScriptDir/a2server-3-sharing.txt" /tmp/3.sharing || exit 1
+		cp "$localScriptDir/a2server-5-netboot.txt" /tmp/5.netboot || exit 1
+		cp "$localScriptDir/a2server-6-samba.txt" /tmp/6.samba || exit 1
+		cp "$localScriptDir/a2server-7-console.txt" /tmp/7.console || exit 1
+	else
+		echo "A2SERVER: Downloading scripts..."
+		wget -q -O /tmp/1.storage "${scriptURL}scripts/a2server-1-storage.txt"
+		wget -q -O /tmp/2.tools "${scriptURL}scripts/a2server-2-tools.txt"
+		wget -q -O /tmp/3.sharing "${scriptURL}scripts/a2server-3-sharing.txt"
+		wget -q -O /tmp/5.netboot "${scriptURL}scripts/a2server-5-netboot.txt"
+		wget -q -O /tmp/6.samba "${scriptURL}scripts/a2server-6-samba.txt"
+		wget -q -O /tmp/7.console "${scriptURL}scripts/a2server-7-console.txt"
+	fi
+        chmod ugo+x /tmp/1.storage /tmp/2.tools /tmp/3.sharing /tmp/5.netboot /tmp/6.samba /tmp/7.console
 
-        wget -q -O /tmp/2.tools "${scriptURL}scripts/a2server-2-tools.txt"
-        chmod ugo+x /tmp/2.tools
-
-        wget -q -O /tmp/3.sharing "${scriptURL}scripts/a2server-3-sharing.txt"
-        chmod ugo+x /tmp/3.sharing
-
-        wget -q -O /tmp/5.netboot "${scriptURL}scripts/a2server-5-netboot.txt"
-        chmod ugo+x /tmp/5.netboot
-
-        wget -q -O /tmp/6.samba "${scriptURL}scripts/a2server-6-samba.txt"
-        chmod ugo+x /tmp/6.samba
-
-        wget -q -O /tmp/7.console "${scriptURL}scripts/a2server-7-console.txt"
-        chmod ugo+x /tmp/7.console
-
-        echo "A2SERVER: Scripts have been downloaded. Installing..."
+        echo "A2SERVER: Scripts have been prepared. Installing..."
 
         if [[ $installAll ]]; then
             sudo rm /usr/local/etc/A2SERVER-version 2> /dev/null
@@ -287,9 +290,18 @@ if (( $doSetup )); then
             echo
             echo "A2SERVER setup is complete! Go connect from your Apple II!"
             echo
-        elif [[ -f /tmp/rpiUpdate ]]; then
+        else
+            echo "A2SERVER is now configured, but Apple II clients cannot connect because"
+            echo "AppleTalk networking is unavailable. Please make sure that"
+            echo "your Linux distribution has a loadable AppleTalk kernel module or"
+            echo "has AppleTalk built into the kernel, and restart your server."
+            echo "Or, if you previously disabled AppleTalk in A2SERVER, re-enable it"
+            echo "by typing 'appletalk-on'."
+            echo
+        fi
+        if [[ -f /tmp/rpiUpdate ]]; then
             echo "A2SERVER is now configured, but Apple II clients will not be able"
-            echo "to connect until you restart your Raspberry Pi."
+            echo "to connect via your TashTalk Hat or LToUDP until you restart your Raspberry Pi."
             echo
             if [[ ! $autoAnswerYes ]]; then
                 echo -n "Restart now? "
@@ -303,23 +315,7 @@ if (( $doSetup )); then
             fi
             rm /tmp/rpiUpdate
             echo
-        elif [[ $kernelMajorRelease -eq 3 && $kernelMinorRelease -ge 12 && $kernelMinorRelease -le 15 ]]; then
-            echo "A2SERVER is now configured, but Apple II clients cannot connect"
-            echo "because of a kernel-crashing bug in Linux kernel 3.12 through 3.15."
-            echo "You have kernel version $kernelMajorRelease.$kernelMinorRelease."
-            echo "A2SERVER has disabled AppleTalk networking to prevent crashes."
-            echo "Please use kernel 3.11 or earlier, or kernel 3.16 or later."
-            echo
-        else
-            echo "A2SERVER is now configured, but Apple II clients cannot connect because"
-            echo "AppleTalk networking is unavailable. Please make sure that"
-            echo "your Linux distribution has a loadable AppleTalk kernel module or"
-            echo "has AppleTalk built into the kernel, and restart your server."
-            echo "Or, if you previously disabled AppleTalk in A2SERVER, re-enable it"
-            echo "by typing 'appletalk-on'."
-            echo
         fi
-        
         if [[ -f /tmp/noMacIP ]]; then
             echo
             echo "MacIP connections may be unavailable. If you know how, try"

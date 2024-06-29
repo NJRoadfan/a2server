@@ -34,7 +34,9 @@ fi
 debianName=
 if [[ $debianVersion ]]; then
     debianMajor=$(cut -d . -f 1 <<< $debianVersion)
-    if [[ $debianMajor == "11" ]]; then
+    if [[ $debianMajor == "12" ]]; then
+        debianName="bookworm"
+    elif [[ $debianMajor == "11" ]]; then
         debianName="bullseye" 
     elif [[ $debianMajor == "10" ]]; then
         debianName="buster"
@@ -102,11 +104,21 @@ if ! hash nulib2 &> /dev/null; then
             cd nulib2*
             cd nufxlib
             ./configure
-            make
+	    if [[ -f /tmp/a2server-multiThreadedCompilation ]]; then
+		echo "Compiling nufxlib with $(nproc) threads..."
+		make -j "$(nproc)"
+	    else
+		make
+	    fi
             sudo make install
             cd ../nulib2
             ./configure
-            make
+	    if [[ -f /tmp/a2server-multiThreadedCompilation ]]; then
+		echo "Compiling nulib2 with $(nproc) threads..."
+		make -j "$(nproc)"
+	    else
+		make
+	    fi
             sudo make install
             cd
             rm -rf /tmp/nulib2
