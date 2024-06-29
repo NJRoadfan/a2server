@@ -70,7 +70,7 @@ else
 fi
 
 # skip this if already done
-if [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) >= 101 )); then
+if [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) >= 200 )); then
 
     echo "A2SERVER: Netatalk is already installed."
     
@@ -119,9 +119,11 @@ else
     # bullseye needs to get meson from pip
     if [[ $debianName == "bullseye" ]]; then
 	sudo apt-get install --assume-yes python3-pip
+	sudo apt-get clean
 	sudo pip install meson
     else
 	sudo apt-get install --assume-yes meson
+	sudo apt-get clean
     fi
 
     # get Netatalk
@@ -130,11 +132,11 @@ else
     cd /tmp/netatalk
     
     if [[ $useExternalURL ]]; then
-	wget -qO netatalk-2.4.0.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-0/netatalk-2.4.0.tar.xz"
-	tar xf netatalk-2.4.0.tar.xz &> /dev/null
+	wget -qO netatalk-2.4.1.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-1/netatalk-2.4.1.tar.xz"
+	tar xf netatalk-2.4.1.tar.xz &> /dev/null
     fi
 
-    cd netatalk-2.4.0
+    cd netatalk-2.4.1
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
