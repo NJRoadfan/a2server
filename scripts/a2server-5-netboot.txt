@@ -1122,9 +1122,15 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    echo
 		    mkdir -p /tmp/netboot/netdisk
 		    cd /tmp/netboot/netdisk
-		    wget -qO NetDisk10.shk https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
+                    if [[ $useExternalURL ]]; then
+		        wget -qO NetDisk10.shk https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
+		        cppo -ad -s NetDisk10.shk . > /dev/null
+		    fi
+                    if [[ ! -f NetDisk/NetDisk ]]; then
+                        wget -qO NetDisk10.shk ${binaryURL}external/appleii/NetDisk10.shk
+                        cppo -s -ad NetDisk10.shk . &> /dev/null
+                    fi
 		    userFolder=$(tr [:lower:] [:upper:] <<< $USER)
-		    cppo -ad -s NetDisk10.shk . > /dev/null
 		    cd NetDisk
 		    cpAD NetDiskInit $gsosDir/System/System.Setup
 		    cpAD NetDisk $gsosDir/System/CDevs
@@ -1139,8 +1145,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    echo
 		    mkdir -p /tmp/netboot/afpbridge
 		    cd /tmp/netboot/afpbridge
-		    wget -qO AFPBridgeB1.shk https://github.com/sheumann/AFPBridge/releases/download/v1.0b1/AFPBridgeB1.shk
-		    cppo -ad -s AFPBridgeB1.shk . > /dev/null
+                    if [[ $useExternalURL ]]; then
+		        wget -qO AFPBridgeB1.shk https://github.com/sheumann/AFPBridge/releases/download/v1.0b1/AFPBridgeB1.shk
+		        cppo -ad -s AFPBridgeB1.shk . > /dev/null
+		    fi
+                    if [[ ! -f AFPBridge.1.0b1/AFPBridge ]]; then
+                        wget -qO AFPBridgeB1.shk ${binaryURL}external/appleii/AFPBridgeB1.shk
+                        cppo -s -ad AFPBridgeB1.shk . &> /dev/null
+                    fi
 		    cd AFPBridge.1.0b1
 		    cpAD AFPBridge $gsosDir/System/System.Setup
 		    cpAD AFPMounter $gsosDir/System/CDevs
