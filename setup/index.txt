@@ -290,9 +290,18 @@ if (( $doSetup )); then
             echo
             echo "A2SERVER setup is complete! Go connect from your Apple II!"
             echo
-        elif [[ -f /tmp/rpiUpdate ]]; then
+        else
+            echo "A2SERVER is now configured, but Apple II clients cannot connect because"
+            echo "AppleTalk networking is unavailable. Please make sure that"
+            echo "your Linux distribution has a loadable AppleTalk kernel module or"
+            echo "has AppleTalk built into the kernel, and restart your server."
+            echo "Or, if you previously disabled AppleTalk in A2SERVER, re-enable it"
+            echo "by typing 'appletalk-on'."
+            echo
+        fi
+        if [[ -f /tmp/rpiUpdate ]]; then
             echo "A2SERVER is now configured, but Apple II clients will not be able"
-            echo "to connect via your TashTalk Hat until you restart your Raspberry Pi."
+            echo "to connect via your TashTalk Hat or LToUDP until you restart your Raspberry Pi."
             echo
             if [[ ! $autoAnswerYes ]]; then
                 echo -n "Restart now? "
@@ -306,23 +315,7 @@ if (( $doSetup )); then
             fi
             rm /tmp/rpiUpdate
             echo
-        elif [[ $kernelMajorRelease -eq 3 && $kernelMinorRelease -ge 12 && $kernelMinorRelease -le 15 ]]; then
-            echo "A2SERVER is now configured, but Apple II clients cannot connect"
-            echo "because of a kernel-crashing bug in Linux kernel 3.12 through 3.15."
-            echo "You have kernel version $kernelMajorRelease.$kernelMinorRelease."
-            echo "A2SERVER has disabled AppleTalk networking to prevent crashes."
-            echo "Please use kernel 3.11 or earlier, or kernel 3.16 or later."
-            echo
-        else
-            echo "A2SERVER is now configured, but Apple II clients cannot connect because"
-            echo "AppleTalk networking is unavailable. Please make sure that"
-            echo "your Linux distribution has a loadable AppleTalk kernel module or"
-            echo "has AppleTalk built into the kernel, and restart your server."
-            echo "Or, if you previously disabled AppleTalk in A2SERVER, re-enable it"
-            echo "by typing 'appletalk-on'."
-            echo
         fi
-        
         if [[ -f /tmp/noMacIP ]]; then
             echo
             echo "MacIP connections may be unavailable. If you know how, try"
