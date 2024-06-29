@@ -319,7 +319,7 @@ if [[ $isRpi ]];then
             echo -n "Do you want to setup a TashTalk Hat to use with A2SERVER? "
             read
         else
-            echo "TashTalk Hat already set up."
+            echo "A2SERVER: TashTalk Hat already set up."
         fi
     fi
     if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
