@@ -10,55 +10,68 @@ echo "Downloading items..."
 mkdir -p files/external/source
 wget -O files/external/source/ciopfs-0.4.tar.gz http://www.brain-dump.org/projects/ciopfs/ciopfs-0.4.tar.gz
 wget -O files/external/source/macipgw.zip https://github.com/zero2sixd/macipgw/archive/2a5f6a7521a627e46b18468d44f4306fb0a7b7ab.zip
-wget -O files/external/source/netatalk-2.2.4.tar.gz http://downloads.sourceforge.net/project/netatalk/netatalk/2.2.4/netatalk-2.2.4.tar.gz
+wget -O files/external/source/netatalk-2.4.1.tar.xz https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-1/netatalk-2.4.1.tar.xz
 wget -O files/external/source/nulib2-3.1.0a2.zip https://github.com/fadden/nulib2/archive/20fe7efb4d37fedf807416c16d74d51d893ea48a.zip
 wget -O files/external/source/unar-1.8.1.zip https://github.com/incbee/Unarchiver/archive/unar-1.8.1.zip
 
 mkdir -p files/external/appleii
-wget --max-redirect 0 -O files/external/appleii/Apple_II_System_Disk_3.2.sea.bin http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_II_Supplemental/Apple_II_System_Disk_3.2.sea.bin
+wget -O files/external/appleii/Apple_II_System_Disk_3.2.sea.bin http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_II_Supplemental/Apple_II_System_Disk_3.2.sea.bin
 wget -O files/external/appleii/Asimov.shk http://www.ninjaforce.com/downloads/Asimov.shk
 wget -O files/external/appleii/MOUNTIT.SHK http://www.brutaldeluxe.fr/products/apple2gs/MOUNTIT.SHK
-wget -O files/external/appleii/Marinetti3.0b8.po http://www.a2retrosystems.com/downloads/Marinetti3.0b8.po
+wget -O files/external/appleii/TCPIP30b11.SHK http://www.apple2.org/marinetti/TCPIP30b11.SHK
 wget -O files/external/appleii/PPPX.1.3d4.SHK http://www.apple2.org/marinetti/PPPX.1.3d4.SHK
-wget -O files/external/appleii/dsk2file.shk http://www.dwheeler.com/6502/oneelkruns/dsk2file.zip
+wget -O files/external/appleii/dsk2file.shk http://dwheeler.com/6502/oneelkruns/dsk2file.zip
 wget -O files/external/appleii/gshk11.sea http://www.nulib.com/library/gshk11.sea
 wget -O files/external/appleii/shrinkit.sdk http://www.nulib.com/library/shrinkit.sdk
-wget -O files/external/appleii/spectrum_gold_2mg.zip http://speccie.uk/speccie/downloads/spectrum_gold_2mg.zip
+wget -O files/external/appleii/spectrum_platinum_2mg.zip http://speccie.uk/speccie/downloads/spectrum_platinum.2mg.zip
 wget -O files/external/appleii/uthernet2ll.bxy http://speccie.uk/speccie/downloads/uthernet2ll.bxy
 wget -O files/external/appleii/uthernetll.bxy http://speccie.uk/speccie/downloads/uthernetll.bxy
+wget -O files/external/appleii/NetDisk10.shk https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
+wget -O files/external/appleii/AFPBridgeB1.shk https://github.com/sheumann/AFPBridge/releases/download/v1.0b1/AFPBridgeB1.shk
 
-unset safeUrl samUrl snapUrl
+unset safeUrl samUrl snapUrl webberUrl networkerUrl checkfileUrl
 safeUrl=$(wget -qO- http://speccie.uk/software/safe2/ | grep -i 'safe2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 samUrl=$(wget -qO- http://speccie.uk/software/sam2/ | grep -i 'sam2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 snapUrl=$(wget -qO- http://speccie.uk/software/snap/ | grep -i 'snap.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
+webberUrl=$(wget -qO- http://speccie.uk/software/webber/ | grep -i 'webber.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
+networkerUrl=$(wget -qO- http://speccie.uk/software/networker2/ | grep -i 'netwrk.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
+checkfileUrl=$(wget -qO- http://speccie.uk/software/check-file-permanent-initialisation-file/ | grep -i 'chkfile.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
 wget -O files/external/appleii/safe2.bxy "$safeUrl"
 wget -O files/external/appleii/sam2.bxy "$samUrl"
 wget -O files/external/appleii/snap.bxy "$snapUrl"
+wget -O files/external/appleii/webber.bxy "$webberUrl"
+wget -O files/external/appleii/networker.bxy "$networkerUrl"
+wget -O files/external/appleii/checkfile.bxy "$checkfileUrl"
 
-for gsosInstall in {1..3}; do
+for gsosInstall in {1..4}; do
     activeDisk=0
     mkdir -p files/external/appleii/gsos60${gsosInstall}
     
     diskNames=( Install System.Disk SystemTools1 SystemTools2 Fonts synthLAB )
     if (( $gsosInstall == 1 )); then
-        gsosURL="http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_IIGS_System_6.0.1/"
-        wget --max-redirect 0 -O files/external/appleii/gsos601/Disk_7_of_7-Apple_II_Setup.sea.bin http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_IIGS_System_6.0.1/Disk_7_of_7-Apple_II_Setup.sea.bin
+        gsosURL="http://archive.org/download/download.info.apple.com.2012.11/download.info.apple.com.2012.11.zip/download.info.apple.com%2FApple_Support_Area%2FApple_Software_Updates%2FEnglish-North_American%2FApple_II%2FApple_IIGS_System_6.0.1%2F"
+        wget -O files/external/appleii/gsos601/Disk_7_of_7-Apple_II_Setup.sea.bin "http://archive.org/download/download.info.apple.com.2012.11/download.info.apple.com.2012.11.zip/download.info.apple.com%2FApple_Support_Area%2FApple_Software_Updates%2FEnglish-North_American%2FApple_II%2FApple_IIGS_System_6.0.1%2FDisk_7_of_7-Apple_II_Setup.sea.bin"
     elif (( $gsosInstall == 2 )); then
         gsosURL="http://mirrors.apple2.org.za/Apple%20II%20Documentation%20Project/Software/Operating%20Systems/Apple%20IIGS%20System/Disk%20Images/"
         diskNames=( Install System.Disk SystemTools1 SystemTools2 SystemTools3 Fonts1 Fonts2 synthLAB )
         diskWebNames=( Install System%20disk System%20tools%201 System%20tools%202 System%20tools%203 Fonts%201 Fonts%202 Synthlab )
     elif (( $gsosInstall == 3 )); then
-        gsosURL="ftp://ftp.apple.asimov.net/pub/apple_II/images/gs/os/gsos/Apple_IIGS_System_6.0.3/"
+        gsosURL="http://mirrors.apple2.org.za/ftp.apple.asimov.net/images/gs/os/gsos/Apple_IIGS_System_6.0.3/"
+    elif (( $gsosInstall == 4 )); then
+        diskNames=( Install System.Disk SystemTools1 SystemTools2 SystemTools3 Fonts Fonts2 synthLAB )
+        gsosURL="http://mirrors.apple2.org.za/ftp.apple.asimov.net/images/gs/os/gsos/Apple_IIGS_System_6.0.4/PO%20Disk%20Images/"
     fi
 
     for diskname in ${diskNames[@]}; do
         outfile="files/external/appleii/gsos60${gsosInstall}/$diskname.po"
         (( activeDisk++ ))
         if (( $gsosInstall == 1 )); then
-            wget --max-redirect 0 -O files/external/appleii/gsos601/"Disk_${activeDisk}_of_7-${diskname}.sea.bin" "${gsosURL}Disk_${activeDisk}_of_7-${diskname}.sea.bin"
+            wget -O files/external/appleii/gsos601/"Disk_${activeDisk}_of_7-${diskname}.sea.bin" "${gsosURL}Disk_${activeDisk}_of_7-${diskname}.sea.bin"
         elif (( $gsosInstall == 2 )); then
             wget -O $outfile "$gsosURL/IIGS%20System%206.0.2%20-%20Disk%20${activeDisk}%20${diskWebNames[$activeDisk-1]}.po"
         elif (( $gsosInstall == 3 )); then
+            wget -O $outfile "$gsosURL/$diskname.po"
+        elif (( $gsosInstall == 4 )); then
             wget -O $outfile "$gsosURL/$diskname.po"
         fi
     done
