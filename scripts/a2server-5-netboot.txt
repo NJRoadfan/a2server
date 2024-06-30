@@ -840,7 +840,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     userFolder=$(tr [:lower:] [:upper:] <<< $USER)
                     
                     for thisFolder in \
-                      Installer/Extras/CDevs^System/CDevs \
+                      Installer/Extras/CDEvs^System/CDevs \
                       Installer/Extras/Tools^System/Tools \
                       Installer/Extras/Fonts^System/Fonts \
                       Installer/Extras/System.Setup^System/System.Setup \
