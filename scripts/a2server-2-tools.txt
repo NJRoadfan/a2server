@@ -21,7 +21,7 @@ isRpi=
 arch=
 if [[ -f /usr/bin/raspi-config ]]; then
     isRpi=1
-    arch='rpi'
+    arch='unknown'
 elif lsb_release -a 2> /dev/null | grep -q 'Distributor ID:.Debian' && [[ $(cut -d . -f 1 <<< $debianVersion) -ge "7" ]]; then
     uname_m="$(uname -m)"
     if [[ $uname_m == "i686" ]]; then
