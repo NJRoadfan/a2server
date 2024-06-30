@@ -294,7 +294,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 	    echo "A2SERVER: Installing P8 AppleShare Utilities..."
 	    mkdir -p /tmp/netboot/p8tools
             cd /tmp/netboot/p8tools
-	    wget -qO A2GS.WS.HDV ${binaryURL}/appleii/a2ws/A2GS.WS.HDV
+	    wget -qO A2GS.WS.HDV ${binaryURL}appleii/a2ws/A2GS.WS.HDV
 	    cppo -ad -s A2GS.WS.HDV . > /dev/null
 	    mkdir -p $p8Dir/ATalk.Tools.P8
             for thisFolder in \
