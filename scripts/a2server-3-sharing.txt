@@ -128,6 +128,11 @@ else
 	tar xf netatalk-2.4.1.tar.xz &> /dev/null
     fi
 
+    if [[ ! -d netatalk-2.2.6 ]]; then
+        wget -O netatalk-2.4.1.tar.xz "${binaryURL}external/source/netatalk-2.4.1.tar.xz"
+        tar xf netatalk-2.4.1.tar.xz &> /dev/null
+    fi
+
     cd netatalk-2.4.1
 
     # prepare to build Netatalk
