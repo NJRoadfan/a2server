@@ -215,6 +215,11 @@ sudo wget -q -O /usr/local/etc/a2server-help.txt "${scriptURL}scripts/tools/a2se
 sudo wget -q -O /usr/local/etc/a2server-aliases "${scriptURL}scripts/tools/a2server-aliases.txt"
 sudo wget -q -O /usr/local/etc/a2serverrc "${scriptURL}scripts/tools/a2serverrc.txt"
 
+# fix aliases for different ethernet interface names on rpi
+if [ $isRpi ]; then
+    sudo sed -i 's/enp0s3/eth0/' /usr/local/etc/a2server-aliases
+fi
+
 # 1.3.0: a2serverrc is now called from /etc/bash.bashrc,
 #   which in turn calls a2server-aliases
 grep 'a2server-aliases' /etc/bash.bashrc > /dev/null && \

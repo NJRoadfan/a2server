@@ -30,15 +30,6 @@ bonjour-off: disable advertisement of shared folders to OS X
 bonjour-on : enable advertisement of shared folders to OS X
   (these are automatically set by the netatalk commands above)
 
-netatalk-router-on: use netatalk in router mode (default)
-netatalk-router-off: use netatalk in node mode
-  (use if there is an AppleTalk router such as a GatorBox present)
-
-netatalk-eth: use wired ethernet interface for netatalk (default)
-netatalk-wifi: use wifi interface for netatalk
-    note: if an interface isn't available, netatalk will be reset with
-    router mode off; use "netatalk-router-on" to correct this if needed
-
 environment variables:
 $NETATALK: directory containing netatalk configuration files
 $A2FILES : directory containing A2FILES shared volume

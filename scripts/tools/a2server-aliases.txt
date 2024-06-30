@@ -34,8 +34,8 @@ alias bonjour-on="sudo mv /etc/avahi/services/afpd.service_disabled /etc/avahi/s
 #alias netatalk-router-off='sudo sed -i '"'"'s/^\([^#].*\) -router\(.*\) -zone [^ ]*\(.*\)$/\1\2\3/'"'"' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
 
 
-alias netatalk-eth='sudo sed -i 's/^wlan0/enp0s3/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
-alias netatalk-wifi='sudo sed -i 's/^enp0s3/wlan0/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
+#alias netatalk-eth='sudo sed -i 's/^wlan0/enp0s3/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
+#alias netatalk-wifi='sudo sed -i 's/^enp0s3/wlan0/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
 
 
 NETATALK="/usr/local/etc/netatalk"
