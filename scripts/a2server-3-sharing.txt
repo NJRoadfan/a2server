@@ -128,7 +128,7 @@ else
 	tar xf netatalk-2.4.1.tar.xz &> /dev/null
     fi
 
-    if [[ ! -d netatalk-2.2.6 ]]; then
+    if [[ ! -d netatalk-2.4.1 ]]; then
         wget -O netatalk-2.4.1.tar.xz "${binaryURL}external/source/netatalk-2.4.1.tar.xz"
         tar xf netatalk-2.4.1.tar.xz &> /dev/null
     fi
@@ -486,7 +486,7 @@ if ! hash ciopfs &> /dev/null; then
         if [ ! -f ciopfs*/ciopfs.c ]; then # single brackets required for glob
             wget -q -O ciopfs-0.4.tar.gz ${binaryURL}external/source/ciopfs-0.4.tar.gz
             tar zxf ciopfs-0.4.tar.gz &> /dev/null
-            rm ciopfs-0.4.tar.gz &> ?dev/null
+            rm ciopfs-0.4.tar.gz &> /dev/null
         fi
         cd ciopfs*
         make
