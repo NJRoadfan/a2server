@@ -62,7 +62,7 @@ else
 fi
 
 # skip this if already done
-if [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 5 /usr/local/etc/A2SERVER-version) >= 2.0.0 )); then
+if [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) >= 200 )); then
 
     echo "A2SERVER: Netatalk is already installed."
     
