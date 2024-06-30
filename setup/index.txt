@@ -1,7 +1,7 @@
 #! /bin/bash
 # vim: set tabstop=4 shiftwidth=4 expandtab filetype=sh:
 
-# A2SERVER master setup script, last update 08-Oct-23
+# A2SERVER master setup script, last update 30-Jun-24
 # it downloads and executes several scripts related to the setup of
 # netatalk configured for Apple II use on Debian or Raspbian.
 # more info is at http://ivanx.com/a2server
@@ -9,7 +9,7 @@
 # to download and execute, type:
 # wget ivanx.com/a2server/setup; source setup
 
-a2serverVersion="200"
+a2serverVersion="2.0.0"
 
 # Ensure URL we'll use ends in a /
 case "$A2SERVER_SCRIPT_URL" in
@@ -104,7 +104,7 @@ while [[ $1 ]]; do
     fi
 done
 
-if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) < 200 )); }; then
+if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A2SERVER-version) < 2.0.0 )); }; then
     echo
     echo "WARNING: The current A2SERVER installer scripts haven't been tested for"
     echo "updating the earlier version of A2SERVER that you have. A fresh install"
@@ -255,7 +255,7 @@ if (( $doSetup )); then
         rm /tmp/a2server-packageReposUpdated &> /dev/null
 
         if [[ ! -f /usr/local/etc/A2SERVER-version ]] \
-            || (( $(head -c 3 /usr/local/etc/A2SERVER-version) < ${a2serverVersion:0:3} )); then
+            || (( $(head -c 3 /usr/local/etc/A2SERVER-version) < ${a2serverVersion:0:5} )); then
             echo "$a2serverVersion" | sudo tee /usr/local/etc/A2SERVER-version &> /dev/null
         fi
 
