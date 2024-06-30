@@ -840,7 +840,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     userFolder=$(tr [:lower:] [:upper:] <<< $USER)
                     
                     for thisFolder in \
-                      Installer/Extras/CDEvs^System/CDevs \
+                      Installer/Extras/CDevs^System/CDevs \
                       Installer/Extras/Tools^System/Tools \
                       Installer/Extras/Fonts^System/Fonts \
                       Installer/Extras/System.Setup^System/System.Setup \
@@ -955,7 +955,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpAD Version.History $commDir/SAFE2
                     cpAD Fonts/SAFE.8 $gsosDir/System/Fonts
                     cpAD Fonts/Shaston.16 $gsosDir/System/Fonts
-                    cpAD TimeZone/TimeZone $gsosDir/System/CDEvs
+                    cpAD TimeZone/TimeZone $gsosDir/System/CDevs
                     cpAD TimeZone/Tool056 $gsosDir/System/Tools
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SAFE2 2> /dev/null
                     mv Help/Help.Files/SAFE2 $gsosDir/System/Desk.Accs/Help.Files
@@ -996,7 +996,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     # cpAD Fonts/SIS.3.10 $gsosDir/System/Fonts
                     # cpAD Fonts/SIS.4.10 $gsosDir/System/Fonts
                     # cpAD Tools/HTMLTool/TOOL130 $gsosDir/System/Tools
-                    # cpAD Tools/Hierarchic/Hierarchic $gsosDir/System/CDEvs
+                    # cpAD Tools/Hierarchic/Hierarchic $gsosDir/System/CDevs
                     # cpAD Fonts/Shaston.16 $gsosDir/System/Fonts
 
                     afpsync -v $gsosDir > /dev/null
@@ -1033,7 +1033,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     # cpAD Fonts/SIS.3.10 $gsosDir/System/Fonts
                     # cpAD Fonts/SIS.4.10 $gsosDir/System/Fonts
                     # cpAD Tools/HTMLTool/TOOL130 $gsosDir/System/Tools
-                    # cpAD Tools/Hierarchic/Hierarchic $gsosDir/System/CDEvs
+                    # cpAD Tools/Hierarchic/Hierarchic $gsosDir/System/CDevs
                     # cpAD Fonts/Shaston.16 $gsosDir/System/Fonts
 
                     afpsync -v $gsosDir > /dev/null
