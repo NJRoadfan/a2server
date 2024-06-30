@@ -37,7 +37,7 @@ echo "A2SERVER version available: $a2serverVersion"
 echo "A2SERVER version installed: ${installedVersion:=None}"
 
 echo
-[[ $scriptURL != *"ivanx.com"* && $scriptURL != *"raw.githubusercontent.com/RasppleII/a2server"* ]] && echo "Using script URL: $scriptURL"
+[[ $scriptURL != *"ivanx.com"* && $scriptURL != *"raw.githubusercontent.com/NJRoadfan/a2server"* ]] && echo "Using script URL: $scriptURL"
 [[ $binaryURL != *"ivanx.com"* ]] && echo "Using binary URL: $binaryURL"
 [[ ! $useExternalURL ]] && echo -e "Not using external URLs. Downloads must be available from:\n  ${binaryURL}external/appleii/\n  ${binaryURL}external/source/\n  (See the A2SERVER developer page for more information.)"
 
