@@ -16,6 +16,7 @@ wget -O files/external/source/unar-1.8.1.zip https://github.com/incbee/Unarchive
 
 mkdir -p files/external/appleii
 wget -O files/external/appleii/Apple_II_System_Disk_3.2.sea.bin http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_II_Supplemental/Apple_II_System_Disk_3.2.sea.bin
+wget -O files/external/appleii/p8.atalk.po http://apple2.guidero.us/lib/exe/fetch.php/projects/p8.atalk.po
 wget -O files/external/appleii/Asimov.shk http://www.ninjaforce.com/downloads/Asimov.shk
 wget -O files/external/appleii/MOUNTIT.SHK http://www.brutaldeluxe.fr/products/apple2gs/MOUNTIT.SHK
 wget -O files/external/appleii/TCPIP30b11.SHK http://www.apple2.org/marinetti/TCPIP30b11.SHK

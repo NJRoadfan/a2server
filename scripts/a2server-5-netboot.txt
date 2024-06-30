@@ -308,8 +308,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 cp -R ASIIGS.WS/${thisFolder%%^*}/.AppleDouble/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
             done
 	    # Get updated LOGON 1.5 program to match boot blocks.
-	    wget -qO p8.atalk.po http://apple2.guidero.us/lib/exe/fetch.php/projects/p8.atalk.po
-	    cppo -ad -s p8.atalk.po . > /dev/null
+            if [[ $useExternalURL ]]; then
+	        wget -qO p8.atalk.po http://apple2.guidero.us/lib/exe/fetch.php/projects/p8.atalk.po
+	        cppo -ad -s p8.atalk.po . > /dev/null
+	    fi
+            if [[ ! -f P8.ATALK/LOGON ]]; then
+                wget -qO p8.atalk.po ${binaryURL}external/appleii/p8.atalk.po
+                cppo -ad -s p8.atalk.po . > /dev/null
+            fi
 	    cpAD P8.ATALK/LOGON $p8Dir/ATalk.Tools.P8
 	    #cpAD ASIIGS.WS/SYS.APPS/LOGON $p8Dir/ATalk.Tools.P8
 	    cpAD ASIIGS.WS/SYS.APPS/LOGOFF $p8Dir/ATalk.Tools.P8
