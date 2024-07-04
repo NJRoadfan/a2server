@@ -500,6 +500,7 @@ if ! hash ciopfs &> /dev/null; then
     if ! mount | grep '^ciopfs.*A2FILES'; then
         sudo ciopfs /srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES -o allow_other
     fi
+    sudo systemctl daemon-reload
 else
     echo "A2SERVER: ciopfs (case insensitive file system) has already been installed."
 fi
