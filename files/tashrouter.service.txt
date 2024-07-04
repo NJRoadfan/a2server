@@ -1,6 +1,7 @@
 [Unit]
 Description=TashRouter AppleTalk Router
-After=network-online.target atalkd.service
+Documentation=https://github.com/lampmerchant/tashrouter
+After=network-online.target
 Wants=network-online.target
 
 [Service]
