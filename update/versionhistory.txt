@@ -89,6 +89,9 @@
                     updated Spectrum to latest release;
                     added The Networker2 and Webber installation;
 
+1.5.6: June 2024:   fix serious bug that was bricking RPis;
+                    last legacy release;
+
 Big thanks to: Anthony Martino, Henry Courbis, Joseph Carter, Jason King,
 Andy McFadden, Steven Hirsch, Geoff Body, Peter Wong, Tony Diaz, David Schmidt,
 David Schmenk, Ewen Wannop, Andrew Roughan, Antoine Vignau, Martin Haye,
