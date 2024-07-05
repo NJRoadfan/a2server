@@ -288,7 +288,7 @@ while : ; do
     #add the correct ProDOS filetype to the newly created file
     cd "$sharepath/USERS/$username/SETUP"
     afpsync $sharepath > /dev/null
-    afptype -p E2 -a 2000 -q ATINIT
+    afptype -p E2 -a 2020 -q ATINIT
 
     if [ ! $alsoguest ]; then
         break
