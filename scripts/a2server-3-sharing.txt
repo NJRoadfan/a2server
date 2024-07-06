@@ -177,7 +177,7 @@ if ! hash macipgw &> /dev/null; then
         mkdir /tmp/macipgw
         cd /tmp/macipgw
         if [[ $useExternalURL ]]; then
-            wget -qO macipgw.zip "https://github.com/jasonking3/macipgw/archive/2a5f6a7521a627e46b18468d44f4306fb0a7b7ab.zip"
+            wget -qO macipgw.zip "https://github.com/jasonking3/macipgw/archive/4f77c0933544767885c33c25545c48cc368a6dab.zip"
             unzip macipgw.zip 2> /dev/null
             rm macipgw.zip &> /dev/null
         fi
