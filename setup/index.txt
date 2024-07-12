@@ -120,6 +120,7 @@ if { [[ -f /usr/local/etc/A2SERVER-version ]] && (( $(head -c 3 /usr/local/etc/A
 fi
 
 unsupportedOS=1
+touch /tmp/a2server-compileAlways
 
 if [[ $isDebian ]]; then # supported Debian?
      debianVersion=$(cat /etc/debian_version)
