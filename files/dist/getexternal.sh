@@ -10,7 +10,7 @@ echo "Downloading items..."
 mkdir -p files/external/source
 wget -O files/external/source/ciopfs-0.4.tar.gz http://www.brain-dump.org/projects/ciopfs/ciopfs-0.4.tar.gz
 wget -O files/external/source/macipgw.zip https://github.com/jasonking3/macipgw/archive/4f77c0933544767885c33c25545c48cc368a6dab.zip
-wget -O files/external/source/netatalk-2.4.2.tar.xz https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-2/netatalk-2.4.2.tar.xz
+wget -O files/external/source/netatalk-2.4.3.tar.xz https://github.com/Netatalk/netatalk/releases/download/netatalk-2-4-3/netatalk-2.4.3.tar.xz
 wget -O files/external/source/nulib2-3.1.0a2.zip https://github.com/fadden/nulib2/archive/20fe7efb4d37fedf807416c16d74d51d893ea48a.zip
 wget -O files/external/source/unar-1.8.1.zip https://github.com/incbee/Unarchiver/archive/unar-1.8.1.zip
 
