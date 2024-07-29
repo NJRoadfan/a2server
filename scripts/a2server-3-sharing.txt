@@ -137,7 +137,7 @@ else
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
-   meson setup build -Dwith-embedded-ssl=true -Dwith-quota=false -Dwith-init-style=debian-systemd
+   meson setup build -Dwith-embedded-ssl=true -Dwith-quota=false -Dwith-init-style=debian-systemd -Dwith-pkgconfdir-path=/usr/local/etc/netatalk
 
     # uninstall Netatalk if already installed
     #[[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
