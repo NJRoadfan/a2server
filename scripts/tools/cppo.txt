@@ -9,7 +9,8 @@ catalog image : cppo -cat [options] imagefile
 
 options:
 -shk: ShrinkIt archive as source (also auto-enabled by filename).
--ad : Netatalk-compatible AppleDouble metadata files and resource forks.
+-ad : Netatalk 2.x-compatible AppleDouble metadata files and resource forks. (.AppleDouble folders)
+-ea : Netatalk 3.x-compatible extended attributes and resource forks. (._ files)
 -e  : Nulib2-compatible filenames with type/auxtype and resource forks.
 -uc : Copy GS/OS mixed case filenames as uppercase.
 -pro: Adapt DOS 3.3 names to ProDOS and remove addr/len from file data.
@@ -21,7 +22,7 @@ options:
 
 + after a file name indicates a GS/OS or Mac OS extended (forked) file.
 Wildcard matching (*) is not supported and images are not validated.
-ShrinkIt support requires Nulib2. cppo requires Python 2.6+ or 3.0+."""
+ShrinkIt support requires Nulib2. cppo requires Python 3.6+."""
 
 # cppo by Ivan X, ivan@ivanx.com, ivanx.com/appleii
 
@@ -75,6 +76,7 @@ g.extractFile = None
 
 # runtime options
 g.AD = 0       # -ad  (AppleDouble headers + resource forks)
+g.EA = 0       # -ea  (extended attributes + resource forks) 
 g.EX = 0       # -e   (extended filenames + resource forks)
 g.CAT = 0      # -cat (catalog only, no extract)
 g.UC = 0       # -uc  (GS/OS mixed case filenames extract as uppercase)
@@ -415,12 +417,18 @@ def copyFile(arg1, arg2):
             g.outFileData += infile.read()
         if g.shk_hasrf:
             print("    [data fork]")
-            if (g.EX or g.AD):
+            if (g.EX or g.AD or g.EA):
                 print("    [resource fork]")
                 if (g.exFileData == None):
                     g.exFileData = bytearray(b'')
                 with open(os.path.join(arg1, (arg2 + "r")), 'rb') as infile:
                     g.exFileData += infile.read()
+                if (g.AD or g.EA):
+                    offset = (82 if g.EA else 741)
+                    sizeloc = (46 if g.EA else 34)
+                    rsrcForkLen = len(g.exFileData) - offset
+                    rsrcForkLenHex = f'{rsrcForkLen:08x}'
+                    writecharsHex(g.exFileData, sizeloc, rsrcForkLenHex)
     else: # ProDOS or DOS 3.3
         storageType = getStorageType(arg1, arg2)
         keyPointer = getKeyPointer(arg1, arg2)
@@ -451,8 +459,10 @@ def copyBlock(arg1, arg2):
     else:
         outBytes = slyce(g.imageData, (ts(arg1) if g.D33 else arg1*512), arg2)
     if (g.resourceFork > 0):
-        if g.AD or g.EX:
-            offset = (741 if g.AD else 0)
+        if g.AD or g.EX or g.EA:
+            offset = 0
+            if g.AD or g.EA:
+                offset = (741 if g.AD else 82)
             if (g.exFileData == None):
                 g.exFileData = bytearray(b'')
             g.exFileData[(g.activeFileBytesCopied + offset):
@@ -592,6 +602,9 @@ def processEntry(arg1, arg2):
                 # touch(g.targetDir + "/" + g.targetName)
                 if g.AD:
                     makeADfile()
+                if g.EA:
+                    makeDotFile()
+                    makeEA()
                 copyFile(arg1, arg2)
                 saveName = (g.targetDir + "/" +
                            (eTargetName if eTargetName else g.targetName))
@@ -623,6 +636,33 @@ def processEntry(arg1, arg2):
                                   getAuxType(arg1, arg2))                                   
                     writechars(g.exFileData, 657, b'pdos')
                     saveFile(ADfilePath, g.exFileData)
+                if g.EA: # Extended Attributes
+                    # set dates
+                    dotName = (g.targetDir + "/._" +
+                           (eTargetName if eTargetName else g.targetName))
+                    writecharsHex(g.exEAData,
+                                  354,
+                                  (unixDateToADDate(creationDate) +
+                                   unixDateToADDate(modifiedDate)))
+                    writecharHex(g.exEAData, 362, "80")
+                    writecharHex(g.exEAData, 366, "80")
+                    #set type/creator
+                    writechars(g.exEAData, 122, b'p')
+                    writecharsHex(g.exEAData,
+                                  123,
+                                  getFileType(arg1, arg2) +
+                                  getAuxType(arg1, arg2))                                   
+                    writechars(g.exEAData, 126, b'pdos')
+                    os.setxattr(saveName, 'user.org.netatalk.Metadata', g.exEAData)
+                    #set type/creator in dot file
+                    writechars(g.exFileData, 50, b'p')
+                    writecharsHex(g.exFileData,
+                                  51,
+                                  getFileType(arg1, arg2) +
+                                  getAuxType(arg1, arg2))                                   
+                    writechars(g.exFileData, 54, b'pdos')
+                    if (len(g.exFileData) > 82): # don't create dot file if there is no resource fork
+                        saveFile(dotName, g.exFileData)
                 touch(saveName, modifiedDate)
                 if g.EX: # extended name from ProDOS image
                     if (g.exFileData != None):
@@ -670,6 +710,8 @@ def processForkedFile(arg1):
                 print("    [resource fork]")
             if g.AD:
                 writecharsHex(g.exFileData, 35, rsrcForkLenHex)
+            if g.EA:
+                writecharsHex(g.exFileData, 47, rsrcForkLenHex)
         else:
             print("    [data fork]")
         if (forkStorageType == 1): #seedling
@@ -722,13 +764,13 @@ def makeADfile():
     # ADv2 header
     writecharsHex(g.exFileData, hexToDec("00"), "0005160700020000")
     # number of entries
-    writecharsHex(g.exFileData, hexToDec("18"), "001D")
+    writecharsHex(g.exFileData, hexToDec("18"), "000D")
     # Resource Fork
     writecharsHex(g.exFileData, hexToDec("1A"), "00000002000002E500000000")
     # Real Name
-    writecharsHex(g.exFileData, hexToDec("26"), "00000003000000B600000000")
+    writecharsHex(g.exFileData, hexToDec("26"), "00000003000000B600000008")
     # Comment
-    writecharsHex(g.exFileData, hexToDec("32"), "00000004000001B500000000")
+    writecharsHex(g.exFileData, hexToDec("32"), "00000004000001B5000000C8")
     # Dates Info
     writecharsHex(g.exFileData, hexToDec("3E"), "000000080000027D00000010")
     # Finder Info
@@ -749,6 +791,45 @@ def makeADfile():
     writecharsHex(g.exFileData, hexToDec("9E"), "8053594E000002D900000008")
     # CNID
     writecharsHex(g.exFileData, hexToDec("AA"), "8053567E000002E100000004")
+
+def makeEA():
+    if not g.EA: return
+    g.exEAData = bytearray(b'\x00' * 402)
+    # ADv2 header
+    writecharsHex(g.exEAData, hexToDec("00"), "0005160700020000")
+    # number of entries
+    writecharsHex(g.exEAData, hexToDec("18"), "0008")
+    # Comment
+    writecharsHex(g.exEAData, hexToDec("1A"), "000000040000009A000000C8")
+    # Dates Info
+    writecharsHex(g.exEAData, hexToDec("26"), "000000080000016200000010")
+    # Finder Info
+    writecharsHex(g.exEAData, hexToDec("32"), "000000090000007A00000020")
+    # AFP File Info
+    writecharsHex(g.exEAData, hexToDec("3E"), "0000000E0000017200000004")
+    # dev
+    writecharsHex(g.exEAData, hexToDec("4A"), "804445560000017600000008")
+    # inode
+    writecharsHex(g.exEAData, hexToDec("56"), "80494E4F0000017E00000008")
+    # DB Stamp
+    writecharsHex(g.exEAData, hexToDec("62"), "8053594E0000018600000008")
+    # CNID
+    writecharsHex(g.exEAData, hexToDec("6E"), "8053567E0000018E00000004")
+
+def makeDotFile():
+    if not g.EA: return
+    g.exFileData = bytearray(b'\x00' * 82)
+    # ADv2 header
+    writecharsHex(g.exFileData, hexToDec("00"), "0005160700020000")
+    # Filler
+    writecharsHex(g.exFileData, hexToDec("08"), "4E65746174616C6B2020202020202020")
+    # number of entries
+    writecharsHex(g.exFileData, hexToDec("18"), "0002")
+    # Finder Info
+    writecharsHex(g.exFileData, hexToDec("1A"), "000000090000003200000020")
+    # Resource Fork
+    writecharsHex(g.exFileData, hexToDec("26"), "000000020000005200000000")
+
 
 def quitNow(exitCode=0):
     if (exitCode == 0 and not g.nomsg and
@@ -1129,6 +1210,11 @@ while True: # breaks when there are no more arguments starting with dash
         g.PNAME = 1
         args = args[1:] #shift
     
+    elif (args[1] == "-ea"):
+        g.EA = 1
+        g.PNAME = 1
+        args = args[1:] #shift
+
     elif (args[1] == "-shk"):
         g.SHK = 1
         args = args[1:] #shift
@@ -1151,7 +1237,12 @@ while True: # breaks when there are no more arguments starting with dash
 
 if g.EX:
     if g.AD: usage()
+    if g.EA: usage()
 if g.AD:
+    if g.EX: usage()
+    if g.EA: usage()
+if g.EA:
+    if g.AD: usage()
     if g.EX: usage()
 if g.CAT:
     if not (len(args) == 2): usage()
