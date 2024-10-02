@@ -654,14 +654,14 @@ def processEntry(arg1, arg2):
                                   getAuxType(arg1, arg2))                                   
                     writechars(g.exEAData, 126, b'pdos')
                     os.setxattr(saveName, 'user.org.netatalk.Metadata', g.exEAData)
-                    #set type/creator in dot file
-                    writechars(g.exFileData, 50, b'p')
-                    writecharsHex(g.exFileData,
-                                  51,
-                                  getFileType(arg1, arg2) +
-                                  getAuxType(arg1, arg2))                                   
-                    writechars(g.exFileData, 54, b'pdos')
                     if (len(g.exFileData) > 82): # don't create dot file if there is no resource fork
+                        #set type/creator in dot file
+                        writechars(g.exFileData, 50, b'p')
+                        writecharsHex(g.exFileData,
+                                      51,
+                                      getFileType(arg1, arg2) +
+                                      getAuxType(arg1, arg2))                                   
+                        writechars(g.exFileData, 54, b'pdos')
                         saveFile(dotName, g.exFileData)
                 touch(saveName, modifiedDate)
                 if g.EX: # extended name from ProDOS image
