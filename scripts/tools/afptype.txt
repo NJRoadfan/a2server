@@ -2,6 +2,8 @@
 # vim: set tabstop=4 shiftwidth=4 expandtab filetype=sh:
 
 # 2-25-11: tested on 10.6.5 and Ubuntu 10.10. Final.
+# 10-2-24: update to support netatalk 3.x EAs and use 'ad set' command
+#          to change metadata.
 
 # to do: allow hex offsets
 
@@ -379,6 +381,11 @@ for filename in $@; do
         continue
     fi
 
+    found_ea=0
+    found_ad=0
+
+    originalname=$filename
+
     adname="$(dirname "$filename")/.AppleDouble/$(basename "$filename")"
     [[ -f $adname ]] && filename=$adname
     ADversion=$(readcharDec "$filename" 5)
@@ -388,8 +395,22 @@ for filename in $@; do
         || ( $(readcharDec "$filename" 4) -ne 0 ) \
         || ( $(readcharDec "$filename" 6) -ne 0 ) \
         || ( $(readcharDec "$filename" 7) -ne 0 ) ]]; then
-        echo "${linestart}Not an AppleDouble file."
-        continue
+        found_adv2=0
+    else
+       found_ad=1
+    fi
+
+    if getfattr -n "user.org.netatalk.Metadata" $originalname &> /dev/null; then
+       # dump the extended attribute data to a file for processing
+       filename="/tmp/"$originalname"tmpEA"
+       getfattr --only-values -n "user.org.netatalk.Metadata" $originalname > $filename
+       found_ad=1
+       found_ea=1
+    fi
+
+    if [[ $found_ad -eq 0 ]]; then
+       echo "${linestart}Not an AppleDouble file."
+       continue
     fi
 
     entrycount=`readcharDec "$filename" 25`
@@ -417,30 +438,32 @@ for filename in $@; do
 
     if [[ $p || $a || $t || $c ]]; then # set
         if [[ $p || $a ]]; then
+            type="$(readchars "$filename" $tpos 4)"
             if [[ $p ]]; then
                 [[ ${#p} -eq 3 ]] && { p=$(lookupPdosType $p) || quit "Invalid ProDOS type name ($p)."; }
                 isHexByte "$p" || quit "Invalid ProDOS file type ($p)."
-                writecharHex "$filename" $ppos "$p"
+                hexp=$(hexToChar $p)
+                type=$( echo $type | sed s/./$hexp/2 )
             fi
             if [[ $a ]]; then
                 isHexByte "${a:0:2}" && isHexByte "${a:2:2}" || quit "Invalid ProDOS aux type ($a)."
-                writecharHex "$filename" $apos "${a:0:2}"
-                (( apos=apos+1 ))
-                writecharHex "$filename" $apos "${a:2:2}"
+                hexa1=$(hexToChar ${a:0:2})
+                hexa2=$(hexToChar ${a:2:2})
+                type=$( echo $type | sed s/./$hexa1/3 )
+                type=$( echo $type | sed s/./$hexa2/4 )
             fi
-            writechars "$filename" $tpos "p"
-            writechars "$filename" $cpos "pdos"
+            ad set -t $type -c pdos $originalname &> /dev/null
         elif [[ $t || $c ]]; then
             if [[ $t ]]; then
                 type=$(verifyTC "$t") || quit "$(echo -n "Invalid Mac file type ($t)."; [[ $t == *x* ]] && echo -n " Try quotes."; echo)"
-                writechars "$filename" $tpos "${type:0:4}"
+                ad set -t $t $originalname &> /dev/null
             fi
             if [[ $c ]]; then
                 creator=$(verifyTC "$c") || quit "$(echo -n "Invalid Mac file creator ($c)."; [[ $c == *x* ]] && echo -n " Try quotes."; echo)"
-                writechars "$filename" $cpos "${creator:0:4}"
+                ad set -c $c $originalname &> /dev/null
             fi
         fi
-        [[ $q ]] || { echo -n "${linestart}File changed: "; "$0" "$filename"; }
+        [[ $q ]] || { echo -n "${linestart}File changed: "; "$0" "$originalname"; }
 
     else # show
         [[ $q ]] && quit "Can only use -q when changing type."
@@ -456,6 +479,9 @@ for filename in $@; do
                 echo "Mac file.   Type:$type   Creator:$creator"
             else
                 echo "This file has no Mac or ProDOS file type information."
+            fi
+            if [[ $found_ea -eq 1 ]]; then
+                rm $filename &> /dev/null
             fi
             continue
         fi
@@ -486,6 +512,9 @@ for filename in $@; do
         echo "ProDOS file.  Type:\$$pdosType   AuxType:\$$pdosAuxType"
     fi
 
+    if [[ $found_ea -eq 1 ]]; then
+       rm $filename &> /dev/null
+    fi
 done
 
 # 7-19-11
