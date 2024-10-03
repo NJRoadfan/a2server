@@ -442,25 +442,39 @@ for filename in $@; do
             if [[ $p ]]; then
                 [[ ${#p} -eq 3 ]] && { p=$(lookupPdosType $p) || quit "Invalid ProDOS type name ($p)."; }
                 isHexByte "$p" || quit "Invalid ProDOS file type ($p)."
+                writecharHex "$filename" $ppos "$p"
                 hexp=$(hexToChar $p)
                 type=$( echo $type | sed s/./$hexp/2 )
             fi
             if [[ $a ]]; then
                 isHexByte "${a:0:2}" && isHexByte "${a:2:2}" || quit "Invalid ProDOS aux type ($a)."
+                writecharHex "$filename" $apos "${a:0:2}"
+                (( apos=apos+1 ))
+                writecharHex "$filename" $apos "${a:2:2}"
                 hexa1=$(hexToChar ${a:0:2})
                 hexa2=$(hexToChar ${a:2:2})
                 type=$( echo $type | sed s/./$hexa1/3 )
                 type=$( echo $type | sed s/./$hexa2/4 )
             fi
-            ad set -t $type -c pdos $originalname &> /dev/null
+            writechars "$filename" $tpos "p"
+            writechars "$filename" $cpos "pdos"
+            if [[ $found_ea -eq 1 ]]; then
+                ad set -t $type -c pdos $originalname &> /dev/null
+            fi
         elif [[ $t || $c ]]; then
             if [[ $t ]]; then
                 type=$(verifyTC "$t") || quit "$(echo -n "Invalid Mac file type ($t)."; [[ $t == *x* ]] && echo -n " Try quotes."; echo)"
-                ad set -t $t $originalname &> /dev/null
+                writechars "$filename" $tpos "${type:0:4}"
+                if [[ $found_ea -eq 1 ]]; then
+                    ad set -t $t $originalname &> /dev/null
+                fi
             fi
             if [[ $c ]]; then
                 creator=$(verifyTC "$c") || quit "$(echo -n "Invalid Mac file creator ($c)."; [[ $c == *x* ]] && echo -n " Try quotes."; echo)"
-                ad set -c $c $originalname &> /dev/null
+                writechars "$filename" $cpos "${creator:0:4}"
+                if [[ $found_ea -eq 1 ]]; then
+                    ad set -c $c $originalname &> /dev/null
+                fi
             fi
         fi
         [[ $q ]] || { echo -n "${linestart}File changed: "; "$0" "$originalname"; }
