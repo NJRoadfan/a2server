@@ -706,7 +706,7 @@ def processForkedFile(arg1):
                               readcharHex(g.imageData, forkStart+f+6) +
                               readcharHex(g.imageData, forkStart+f+5))
             # print(">>>" + rsrcForkLenHex)
-            if (g.AD or g.EX):
+            if (g.AD or g.EX or g.EA):
                 print("    [resource fork]")
             if g.AD:
                 writecharsHex(g.exFileData, 35, rsrcForkLenHex)
