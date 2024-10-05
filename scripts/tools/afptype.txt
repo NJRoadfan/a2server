@@ -414,7 +414,7 @@ for filename in $@; do
     # we need to test if one isn't found and generate one on the fly if needed.
     if getfattr -n "user.org.netatalk.Metadata" $originalname &> /dev/null; then
         # ea found, dump the extended attribute data to a file for processing
-        filename="/tmp/"$originalname"tmpEA"
+        filename="/tmp/$(basename "$originalname")tmpEA"
         getfattr --only-values -n "user.org.netatalk.Metadata" $originalname > $filename
         found_ad=1
         found_ea=1
@@ -423,7 +423,7 @@ for filename in $@; do
            ad set -l none $originalname &> /dev/null # this forces creation of an EA
            # check again for the existance of the EA and dump if there is one
            if getfattr -n "user.org.netatalk.Metadata" $originalname &> /dev/null; then
-               filename="/tmp/"$originalname"tmpEA"
+               filename="/tmp/$(basename "$originalname")tmpEA"
                getfattr --only-values -n "user.org.netatalk.Metadata" $originalname > $filename
                found_ad=1
                found_ea=1
