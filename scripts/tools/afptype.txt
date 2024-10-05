@@ -386,7 +386,7 @@ for filename in $@; do
     originalname=$filename
 
     # sanity check to make sure we are in a valid netatalk volume
-    if ad ls | grep "no volume for path" &> /dev/null; then
+    if ad ls "$(dirname "$filename")" | grep "no volume for path" &> /dev/null; then
         netatalk_vol=0
     else
         netatalk_vol=1
