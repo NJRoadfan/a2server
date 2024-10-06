@@ -29,6 +29,7 @@ wget -O files/external/appleii/uthernet2ll.bxy http://speccie.uk/speccie/downloa
 wget -O files/external/appleii/uthernetll.bxy http://speccie.uk/speccie/downloads/uthernetll.bxy
 wget -O files/external/appleii/NetDisk10.shk https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
 wget -O files/external/appleii/AFPBridgeB1.shk https://github.com/sheumann/AFPBridge/releases/download/v1.0b1/AFPBridgeB1.shk
+wget -O files/external/appleii/smbfst10.shk https://github.com/sheumann/smbfst/releases/download/1.0/smbfst10.shk
 
 unset safeUrl samUrl snapUrl webberUrl networkerUrl checkfileUrl
 safeUrl=$(wget -qO- http://speccie.uk/software/safe2/ | grep -i 'safe2.*bxy' | tr '<>' '\n' | grep href | cut -d '=' -f 2 | tr -d '"')
