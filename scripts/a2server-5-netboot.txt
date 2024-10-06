@@ -1164,6 +1164,26 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    cpAD AFPMounter $gsosDir/System/CDevs
 		    afpsync -v $gsosDir > /dev/null
 		fi
+		echo -n "SMBFST 1.0"
+		if [[ -f $gsosDir/System/CDevs/SMB ]]; then
+		    echo " is already installed."
+		else
+		    echo
+		    mkdir -p /tmp/netboot/smbfst
+		    cd /tmp/netboot/smbfst
+                    if [[ $useExternalURL ]]; then
+		        wget -qO smbfst10.shk https://github.com/sheumann/smbfst/releases/download/1.0/smbfst10.shk
+		        cppo -ad -s smbfst10.shk . > /dev/null
+		    fi
+                    if [[ ! -f smbfst10/SMB ]]; then
+                        wget -qO smbfst10.shk ${binaryURL}external/appleii/smbfst10.shk
+                        cppo -s -ad smbfst10.shk . &> /dev/null
+                    fi
+		    cd smbfst10
+		    cpAD SMB $gsosDir/System/CDevs
+		    cpAD SMB.FST $gsosDir/System/FSTs
+		    afpsync -v $gsosDir > /dev/null
+		fi
              fi
 
             echo -n "ProTERM 3.1"
