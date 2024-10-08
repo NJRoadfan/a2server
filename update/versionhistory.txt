@@ -87,7 +87,16 @@
                     fixed appletalk kernel module compilation to work with linux 5.x;
                     updated Marinetti and link Layers to latest releases;
                     updated Spectrum to latest release;
-                    added The Networker2 and Webber installation;
+                    added The Networker2 and Webber installation
+
+1.9.9: Oct 2024:  added AFPBridge, NetDisk, and SMB FST installation;
+                  added TashRouter setup and TashTalk support on RPi;
+                  fixed bugs and updated cppo and afptype to support new
+                  versions of netatalk;
+                  fixed bugs in creation of ATINIT file;
+                  drop support for Debian 10 and older;
+                  updated to netatalk 2.4.10, switched to meson build;
+                  last release to use apple double v2 folders (i hope)
 
 Big thanks to: Anthony Martino, Henry Courbis, Joseph Carter, Jason King,
 Andy McFadden, Steven Hirsch, Geoff Body, Peter Wong, Tony Diaz, David Schmidt,

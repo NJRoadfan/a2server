@@ -5,18 +5,15 @@ atalkd_if=$(grep "^[^ # t]" /etc/netatalk/atalkd.conf | tail -1 | cut -d " " -f 
 sysctl -w net.ipv4.ip_forward=1 > /dev/null
 macipgw -n 8.8.8.8 192.168.151.0 255.255.255.0
 # Enable IP NAT forwarding
+nft flush ruleset
 nft 'add table ip filter'
 nft 'add chain ip filter INPUT { type filter hook input priority 0; policy accept; }'
 nft 'add chain ip filter FORWARD { type filter hook forward priority 0; policy accept; }'
 nft 'add chain ip filter OUTPUT { type filter hook output priority 0; policy accept; }'
 nft add rule ip filter FORWARD iifname "$atalkd_if" oifname "tun0" ct state related,established  counter accept
-nft add rule ip filter FORWARD iifname "tun1" oifname "$atalkd_if" counter accept
-nft add rule ip filter FORWARD iifname "$atalkd_if" oifname "$atalkd_if" ct state related,established  counter accept
-nft add rule ip filter FORWARD iifname "tun1" oifname "$atalkd_if" counter accept
 nft 'add table ip nat'
 nft 'add chain ip nat PREROUTING { type nat hook prerouting priority -100; policy accept; }'
 nft 'add chain ip nat INPUT { type nat hook input priority 100; policy accept; }'
 nft 'add chain ip nat OUTPUT { type nat hook output priority -100; policy accept; }'
 nft 'add chain ip nat POSTROUTING { type nat hook postrouting priority 100; policy accept; }'
-nft add rule ip nat POSTROUTING oifname "$atalkd_if" counter masquerade
 nft add rule ip nat POSTROUTING oifname "$atalkd_if" counter masquerade
