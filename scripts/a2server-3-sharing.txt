@@ -21,7 +21,7 @@ case "$A2SERVER_SCRIPT_URL" in
 esac
 case "$A2SERVER_BINARY_URL" in
     */) binaryURL="$A2SERVER_BINARY_URL" ;;
-    *) binaryURL="${A2SERVER_BINARY_URL:-http://appleii.ivanx.com/a2server/files}/" ;;
+    *) binaryURL="${A2SERVER_BINARY_URL:-https://appleii.ivanx.com/a2server/files}/" ;;
 esac
 useExternalURL=1
 [[ $A2SERVER_NO_EXTERNAL ]] && useExternalURL=
@@ -495,10 +495,10 @@ if ! hash ciopfs &> /dev/null; then
         rm -rf /tmp/ciopfs
     fi
     if ! grep -q '^ciopfs' /etc/fstab; then
-        echo "ciopfs#/srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES fuse allow_other 0 0" | sudo tee -a /etc/fstab > /dev/null
+        echo "ciopfs#/srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES fuse allow_other,use_ino 0 0" | sudo tee -a /etc/fstab > /dev/null
     fi
     if ! mount | grep '^ciopfs.*A2FILES'; then
-        sudo ciopfs /srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES -o allow_other
+        sudo ciopfs /srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES -o allow_other,use_ino
     fi
     sudo systemctl daemon-reload
 else
