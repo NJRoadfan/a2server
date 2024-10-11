@@ -62,8 +62,17 @@ writechars () {
 IFS=''
 
 #defaults
-sharepath=$(grep options:prodos /usr/local/etc/netatalk/AppleVolumes.default | tail -1 | cut -d" " -f1)
-prefix=/$(grep options:prodos /usr/local/etc/netatalk/AppleVolumes.default | tail -1 | cut -d" " -f2)
+#crudini --get /usr/local/etc/netatalk/afp.conf | grep -v Global \
+#    | while read sharename; do
+#    if ( crudini --get /usr/local/etc/netatalk/afp.conf "$sharename" | grep prodos );then
+#        sharepath=$(crudini --get /etc/netatalk/afp.conf "$sharename" path
+#        prefix=$sharename        
+#    fi
+#done
+
+sharepath=/srv/A2SERVER/A2FILES
+prefix=/A2FILES
+
 gsprefix=$prefix
 startprog="$prefix/BASIC.SYSTEM"
 gsstartprog="$prefix/SYSTEM/FINDER"

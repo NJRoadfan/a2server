@@ -20,11 +20,11 @@ alias showmac='ip a show dev enp0s3 | grep "link/ether" | cut -dr -f2 | cut -db 
 alias showip-wifi='ip a show dev wlan0 | grep "inet " | cut -dt -f2 | cut -db -f1'
 alias showmac-wifi='ip a show dev wlan0 | grep "link/ether" | cut -dr -f2 | cut -db -f1'
 
-alias netatalk-stop="sudo systemctl stop atalkd afpd papd timelord a2boot macipgw; bonjour-off"
-alias netatalk-start="sudo systemctl start atalkd afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
-alias netatalk-restart="sudo systemctl restart atalkd  afpd papd timelord a2boot macipgw &> /dev/null; bonjour-on"
-alias netatalk-off='sudo systemctl stop atalkd afpd papd timelord a2boot macipgw; sudo systemctl disable atalkd afpd papd a2boot timelord macipgw'
-alias netatalk-on='bonjour-on; sudo systemctl enable atalkd afpd papd a2boot timelord macipgw'
+alias netatalk-stop="sudo systemctl stop atalkd netatalk papd timelord a2boot macipgw; bonjour-off"
+alias netatalk-start="sudo systemctl start atalkd netatalk papd timelord a2boot macipgw &> /dev/null; bonjour-on"
+alias netatalk-restart="sudo systemctl restart atalkd netatalk papd timelord a2boot macipgw &> /dev/null; bonjour-on"
+alias netatalk-off='sudo systemctl stop atalkd netatalk papd timelord a2boot macipgw; sudo systemctl disable atalkd netatalk papd a2boot timelord macipgw'
+alias netatalk-on='bonjour-on; sudo systemctl enable atalkd netatalk papd a2boot timelord macipgw'
 
 alias bonjour-off="sudo mv /etc/avahi/services/afpd.service /etc/avahi/services/afpd.service_disabled &> /dev/null"
 alias bonjour-on="sudo mv /etc/avahi/services/afpd.service_disabled /etc/avahi/services/afpd.service &> /dev/null"
@@ -37,10 +37,8 @@ alias bonjour-on="sudo mv /etc/avahi/services/afpd.service_disabled /etc/avahi/s
 #alias netatalk-eth='sudo sed -i 's/^wlan0/enp0s3/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
 #alias netatalk-wifi='sudo sed -i 's/^enp0s3/wlan0/' /usr/local/etc/netatalk/atalkd.conf; netatalk-restart'
 
-
 NETATALK="/usr/local/etc/netatalk"
 A2FILES="/srv/A2SERVER/A2FILES"
-GSFILES="/srv/A2SERVER/GSFILES"
 
 alias netboot-gsos="mkatinit -gs -d -f"
 alias netboot-gsos-guest="mkatinit -gs -d -f guest"

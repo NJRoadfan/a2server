@@ -7,7 +7,7 @@
 # non-AFP methods (directly, via Samba, etc).
 
 # usage:
-# afpsync [-v] [shared volume path]
+# afpsync [shared volume path]
 #
 # -v will silently create a .volinfo file if none exists.
 # If a path is specified, only that volume is synced; otherwise, all
@@ -18,46 +18,17 @@ processPath () {
     if [[ ! -d $sharepath ]]; then
         echo "$sharepath does not exist."
     else
-        volinfo="$sharepath/.AppleDesktop/.volinfo"
-        if [[ ! -f $volinfo ]]; then
-            if [[ ! $force ]]; then
-                echo "Cannot update AppleDouble files for volume $sharepath,"
-                echo "because its .volinfo file does not exist. To create it, log"
-                echo "into the volume from an Apple II or Mac client computer,"
-                echo "or use \"afpsync -v\"."
-            else
-                if (( $1 )); then
-                    mkvolinfo -f -c $sharepath
-                else
-                    mkvolinfo -f $sharepath
-                fi
-                $0 $sharepath
-            fi
-        else
             IFS=''
             result=$(sudo dbd -r $sharepath | grep encoding)
             f=$(wc -l <<< $result)
             [[ $(wc -w <<< $result) == 0 ]] && f=0
-            [[ $f -eq 1 && $(grep AppleDesktop <<< "$result") && $(grep MTOULOWER $sharepath/.AppleDesktop/.volinfo) ]] && (( f-- ))
             if (( f == 0 )); then
                 echo "AppleDouble files have been updated for volume $sharepath."
             else
-                [[ ! $renameLower ]] && echo "Could not update all files on volume $sharepath."
                 if [[ $showerrors ]]; then
                     echo $result \
                         | while read LINE; do
                         [[ ! $(echo $LINE | grep APPLEDESKTOP) ]] && echo $LINE
-                    done
-                elif [[ $renameLower ]]; then
-                    echo $result \
-                        | while read LINE; do
-                        if [[ ! $(echo $LINE | grep APPLEDESKTOP) ]]; then
-                            filepath=$(echo $LINE | sed "s/^Bad\ encoding\ for\ '//" | sed s/\'//)
-                            filename=${filepath##*/}
-                            filedir=${filepath%/*}
-                            mv $filepath $filedir/${filename^^}
-                            echo "Renamed $filedir/${filename^^}."
-                        fi
                     done
                     $0 $sharepath
                 else
@@ -65,35 +36,25 @@ processPath () {
                 fi
             fi
             unset IFS
-        fi
     fi
 }
 
-while [[ $1 == "-r" || $1 == "-e" || $1 = "-v" ]]; do
-
-    if [[ $1 == "-v" ]]; then
-        force=1
-        shift
-    fi
+while [[ $1 == "-e" || $1 = "-v"  ]]; do
 
     if [[ $1 == "-e" ]]; then
         showerrors=1
         shift
     fi
-
-    if [[ $1 == "-r" ]]; then
-        renameLower=1
+    if [[ $1 == "-v" ]]; then
         shift
     fi
 
 done
 
 if [[ ${1:0:1} == "-" ]]; then
-    echo "Usage: afpsync [-e|-r] [-v] [shared volume path]"
+    echo "Usage: afpsync [-e] [shared volume path]"
     echo
     echo "-e: show error details"
-    echo "-r: rename lowercase filenames to uppercase"
-    echo "-v: create .volinfo file if none exists"
     echo "If no directory is specified, all found in"
     echo "  /usr/local/etc/netatalk/AppleVolumes.default are processed."
     echo
@@ -106,11 +67,10 @@ else
         #   (as opposed to defaulting to casefold:toupper previously)
         processPath 1
     else
-        grep ^/srv/A2SERVER /usr/local/etc/netatalk/AppleVolumes.default | \
+        crudini --get /etc/netatalk/afp.conf | grep -v Global | \
             while read line; do
-            [[ $(echo $line | grep toupper) ]]; nocasefold=$?
-            sharepath=$(echo $line | cut -d" " -f1)
-            processPath nocasefold
+            sharepath=$(crudini --get --format=sh /usr/local/etc/netatalk/afp.conf "$line" "path" | cut -d = -f 2)
+            processPath
         done
     fi
 fi

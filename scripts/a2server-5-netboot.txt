@@ -29,8 +29,8 @@ diskToolsP8Dir=$p8Dir/Disk.Tools.P8
 
 commDir="/srv/A2SERVER/A2FILES/Comm"
 
-gsosURL="http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_IIGS_System_6.0.1/"
-# alernate: http://web.archive.org/web/20080907081050/http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_IIGS_System_6.0.1/
+gsosURL="https://mirrors.apple2.org.za/ftp.info.apple.com/Apple_IIGS_System_6.0.1/"
+# alternate: http://web.archive.org/web/20080907081050/http://download.info.apple.com/Apple_Support_Area/Apple_Software_Updates/English-North_American/Apple_II/Apple_IIGS_System_6.0.1/
 gsosBackupURL="http://archive.org/download/download.info.apple.com.2012.11/download.info.apple.com.2012.11.zip/download.info.apple.com%2FApple_Support_Area%2FApple_Software_Updates%2FEnglish-North_American%2FApple_II%2FApple_IIGS_System_6.0.1%2F"
 
 # --- bashByter library routines
@@ -81,6 +81,24 @@ cpAD () {
     cp -p "$arg1" "$2"
     mkdir -p "$2"/.AppleDouble
     cp -p "${arg1%/*}"/.AppleDouble/"${arg1##*/}" "$2"/.AppleDouble
+    [[ $afpsync ]] && afpsync -v > /dev/null
+}
+
+cpEA () {
+    # copy a file with its EA preserved and resource fork in ._filename
+    # arg1 = source path, # arg2 = destination directory (not filename)
+    afpsync=
+    if [[ $1 == "-s" ]]; then
+        afpsync=1
+        shift
+    fi
+    arg1="$1"
+    [[ "$arg1" == *"/"* ]] || arg1="./$arg1"
+    cp -p --preserve=xattr "$arg1" "$2"
+    dotname="$(dirname "$arg1")/._$(basename "$arg1")"
+    if [[ -f $dotname ]]; then
+        cp -p "${arg1%/*}"/._"${arg1##*/}" "$2"
+    fi
     [[ $afpsync ]] && afpsync -v > /dev/null
 }
 
@@ -214,7 +232,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             cd /tmp/netboot
             
             if [[ $useExternalURL ]]; then
-                wget --max-redirect 0 -qO Disk_7_of_7-Apple_II_Setup.sea.bin ${gsosURL}Disk_7_of_7-Apple_II_Setup.sea.bin
+                wget -qO Disk_7_of_7-Apple_II_Setup.sea.bin ${gsosURL}Disk_7_of_7-Apple_II_Setup.sea.bin
                 unar -k skip Disk_7_of_7-Apple_II_Setup.sea.bin &> /dev/null
                 if (( $? != 0 )); then
                     wget -qO Disk_7_of_7-Apple_II_Setup.sea.bin ${gsosBackupURL}Disk_7_of_7-Apple_II_Setup.sea.bin
@@ -443,7 +461,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     echo "A2SERVER: Disk ${activeDisk} of ${#diskNames[@]}: $diskname"
                     if (( $gsosInstall == 1 )); then
                         if [[ $useExternalURL ]]; then
-                            wget --max-redirect 0 -qO "Disk_${activeDisk}_of_7-${diskname}.sea.bin" "${gsosURL}Disk_${activeDisk}_of_7-${diskname}.sea.bin"
+                            wget -qO "Disk_${activeDisk}_of_7-${diskname}.sea.bin" "${gsosURL}Disk_${activeDisk}_of_7-${diskname}.sea.bin"
                             unar -k skip "Disk_${activeDisk}_of_7-${diskname}.sea.bin" &> /dev/null
                             if [[ ! -f "Disk ${activeDisk} of 7-${diskname}.sea" ]]; then
                                 wget -qO "Disk_${activeDisk}_of_7-${diskname}.sea.bin" "${gsosBackupURL}Disk_${activeDisk}_of_7-${diskname}.sea.bin"
