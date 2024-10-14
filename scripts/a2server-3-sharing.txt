@@ -104,11 +104,11 @@ else
     }
 
     # Tools We need elsewhere
-    sudo apt-get install --no-install-recommends --assume-yes crudini uml-utilities ninja-build
+    sudo apt-get install --no-install-recommends --assume-yes crudini uml-utilities ninja-build attr
     
     # Dependencies: build-deps for netatalk 4.0
-    sudo apt-get install --no-install-recommends --assume-yes build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev libpam0g-dev libdb-dev docbook-xsl xsltproc
-    sudo apt-get install --no-install-recommends --assume-yes libevent-dev libglib2.0-dev libtalloc-dev libtracker-sparql-3.0-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs unicode-data
+    sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev libpam0g-dev libdb-dev docbook-xsl xsltproc cmark-gfm
+    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libtracker-sparql-3.0-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs unicode-data
 
     sudo apt-get clean
 
@@ -333,7 +333,7 @@ sudo usermod -a -G lpadmin $USER
 #        /usr/local/etc/netatalk/AppleVolumes.default
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "path" "/srv/A2SERVER/A2FILES"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "prodos" "yes"
-sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "appledouble" "v2"
+#sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "appledouble" "v2"
 
 [[ -d /srv/A2SERVER/A2FILES ]] || mkdir -p /srv/A2SERVER/A2FILES
 [[ -d /srv/A2SERVER/.a2files ]] || mkdir -p /srv/A2SERVER/.a2files
@@ -391,17 +391,13 @@ if ! hash ciopfs &> /dev/null; then
     if ! grep -q '^ciopfs' /etc/fstab; then
         echo "ciopfs#/srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES fuse allow_other,use_ino 0 0" | sudo tee -a /etc/fstab > /dev/null
     fi
+    sudo systemctl daemon-reload
+    sudo systemctl restart local-fs.target
     if ! mount | grep '^ciopfs.*A2FILES'; then
         sudo ciopfs /srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES -o allow_other,use_ino
     fi
-    sudo systemctl daemon-reload
 else
     echo "A2SERVER: ciopfs (case insensitive file system) has already been installed."
-fi
-
-if [[ ! -d /srv/A2SERVER/A2FILES/.AppleDesktop ]]; then
-    cd /srv/A2SERVER/A2FILES
-    mkdir .AppleDesktop
 fi
 
 # set up ADTDISKS share (ADTPro disk image folder, if A2CLOUD is installed)    
@@ -414,11 +410,6 @@ if [[ -d /usr/local/adtpro/disks ]]; then # A2CLOUD/ADTPro installed
         sudo sed -i 's@^# End of File@/srv/A2SERVER/ADTDISKS ADTDISKS ea:ad\n\n# End of File@' /usr/local/etc/netatalk/AppleVolumes.default
     fi
 fi
-
-
-
-# prepare shared volumes for use
-afpsync -v < /dev/null
 
 # --- Setting up users
 
@@ -549,6 +540,9 @@ fi
 # --- Start Netatalk (if not running)
 
 sudo systemctl start atalkd netatalk papd a2boot timelord macipgw tashrouter 2> /dev/null
+
+# prepare shared volumes for use
+afpsync -v < /dev/null
 
 echo
 echo "A2SERVER: Netatalk is installed, configured, and running."

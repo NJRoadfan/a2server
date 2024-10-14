@@ -313,7 +313,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 	    mkdir -p /tmp/netboot/p8tools
             cd /tmp/netboot/p8tools
 	    wget -qO A2GS.WS.HDV ${binaryURL}appleii/a2ws/A2GS.WS.HDV
-	    cppo -ad -s A2GS.WS.HDV . > /dev/null
+	    cppo -ea -s A2GS.WS.HDV . > /dev/null
 	    mkdir -p $p8Dir/ATalk.Tools.P8
             for thisFolder in \
             	SYS.APPS/ACCESS^ACCESS \
@@ -322,21 +322,19 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             do
                 mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
                 cp -R ASIIGS.WS/${thisFolder%%^*}/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
-                mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
-                cp -R ASIIGS.WS/${thisFolder%%^*}/.AppleDouble/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"/.AppleDouble
             done
 	    # Get updated LOGON 1.5 program to match boot blocks.
             if [[ $useExternalURL ]]; then
 	        wget -qO p8.atalk.po http://apple2.guidero.us/lib/exe/fetch.php/projects/p8.atalk.po
-	        cppo -ad -s p8.atalk.po . > /dev/null
+	        cppo -ea -s p8.atalk.po . > /dev/null
 	    fi
             if [[ ! -f P8.ATALK/LOGON ]]; then
                 wget -qO p8.atalk.po ${binaryURL}external/appleii/p8.atalk.po
-                cppo -ad -s p8.atalk.po . > /dev/null
+                cppo -ea -s p8.atalk.po . > /dev/null
             fi
-	    cpAD P8.ATALK/LOGON $p8Dir/ATalk.Tools.P8
+	    cpEA P8.ATALK/LOGON $p8Dir/ATalk.Tools.P8
 	    #cpAD ASIIGS.WS/SYS.APPS/LOGON $p8Dir/ATalk.Tools.P8
-	    cpAD ASIIGS.WS/SYS.APPS/LOGOFF $p8Dir/ATalk.Tools.P8
+	    cpEA ASIIGS.WS/SYS.APPS/LOGOFF $p8Dir/ATalk.Tools.P8
 	    afpsync -v $p8Dir > /dev/null
 	fi
     
@@ -451,8 +449,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 fi
     
                 # delete previously downloaded installer
-                rm "$imagesDir/* $imagesDir/.AppleDouble"/* 2> /dev/null
-                rm "$netInstallDir/* $netInstallDir/.AppleDouble"/* 2> /dev/null
+                rm "$imagesDir/* 2> /dev/null
+                rm "$netInstallDir/* 2> /dev/null
                 afpsync -v $gsosDir > /dev/null
     
                 for diskname in ${diskNames[@]}; do
@@ -496,7 +494,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                             wget -qO $outfile "${binaryURL}external/appleii/gsos604/$diskname.po"
                         fi
                     fi
-                    cppo -s -ad $outfile $netInstallDir
+                    cppo -s -ea $outfile $netInstallDir
                 done
                 rm *.sea* &> /dev/null
                 sed -i "s/\([^\\]\r:\)/\1A2FILES:GSOS.Installer:Net.Install:/g" $netInstallDir/Install/Scripts/*
@@ -529,6 +527,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         targetFile=${targetPath##*/}
                         sourceParent=${sourcePath%/*}
                         sourceFile=${sourcePath##*/}
+                        sourcedotPath="${sourceParent}"/._"${sourceFile}"
+                        targetdotPath="${targetParent}"/._"${targetFile}"
                 
                         if [[ $action == 1 || $action == 2 ]]; then
                             mkdir -p $targetParent
@@ -536,14 +536,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                             echo "     to: $targetPath"
                             echo
                             [[ ! -d $targetParent ]] && mkdir -p $targetParent
-                            cp -p ${gsosDir%/*}$sourcePath $targetPath
-                            [[ ! -d $targetParent/.AppleDouble ]] && mkdir -p $targetParent/.AppleDouble
-                            cp -p ${gsosDir%/*}$sourceParent/.AppleDouble/$sourceFile $targetParent/.AppleDouble/$targetFile
+                            cp -p --preserve=xattr ${gsosDir%/*}$sourcePath $targetPath &> /dev/null
+                            if [[ -f ${gsosDir%/*}$sourcedotPath ]]; then
+                                cp -p ${gsosDir%/*}$sourcedotPath $targetdotPath
+                            fi
                         elif [[ $action == 3 || $action == 4 ]]; then
                             if [[ -f "$targetPath" ]]; then
                                 echo "deleting $targetPath"
                                 rm "$targetPath"
-                                [[ -f $targetParent/.AppleDouble/$targetFile ]] && rm "$targetParent/.AppleDouble/$targetFile"
                             fi
                         fi
                         (( entryIndex++ ))
@@ -647,16 +647,15 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         if (( $? != 0 )); then
                             wget -qO Asimov.shk http://web.archive.org/web/20160330184627/http://www.ninjaforce.com/downloads/Asimov.shk
                         fi
-                        nulib2 -x -s Asimov.shk &> /dev/null
+                        cppo -s -ea Asimov.shk . &> /dev/null
                     fi
                     if [[ ! -d Asimov ]]; then
                         wget -qO Asimov.shk ${binaryURL}external/appleii/Asimov.shk
-                        nulib2 -x -s Asimov.shk &> /dev/null
+                        cppo -s -ea Asimov.shk . &> /dev/null
                     fi
-                    cp -p Asimov/Asimov $imageToolsDir/Asimov
+                    cd Asimov/
+                    cpEA ./Asimov $imageToolsDir
                     afpsync -v $gsosDir > /dev/null
-                    cat Asimov/Asimov_rsrc_ >> $imageToolsDir/.AppleDouble/Asimov
-                    afptype -p S16 -q $imageToolsDir/Asimov
                 fi
             
                 echo -n "GS-ShrinkIt 1.1"
@@ -672,16 +671,16 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         if (( $? != 0 )); then
                             wget -qO gshk11.sea http://web.archive.org/web/20131031160750/http://nulib.com/library/gshk11.sea
                         fi
-                        nulib2 -x -s gshk11.sea &> /dev/null
+                        mkdir -p GSHK
+                        cppo -s -shk -ea gshk11.sea ./GSHK &> /dev/null
                     fi
-                    if [[ ! -f GSHK ]]; then
+                    if [[ ! -f ./GSHK/gshk11.sea ]]; then
                         wget -qO gshk11.sea ${binaryURL}external/appleii/gshk11.sea
-                        nulib2 -x -s gshk11.sea &> /dev/null
+                        mkdir -p GSHK
+                        cppo -s -shk -ea gshk11.sea ./GSHK &> /dev/null
                     fi
-                    cp -p GSHK $imageToolsDir/GSHK
-                    afpsync -v $gsosDir > /dev/null
-                    cat GSHK_rsrc_ >> $imageToolsDir/.AppleDouble/GSHK
-                    afptype -p S16 -a DB07 -q $imageToolsDir/GSHK
+                    cd GSHK/gshk11.sea/
+                    cpEA ./GSHK $imageToolsDir
                     cd /tmp/netboot
                 fi
         
@@ -698,17 +697,17 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         if (( $? != 0 )); then
                             wget -q -O http://web.archive.org/web/20150201044930/http://brutaldeluxe.fr/products/apple2gs/MOUNTIT.SHK
                         fi
-                        cppo -s -ad MOUNTIT.SHK System:System.Setup:MountIt . &> /dev/null
-                        cppo -s -ad MOUNTIT.SHK ReadMe . &> /dev/null
+                        cppo -s -ea MOUNTIT.SHK System:System.Setup:MountIt . &> /dev/null
+                        cppo -s -ea MOUNTIT.SHK ReadMe . &> /dev/null
                     fi
                     if [[ ! -f ReadMe ]]; then
                         wget -qO MOUNTIT.SHK ${binaryURL}external/appleii/MOUNTIT.SHK
-                        cppo -s -ad MOUNTIT.SHK System:System.Setup:MountIt . &> /dev/null
-                        cppo -s -ad MOUNTIT.SHK ReadMe . &> /dev/null
+                        cppo -s -ea MOUNTIT.SHK System:System.Setup:MountIt . &> /dev/null
+                        cppo -s -ea MOUNTIT.SHK ReadMe . &> /dev/null
                     fi
-                    cpAD ./MountIt $gsosDir/System/System.Setup
+                    cpEA ./MountIt $gsosDir/System/System.Setup
                     mkdir -p $gsosDir/GSOS.Installer/Image.Tools/MountIt
-                    cpAD ./ReadMe $gsosDir/GSOS.Installer/Image.Tools/MountIt
+                    cpEA ./ReadMe $gsosDir/GSOS.Installer/Image.Tools/MountIt
                     afpsync -v $gsosDir > /dev/null
                 fi
             fi
@@ -737,7 +736,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     wget -qO shrinkit.sdk ${binaryURL}external/appleii/shrinkit.sdk
                     nulib2 -x -s -e shrinkit.sdk &> /dev/null
                 fi
-                cppo -s -ad "SHRINKIT#000118i" /SHRINKIT/SHRINKIT $diskToolsP8Dir &> /dev/null
+                cppo -s -ea "SHRINKIT#000118i" /SHRINKIT/SHRINKIT $diskToolsP8Dir &> /dev/null
                 afpsync -v $sharepath > /dev/null
             fi
         
@@ -783,10 +782,10 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 fi
                 truncate -s 819284 'Apple II System Disk 3.2.sea'
                 dd if='Apple II System Disk 3.2.sea' of=A2SYSDISK32.HDV bs=84 skip=1 2> /dev/null
-                cppo -s -ad A2SYSDISK32.HDV /UTILITIES/SYSUTIL.SYSTEM $diskToolsP8Dir &> /dev/null
-                cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.0 $diskToolsP8Dir &> /dev/null
-                cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.1 $diskToolsP8Dir &> /dev/null
-                cppo -s -ad A2SYSDISK32.HDV /UTILITIES/UTIL.2 $diskToolsP8Dir &> /dev/null
+                cppo -s -ea A2SYSDISK32.HDV /UTILITIES/SYSUTIL.SYSTEM $diskToolsP8Dir &> /dev/null
+                cppo -s -ea A2SYSDISK32.HDV /UTILITIES/UTIL.0 $diskToolsP8Dir &> /dev/null
+                cppo -s -ea A2SYSDISK32.HDV /UTILITIES/UTIL.1 $diskToolsP8Dir &> /dev/null
+                cppo -s -ea A2SYSDISK32.HDV /UTILITIES/UTIL.2 $diskToolsP8Dir &> /dev/null
                 afpsync -v $sharepath > /dev/null
             fi
     
@@ -860,7 +859,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         wget -qO spectrum_platinum_2mg.zip ${binaryURL}external/appleii/spectrum_platinum_2mg.zip
                         unzip spectrum_platinum_2mg.zip "Spectrum Platinum 2.2mg" &> /dev/null
                     fi
-                    cppo -s -ad "Spectrum Platinum 2.2mg" . &> /dev/null
+                    cppo -s -ea "Spectrum Platinum 2.2mg" . &> /dev/null
                     userFolder=$(tr [:lower:] [:upper:] <<< $USER)
                     
                     for thisFolder in \
@@ -877,12 +876,11 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                       Manuals^Comm/Spectrum/Manuals
                     do
                         mkdir -p $gsosDir/"${thisFolder##*^}"
-                        cp -R Spectrum.Platnm/${thisFolder%%^*}/* $gsosDir/"${thisFolder##*^}"
-                        mkdir -p $gsosDir/"${thisFolder##*^}"/.AppleDouble
-                        cp -R Spectrum.Platnm/${thisFolder%%^*}/.AppleDouble/* $gsosDir/"${thisFolder##*^}"/.AppleDouble
+                        cp -R --preserve=xattr Spectrum.Platnm/${thisFolder%%^*}/* $gsosDir/"${thisFolder##*^}"
+                        cp -R Spectrum.Platnm/${thisFolder%%^*}/._* $gsosDir/"${thisFolder##*^}" &> /dev/null
                     done
-                    cpAD Spectrum.Platnm/Installer/SoundPatch $commDir/Spectrum
-                    cpAD Spectrum.Platnm/Spectrum.*/Spectrum $commDir/Spectrum
+                    cpEA Spectrum.Platnm/Installer/SoundPatch $commDir/Spectrum
+                    cpEA Spectrum.Platnm/Spectrum.*/Spectrum $commDir/Spectrum
                     afpsync -v $gsosDir > /dev/null
                 fi
 
@@ -896,7 +894,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 
                     # Marinetti 3.0b1 -- had to repackage because installer is GS/OS self-contained app
                     wget -qO MarinettiB1.SHK ${binaryURL}appleii/MarinettiB1.SHK
-                    cppo -ad -s -n MarinettiB1.SHK $gsosDir > /dev/null
+                    cppo -ea -s -n MarinettiB1.SHK $gsosDir > /dev/null
 
 		    # TCP/IP update (3.0b11)
                     if [[ $useExternalURL ]]; then
@@ -908,10 +906,10 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $? != 0 || ! -f TCPIP30b11.SHK || $(wc -c < TCPIP30b11.SHK) != "35486" ]]; then
                         wget -qO TCPIP30b11.SHK ${binaryURL}external/appleii/TCPIP30b11.SHK
                     fi
-		    cppo -ad -s TCPIP30b11.SHK . > /dev/null
+		    cppo -ea -s TCPIP30b11.SHK . > /dev/null
 		    cd TCPIP30b11
-		    cpAD TCPIP $gsosDir/System/System.Setup > /dev/null
-		    cpAD CHANGELOG.B11 $commDir/Marinetti > /dev/null
+		    cpEA TCPIP $gsosDir/System/System.Setup > /dev/null
+		    cpEA CHANGELOG.B11 $commDir/Marinetti > /dev/null
 		    
                     # PPP Scripted Link Layer update (1.3d4)
                     if [[ $useExternalURL ]]; then
@@ -923,13 +921,13 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $? != 0 || ! -f PPPX.1.3d4.SHK || $(wc -c < PPPX.1.3d4.SHK) != "22068" ]]; then
                         wget -qO PPPX.1.3d4.SHK ${binaryURL}external/appleii/PPPX.1.3d4.SHK
                     fi
-                    cppo -ad -s PPPX.1.3d4.SHK . > /dev/null
+                    cppo -ea -s PPPX.1.3d4.SHK . > /dev/null
                     cd PPPX.1.3d4
-                    cpAD PPP.scripted $gsosDir/System/TCPIP
-                    cpAD PPP.Script.DOC $commDir/Marinetti/Documentation
+                    cpEA PPP.scripted $gsosDir/System/TCPIP
+                    cpEA PPP.Script.DOC $commDir/Marinetti/Documentation
                     mkdir -p $commDir/Marinetti/PPP.scripted
-                    cpAD Connect.Script $commDir/Marinetti/PPP.scripted
-                    cpAD ChangeLog $commDir/Marinetti/PPP.scripted
+                    cpEA Connect.Script $commDir/Marinetti/PPP.scripted
+                    cpEA ChangeLog $commDir/Marinetti/PPP.scripted
 
                     # Uthernet Link Layer
                     if [[ $useExternalURL ]]; then
@@ -938,7 +936,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $? != 0 || ! -f uthernetll.bxy || $(wc -c < uthernetll.bxy) -eq 0 ]]; then
                         wget -qO uthernetll.bxy ${binaryURL}external/appleii/uthernetll.bxy
                     fi
-                    cppo -ad -s -n uthernetll.bxy $gsosDir/System/TCPIP > /dev/null
+                    cppo -ea -s -n uthernetll.bxy $gsosDir/System/TCPIP > /dev/null
 
                     # Uthernet II Link Layer
                     if [[ $useExternalURL ]]; then
@@ -947,7 +945,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $? != 0 || ! -f uthernet2ll.bxy || $(wc -c < uthernet2ll.bxy) -eq 0 ]]; then
                         wget -qO uthernet2ll.bxy ${binaryURL}external/appleii/uthernet2ll.bxy
                     fi
-                    cppo -ad -s -n uthernet2ll.bxy $gsosDir/System/TCPIP > /dev/null
+                    cppo -ea -s -n uthernet2ll.bxy $gsosDir/System/TCPIP > /dev/null
 
                     # MacIP Link Layer settings for A2SERVER
                     wget -qO- ${scriptURL}files/macip-prefs.tgz | tar Pxz
@@ -966,21 +964,21 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $useExternalURL ]]; then
                         [[ ! $safeUrl ]] && safeUrl="http://speccie.uk/speccie/downloads/safe236.bxy"
                         wget -qO safe2.bxy "$safeUrl"
-                        cppo -s -ad safe2.bxy . &> /dev/null
+                        cppo -s -ea safe2.bxy . &> /dev/null
                     fi
                     if [[ ! -f SAFE2.Archive/Safe2 ]]; then
                         wget -qO safe2.bxy ${binaryURL}external/appleii/safe2.bxy
-                        cppo -s -ad safe2.bxy . &> /dev/null
+                        cppo -s -ea safe2.bxy . &> /dev/null
                     fi
                     cd SAFE2.Archive
-                    cpAD Safe2 $commDir/SAFE2
-                    cpAD The.Manual $commDir/SAFE2
-                    cpAD Read.Me.First $commDir/SAFE2
-                    cpAD Version.History $commDir/SAFE2
-                    cpAD Fonts/SAFE.8 $gsosDir/System/Fonts
-                    cpAD Fonts/Shaston.16 $gsosDir/System/Fonts
-                    cpAD TimeZone/TimeZone $gsosDir/System/CDevs
-                    cpAD TimeZone/Tool056 $gsosDir/System/Tools
+                    cpEA Safe2 $commDir/SAFE2
+                    cpEA The.Manual $commDir/SAFE2
+                    cpEA Read.Me.First $commDir/SAFE2
+                    cpEA Version.History $commDir/SAFE2
+                    cpEA Fonts/SAFE.8 $gsosDir/System/Fonts
+                    cpEA Fonts/Shaston.16 $gsosDir/System/Fonts
+                    cpEA TimeZone/TimeZone $gsosDir/System/CDevs
+                    cpEA TimeZone/Tool056 $gsosDir/System/Tools
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SAFE2 2> /dev/null
                     mv Help/Help.Files/SAFE2 $gsosDir/System/Desk.Accs/Help.Files
                     wget -qO- ${binaryURL}safe2-setup.tgz | tar Pzx
@@ -1000,21 +998,21 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $useExternalURL ]]; then
                         [[ ! $samUrl ]] && samUrl="http://speccie.uk/speccie/downloads/sam209.bxy"
                         wget -qO sam2.bxy "$samUrl"
-                        cppo -s -ad sam2.bxy . &> /dev/null
+                        cppo -s -ea sam2.bxy . &> /dev/null
                     fi
                     if [[ ! -f SAM2.Archive/SAM2/SAM2 ]]; then
                         wget -qO sam2.bxy ${binaryURL}external/appleii/sam2.bxy
-                        cppo -s -ad sam2.bxy . &> /dev/null
+                        cppo -s -ea sam2.bxy . &> /dev/null
                     fi
                     cd SAM2.Archive
-                    cpAD SAM2/SAM2 $commDir/SAM2
-                    cpAD SAM2/SAM2.Data/Taglines $commDir/SAM2/SAM2.Data
-                    cpAD Sounds/SP.Snds.Aux $gsosDir/System/Sounds
-                    cpAD Fonts/SAM.8 $gsosDir/System/Fonts
-                    cpAD Fonts/SAM.10 $gsosDir/System/Fonts
-                    cpAD The.Manual $commDir/SAM2
-                    cpAD Read.Me.First $commDir/SAM2
-                    cpAD Version.History $commDir/SAM2
+                    cpEA SAM2/SAM2 $commDir/SAM2
+                    cpEA SAM2/SAM2.Data/Taglines $commDir/SAM2/SAM2.Data
+                    cpEA Sounds/SP.Snds.Aux $gsosDir/System/Sounds
+                    cpEA Fonts/SAM.8 $gsosDir/System/Fonts
+                    cpEA Fonts/SAM.10 $gsosDir/System/Fonts
+                    cpEA The.Manual $commDir/SAM2
+                    cpEA Read.Me.First $commDir/SAM2
+                    cpEA Version.History $commDir/SAM2
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SAM2 2> /dev/null
                     mv Help/Help.Files/SAM2 $gsosDir/System/Desk.Accs/Help.Files
                     # cpAD Fonts/SIS.3.10 $gsosDir/System/Fonts
@@ -1037,20 +1035,20 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $useExternalURL ]]; then
                         [[ ! $snapUrl ]] && snapUrl="http://speccie.uk/speccie/downloads/snap123.bxy"
                         wget -qO snap.bxy "$snapUrl"
-                        cppo -s -ad snap.bxy . &> /dev/null
+                        cppo -s -ea snap.bxy . &> /dev/null
                     fi
                     if [[ ! -f SNAP.Archive/SNAP ]]; then
                         wget -qO snap.bxy ${binaryURL}external/appleii/snap.bxy
-                        cppo -s -ad snap.bxy . &> /dev/null
+                        cppo -s -ea snap.bxy . &> /dev/null
                     fi
                     cd SNAP.Archive
-                    cpAD SNAP $commDir/SNAP
-                    cpAD Fonts/SNAP.8 $gsosDir/System/Fonts
-                    cpAD Fonts/SNAP.10 $gsosDir/System/Fonts
-                    cpAD The.Manual $commDir/SNAP
-                    cpAD Read.Me.First $commDir/SNAP
-                    cpAD Change.List $commDir/SNAP
-                    cpAD Quick.Start $commDir/SNAP
+                    cpEA SNAP $commDir/SNAP
+                    cpEA Fonts/SNAP.8 $gsosDir/System/Fonts
+                    cpEA Fonts/SNAP.10 $gsosDir/System/Fonts
+                    cpEA The.Manual $commDir/SNAP
+                    cpEA Read.Me.First $commDir/SNAP
+                    cpEA Change.List $commDir/SNAP
+                    cpEA Quick.Start $commDir/SNAP
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SNAP 2> /dev/null
                     mv Help/Help.Files/SNAP $gsosDir/System/Desk.Accs/Help.Files
                     wget -qO- ${binaryURL}snap-setup.tgz | tar Pzx
@@ -1074,18 +1072,18 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $useExternalURL ]]; then
                         [[ ! $webberUrl ]] && webberUrl="http://speccie.uk/speccie/downloads/webber115.bxy"
                         wget -qO webber.bxy "$webberUrl"
-                        cppo -s -ad webber.bxy . &> /dev/null
+                        cppo -s -ea webber.bxy . &> /dev/null
                     fi
                     if [[ ! -f Webber/Webber ]]; then
                         wget -qO webber.bxy ${binaryURL}external/appleii/webber.bxy
-                        cppo -s -ad webber.bxy . &> /dev/null
+                        cppo -s -ea webber.bxy . &> /dev/null
                     fi
                     cd Webber
-                    cpAD Webber $commDir/Webber
-                    cpAD Read.Me.First $commDir/Webber
-                    cpAD Changes $commDir/Webber
-		    cpAD Tools/TOOL130 $gsosDir/System/Tools
-                    cpAD Tools/TOOL132 $gsosDir/System/Tools
+                    cpEA Webber $commDir/Webber
+                    cpEA Read.Me.First $commDir/Webber
+                    cpEA Changes $commDir/Webber
+		    cpEA Tools/TOOL130 $gsosDir/System/Tools
+                    cpEA Tools/TOOL132 $gsosDir/System/Tools
                     afpsync -v $gsosDir > /dev/null
                 fi
 
@@ -1102,21 +1100,21 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $useExternalURL ]]; then
                         [[ ! $networkerUrl ]] && networkerUrl="http://speccie.uk/speccie/downloads/netwrk.203.bxy"
                         wget -qO networker.bxy "$networkerUrl"
-                        cppo -s -ad networker.bxy . &> /dev/null
+                        cppo -s -ea networker.bxy . &> /dev/null
                     fi
                     if [[ ! -f Networker2/NetWorker2 ]]; then
                         wget -qO networker.bxy ${binaryURL}external/appleii/networker.bxy
-                        cppo -s -ad networker.bxy . &> /dev/null
+                        cppo -s -ea networker.bxy . &> /dev/null
                     fi
                     cd Networker2
-                    cpAD NetWorker2 $commDir/Networker2
-                    cpAD Manual $commDir/Networker2
-                    cpAD Read.Me.First $commDir/Networker2
-                    cpAD Changes $commDir/Networker2
-                    cpAD NetW.Data/NetW.Prefs $commDir/Networker2/NetW.Data
-                    cpAD NetW.Data/Commands1.txt $commDir/Networker2/NetW.Data
-                    cpAD NetW.Data/Commands2.txt $commDir/Networker2/NetW.Data
-                    cpAD NetW.Data/Commands3.txt $commDir/Networker2/NetW.Data
+                    cpEA NetWorker2 $commDir/Networker2
+                    cpEA Manual $commDir/Networker2
+                    cpEA Read.Me.First $commDir/Networker2
+                    cpEA Changes $commDir/Networker2
+                    cpEA NetW.Data/NetW.Prefs $commDir/Networker2/NetW.Data
+                    cpEA NetW.Data/Commands1.txt $commDir/Networker2/NetW.Data
+                    cpEA NetW.Data/Commands2.txt $commDir/Networker2/NetW.Data
+                    cpEA NetW.Data/Commands3.txt $commDir/Networker2/NetW.Data
 		    rm -r $gsosDir/System/Desk.Accs/Help.Files/NetWorker2 2> /dev/null
                     mv Help/Help.Files/NetWorker2 $gsosDir/System/Desk.Accs/Help.Files 
                     afpsync -v $gsosDir > /dev/null
@@ -1129,14 +1127,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     if [[ $useExternalURL ]]; then
                         [[ ! $checkfileUrl ]] && checkfileUrl="http://speccie.uk/speccie/downloads/chkfile108.bxy"
                         wget -qO checkfile.bxy "$checkfileUrl"
-                        cppo -s -ad checkfile.bxy . &> /dev/null
+                        cppo -s -ea checkfile.bxy . &> /dev/null
                     fi
                     if [[ ! -f Check.File/CheckFile ]]; then
                         wget -qO checkfile.bxy ${binaryURL}external/appleii/checkfile.bxy
-                        cppo -s -ad checkfile.bxy . &> /dev/null
+                        cppo -s -ea checkfile.bxy . &> /dev/null
                     fi
                     cd Check.File
-                    cpAD CheckFile $gsosDir/System/System.Setup
+                    cpEA CheckFile $gsosDir/System/System.Setup
                     afpsync -v $gsosDir > /dev/null
 
 		echo -n "NetDisk 1.0"
@@ -1148,18 +1146,18 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    cd /tmp/netboot/netdisk
                     if [[ $useExternalURL ]]; then
 		        wget -qO NetDisk10.shk https://github.com/sheumann/NetDisk/releases/download/v1.0/NetDisk10.shk
-		        cppo -ad -s NetDisk10.shk . > /dev/null
+		        cppo -ea -s NetDisk10.shk . > /dev/null
 		    fi
                     if [[ ! -f NetDisk/NetDisk ]]; then
                         wget -qO NetDisk10.shk ${binaryURL}external/appleii/NetDisk10.shk
-                        cppo -s -ad NetDisk10.shk . &> /dev/null
+                        cppo -s -ea NetDisk10.shk . &> /dev/null
                     fi
 		    userFolder=$(tr [:lower:] [:upper:] <<< $USER)
 		    cd NetDisk
-		    cpAD NetDiskInit $gsosDir/System/System.Setup
-		    cpAD NetDisk $gsosDir/System/CDevs
+		    cpEA NetDiskInit $gsosDir/System/System.Setup
+		    cpEA NetDisk $gsosDir/System/CDevs
 		    mkdir -p $gsosDir/USERS/$userFolder/FinderExtras
-		    cpAD DiskBrowser $gsosDir/USERS/$userFolder/FinderExtras
+		    cpEA DiskBrowser $gsosDir/USERS/$userFolder/FinderExtras
 		    afpsync -v $gsosDir > /dev/null
 		fi
 		echo -n "AFPBridge 1.0b1"
@@ -1171,15 +1169,15 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    cd /tmp/netboot/afpbridge
                     if [[ $useExternalURL ]]; then
 		        wget -qO AFPBridgeB1.shk https://github.com/sheumann/AFPBridge/releases/download/v1.0b1/AFPBridgeB1.shk
-		        cppo -ad -s AFPBridgeB1.shk . > /dev/null
+		        cppo -ea -s AFPBridgeB1.shk . > /dev/null
 		    fi
                     if [[ ! -f AFPBridge.1.0b1/AFPBridge ]]; then
                         wget -qO AFPBridgeB1.shk ${binaryURL}external/appleii/AFPBridgeB1.shk
-                        cppo -s -ad AFPBridgeB1.shk . &> /dev/null
+                        cppo -s -ea AFPBridgeB1.shk . &> /dev/null
                     fi
 		    cd AFPBridge.1.0b1
-		    cpAD AFPBridge $gsosDir/System/System.Setup
-		    cpAD AFPMounter $gsosDir/System/CDevs
+		    cpEA AFPBridge $gsosDir/System/System.Setup
+		    cpEA AFPMounter $gsosDir/System/CDevs
 		    afpsync -v $gsosDir > /dev/null
 		fi
 		echo -n "SMBFST 1.0"
@@ -1191,17 +1189,19 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    cd /tmp/netboot/smbfst
                     if [[ $useExternalURL ]]; then
 		        wget -qO smbfst10.shk https://github.com/sheumann/smbfst/releases/download/1.0/smbfst10.shk
-		        cppo -ad -s smbfst10.shk . > /dev/null
+		        cppo -ea -s smbfst10.shk . > /dev/null
 		    fi
                     if [[ ! -f smbfst10/SMB ]]; then
                         wget -qO smbfst10.shk ${binaryURL}external/appleii/smbfst10.shk
-                        cppo -s -ad smbfst10.shk . &> /dev/null
+                        cppo -s -ea smbfst10.shk . &> /dev/null
                     fi
 		    cd smbfst10
-		    cpAD SMB $gsosDir/System/CDevs
-		    cpAD SMB.FST $gsosDir/System/FSTs
+		    cpEA SMB $gsosDir/System/CDevs
+		    cpEA SMB.FST $gsosDir/System/FSTs
 		    afpsync -v $gsosDir > /dev/null
 		fi
+                # force convert some AppleDouble v2 files that might have came over in settings files
+                sudo dbd -c /srv/A2SERVER/A2FILES/ &> /dev/null
              fi
 
             echo -n "ProTERM 3.1"
@@ -1211,14 +1211,11 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             else
                 echo
                 mkdir -p $commDir/ProTERM
-                mkdir -p $commDir/ProTERM/.AppleDouble
                 cd /tmp/netboot
                 wget -qO A2CLOUD.HDV "${binaryURL}appleii/A2CLOUD.HDV"
-                cppo -s -ad A2CLOUD.HDV . &> /dev/null
+                cppo -s -ea A2CLOUD.HDV . &> /dev/null
                 cd A2CLOUD
                 mv *PT3* *PROTERM* $commDir/ProTERM
-                cd .AppleDouble
-                mv *PT3* *PROTERM* $commDir/ProTERM/.AppleDouble
                 afpsync -v $gsosDir > /dev/null
             fi            
 
@@ -1229,11 +1226,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             else
                 echo
                 mkdir -p $commDir/Z.Link
-                mkdir -p $commDir/Z.Link/.AppleDouble
                 cd /tmp/netboot/A2CLOUD
                 mv Z.LINK $commDir/Z.Link
-                cd .AppleDouble
-                mv Z.LINK $commDir/Z.Link/.AppleDouble
                 afpsync -v $gsosDir > /dev/null
             fi            
 
@@ -1242,18 +1236,15 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 echo " is already installed."
             else
                 mkdir -p $commDir/ADTPro
-                mkdir -p $commDir/ADTPro/.AppleDouble
                 echo
                 cd /tmp/netboot/A2CLOUD
                 mv *ADTPRO* *VEDRIVE* *VSDRIVE* $commDir/ADTPro
-                cd .AppleDouble
-                mv *ADTPRO* *VEDRIVE* *VSDRIVE* $commDir/ADTPro/.AppleDouble
                 afpsync -v $gsosDir > /dev/null
             fi            
-
         fi
             
         # clean up
+        rm -rf /tmp/netboot
         cd
     
         # rock and roll!
@@ -1285,13 +1276,14 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             # Farallon bridge patch for GS/OS courtesy of Geoff Body
             echo "A2SERVER: Downloading Farallon bridge patch..."
             wget -qO /tmp/FARALLON.PO "${binaryURL}appleii/FARALLON.B1.PO" &> /dev/null
-            cppo -s -ad /tmp/FARALLON.PO /ATALKPATCH/ATALKIRQ $gsosDir/SYSTEM/SYSTEM.SETUP &> /dev/null
+            cppo -s -ea /tmp/FARALLON.PO /ATALKPATCH/ATALKIRQ $gsosDir/SYSTEM/SYSTEM.SETUP &> /dev/null
             echo
             echo "A2SERVER: The Farallon bridge patch is installed."
             echo
             echo "Note: Farallon bridges can only be used in GS/OS (with this patch)"
             echo "and Apple IIe computers. Apple IIgs computers which network boot"
             echo "directly into ProDOS 8 will freeze after a few minutes."
+            rm /tmp/FARALLON.PO
 	    afpsync -v $gsosDir > /dev/null
         fi
     fi
