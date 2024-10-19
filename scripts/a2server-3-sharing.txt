@@ -104,7 +104,7 @@ else
     }
 
     # Tools We need elsewhere
-    sudo apt-get install --no-install-recommends --assume-yes crudini uml-utilities ninja-build attr
+    sudo apt-get install --no-install-recommends --assume-yes crudini ninja-build attr
     
     # Dependencies: build-deps for netatalk 4.0
     sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev libpam0g-dev libdb-dev docbook-xsl xsltproc cmark-gfm
@@ -387,6 +387,26 @@ if ! hash ciopfs &> /dev/null; then
         sudo mv ciopfs /usr/local/bin
         cd
         rm -rf /tmp/ciopfs
+    fi
+    # debian trixie no longer bundles ulockmgr_server, which we need for ciopfs to work properly
+    if ! hash ulockmgr_server &> /dev/null; then
+        echo "A2SERVER: Installing ulockmgr_server..."
+        # Dependency: build-dep for ciopfs
+        sudo apt-get -y install autoconf automake libtool libtool-bin gettext gawk
+        sudo apt-get -y clean
+        cd /tmp
+        wget -q -O fuse-2.9.9.zip https://github.com/libfuse/libfuse/archive/refs/tags/fuse-2.9.9.zip
+        unzip fuse-2.9.9.zip
+        cd libfuse-fuse-2.9.9/
+        # crude way of applying a patch to fix compile
+        gawk -i inplace 'NR < 126 || NR > 143' ./util/ulockmgr_server.c
+        ./makeconf.sh
+        ./configure
+        make -j8
+        sudo cp ./util/ulockmgr_server /usr/local/bin
+        cd
+        rm -rf /tmp/libfuse-fuse-2.9.9
+        rm /tmp/fuse-2.9.9.zip
     fi
     if ! grep -q '^ciopfs' /etc/fstab; then
         echo "ciopfs#/srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES fuse allow_other,use_ino 0 0" | sudo tee -a /etc/fstab > /dev/null

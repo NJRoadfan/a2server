@@ -321,7 +321,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             	SYS.APPS/CHOOSER^CHOOSER
             do
                 mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
-                cp -R ASIIGS.WS/${thisFolder%%^*}/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
+                cp -R --preserve=xattr ASIIGS.WS/${thisFolder%%^*}/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
             done
 	    # Get updated LOGON 1.5 program to match boot blocks.
             if [[ $useExternalURL ]]; then

@@ -103,8 +103,10 @@ def pdosDateToUnixDate(arg1):
     td = (datetime.datetime(year, month, day, hour, minute) -
            datetime.datetime(1970,1,1))
     unixDate_naive = (td.days*24*60*60 + td.seconds)
+    td3 = datetime.datetime.fromtimestamp(unixDate_naive, datetime.UTC)
+    unixDate_naiveutc = td3.replace(tzinfo=None)
     td2 = (datetime.datetime.fromtimestamp(unixDate_naive) -
-                  datetime.datetime.utcfromtimestamp(unixDate_naive))
+                  unixDate_naiveutc)
     utcoffset = (td2.days*24*60*60 + td2.seconds)
     # print(unixDate_naive - utcoffset)
     return (unixDate_naive - utcoffset) # local time zone with DST

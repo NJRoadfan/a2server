@@ -3,6 +3,6 @@
 
 auto tash0
 iface tash0 inet manual
-   pre-up tunctl -t tash0 -u root
+   pre-up ip tuntap add mode tap user root name tash0 || true   
    up ip link set dev tash0 up
    down ip link set dev tash0 down
