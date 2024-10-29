@@ -1,0 +1,49 @@
+diff -Naur ciopfs-0.4/ciopfs.c ciopfs-0.4c/ciopfs.c
+--- ciopfs-0.4/ciopfs.c	2011-06-18 07:38:02.000000000 -0400
++++ ciopfs-0.4c/ciopfs.c	2024-10-29 18:31:12.595965145 -0400
+@@ -47,10 +47,9 @@
+ #define _XOPEN_SOURCE 500 /* For pread()/pwrite() */
+ #endif
+ 
+-#define _BSD_SOURCE /* for vsyslog() */
++#define _DEFAULT_SOURCE /* for vsyslog() */
+ 
+ #include <fuse.h>
+-#include <ulockmgr.h>
+ #include <sys/xattr.h>
+ #include <sys/time.h>
+ #include <assert.h>
+@@ -874,13 +873,6 @@
+ 	return res;
+ }
+ 
+-static int ciopfs_lock(const char *path, struct fuse_file_info *fi, int cmd,
+-                       struct flock *lock)
+-{
+-	return ulockmgr_op(fi->fh, cmd, lock, &fi->lock_owner,
+-			   sizeof(fi->lock_owner));
+-}
+-
+ static void *ciopfs_init(struct fuse_conn_info *conn)
+ {
+ 	if (chdir(dirname) == -1) {
+@@ -922,7 +914,6 @@
+ 	.getxattr	= ciopfs_getxattr,
+ 	.listxattr	= ciopfs_listxattr,
+ 	.removexattr	= ciopfs_removexattr,
+-	.lock		= ciopfs_lock,
+ 	.init		= ciopfs_init
+ };
+ 
+diff -Naur ciopfs-0.4/config.mk ciopfs-0.4c/config.mk
+--- ciopfs-0.4/config.mk	2011-06-18 07:38:02.000000000 -0400
++++ ciopfs-0.4c/config.mk	2024-10-29 18:20:15.003970688 -0400
+@@ -8,7 +8,7 @@
+ MANPREFIX = ${PREFIX}/share/man
+ 
+ CFLAGS_FUSE  = $(shell pkg-config --cflags fuse) -DFUSE_USE_VERSION=26
+-LDFLAGS_FUSE = $(shell pkg-config --libs fuse) -lulockmgr
++LDFLAGS_FUSE = $(shell pkg-config --libs fuse)
+ 
+ LDFLAGS_XATTR = -lattr
+ 
