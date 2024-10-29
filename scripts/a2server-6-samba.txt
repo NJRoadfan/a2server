@@ -34,9 +34,6 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupWindowsSharing ]]; then
             sudo apt-get clean
         fi
 
-        sudo systemctl start smbd nmbd &> /dev/null
-        sudo systemctl enable smbd nmbd &> /dev/null
-
         workgroup=$(grep -o "^   workgroup = .*$" /etc/samba/smb.conf 2> /dev/null | cut -c 16-)
         [[ $workgroup ]] || workgroup="WORKGROUP"
         if [[ ! $autoAnswerYes ]]; then
@@ -63,6 +60,20 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupWindowsSharing ]]; then
                 echo "A2SERVER: $sharename has been set up for Windows file sharing."
             fi
         done
+
+        # enable netatalk-samba interop options
+        if [[ ! $(grep "fruit" /etc/samba/smb.conf) ]]; then
+            sudo crudini --set /etc/samba/smb.conf global "ea support" "yes"
+            sudo crudini --set /etc/samba/smb.conf global "vfs objects" "catia fruit streams_xattr"
+            sudo crudini --set /etc/samba/smb.conf global "fruit:locking" "netatalk"
+            sudo crudini --set /etc/samba/smb.conf global "fruit:encoding" "native"
+            sudo crudini --set /etc/samba/smb.conf global "fruit:metadata" "netatalk"
+            sudo crudini --set /etc/samba/smb.conf global "streams_xattr:prefix" "user."
+            sudo crudini --set /etc/samba/smb.conf global "streams_xattr:store_stream_type" "no"
+        fi
+
+        sudo systemctl start smbd nmbd &> /dev/null
+        sudo systemctl enable smbd nmbd &> /dev/null
 
         echo
         echo "A2SERVER: Setting Windows file sharing password to 'apple2'."

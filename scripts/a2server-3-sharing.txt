@@ -333,6 +333,7 @@ sudo usermod -a -G lpadmin $USER
 #        /usr/local/etc/netatalk/AppleVolumes.default
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "path" "/srv/A2SERVER/A2FILES"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "prodos" "yes"
+sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "ea" "samba"
 #sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "appledouble" "v2"
 
 [[ -d /srv/A2SERVER/A2FILES ]] || mkdir -p /srv/A2SERVER/A2FILES
