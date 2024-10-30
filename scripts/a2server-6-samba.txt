@@ -63,13 +63,13 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupWindowsSharing ]]; then
 
         # enable netatalk-samba interop options
         if [[ ! $(grep "fruit" /etc/samba/smb.conf) ]]; then
-            sudo crudini --set /etc/samba/smb.conf global "ea support" "yes"
-            sudo crudini --set /etc/samba/smb.conf global "vfs objects" "catia fruit streams_xattr"
-            sudo crudini --set /etc/samba/smb.conf global "fruit:locking" "netatalk"
-            sudo crudini --set /etc/samba/smb.conf global "fruit:encoding" "native"
-            sudo crudini --set /etc/samba/smb.conf global "fruit:metadata" "netatalk"
-            sudo crudini --set /etc/samba/smb.conf global "streams_xattr:prefix" "user."
-            sudo crudini --set /etc/samba/smb.conf global "streams_xattr:store_stream_type" "no"
+            sudo gawk -i inplace '1;/\[global\]/{print "   streams_xattr:store_stream_type = no"}' /etc/samba/smb.conf
+            sudo gawk -i inplace '1;/\[global\]/{print "   streams_xattr:prefix = user."}' /etc/samba/smb.conf
+            sudo gawk -i inplace '1;/\[global\]/{print "   fruit:metadata = netatalk"}' /etc/samba/smb.conf
+            sudo gawk -i inplace '1;/\[global\]/{print "   fruit:encoding = native"}' /etc/samba/smb.conf
+            sudo gawk -i inplace '1;/\[global\]/{print "   fruit:locking = netatalk"}' /etc/samba/smb.conf
+            sudo gawk -i inplace '1;/\[global\]/{print "   vfs objects = catia fruit streams_xattr"}' /etc/samba/smb.conf
+            sudo gawk -i inplace '1;/\[global\]/{print "   ea support = yes"}' /etc/samba/smb.conf
         fi
 
         sudo systemctl start smbd nmbd &> /dev/null
