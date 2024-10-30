@@ -18,7 +18,7 @@
 #   and features such as default printer are not used.
 
 # to do
-# possibly require confirmation if AFPD_GUEST is not set correctly
+# possibly require confirmation if guest account is not set correctly
 #  or offer to change it
 
 # from ID-bashByter library
@@ -153,8 +153,8 @@ while : ; do
         if [ `echo $arg | tr '[:upper:]' '[:lower:]'` = "guest" ]; then
             username='<Any User>'
             alsoguest=
-            if [[ ! $(grep -F -s $(ls -1 /home) /etc/default/netatalk) ]]; then
-                echo 'Warning: The AFPD_GUEST setting in /etc/default/netatalk is not assigned to a'
+            if [[ ! $(grep -F -s $(ls -1 /home) /usr/local/etc/netatalk/afp.conf) ]]; then
+                echo 'Warning: The "guest account" setting in afp.conf is not assigned to a'
                 echo 'user with a folder in /home. Guest users may be able to boot over the network'
                 echo 'into ProDOS 8 for read-only access, but will not be able to boot into GS/OS.'
                 if [ $gs ]; then

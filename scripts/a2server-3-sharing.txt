@@ -202,6 +202,9 @@ fi
 # disable home folder "name" in later netatalk builds
 sudo crudini --del /usr/local/etc/netatalk/afp.conf Homes
 
+# allow Guest users to be able to network boot
+sudo crudini --set /usr/local/etc/netatalk/afp.conf Global "guest account" "$USER"
+
 echo "A2SERVER: Configuring TashRouter..."
 
 sudo systemctl stop tashrouter &> /dev/null
