@@ -128,16 +128,16 @@ else
     cd /tmp/netatalk
     
     if [[ $useExternalURL ]]; then
-	wget -qO netatalk-4.0.1.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-4-0-1/netatalk-4.0.1.tar.xz"
-	tar xf netatalk-4.0.1.tar.xz &> /dev/null
+	wget -qO netatalk-4.0.4.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-4-0-4/netatalk-4.0.4.tar.xz"
+	tar xf netatalk-4.0.4.tar.xz &> /dev/null
     fi
 
-    if [[ ! -d netatalk-4.0.1 ]]; then
-        wget -O netatalk-4.0.1.tar.xz "${binaryURL}external/source/netatalk-4.0.1.tar.xz"
-        tar xf netatalk-4.0.1.tar.xz &> /dev/null
+    if [[ ! -d netatalk-4.0.4 ]]; then
+        wget -O netatalk-4.0.4.tar.xz "${binaryURL}external/source/netatalk-4.0.4.tar.xz"
+        tar xf netatalk-4.0.4.tar.xz &> /dev/null
     fi
 
-    cd netatalk-4.0.1
+    cd netatalk-4.0.4
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
@@ -335,6 +335,7 @@ sudo usermod -a -G lpadmin $USER
 #    's/^#share2/\/srv\/A2SERVER\/A2FILES\ A2FILES options:prodos\ ea:ad/' \
 #        /usr/local/etc/netatalk/AppleVolumes.default
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "path" "/srv/A2SERVER/A2FILES"
+sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "cnid dev" "no"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "prodos" "yes"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "ea" "samba"
 #sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "appledouble" "v2"
@@ -388,7 +389,7 @@ if ! hash ciopfs &> /dev/null; then
         fi
         cd ciopfs*
         # patch source to remove lock() function and deprecated functions.
-        wget -O ciopfs_patch.diff "${scriptURL}files/ciopfs_patch.diff"
+        wget -q -O ciopfs_patch.diff "${scriptURL}files/ciopfs_patch.diff"
         patch -p1 < ciopfs_patch.diff
         make
         sudo mv ciopfs /usr/local/bin
