@@ -108,17 +108,17 @@ else
     
     # Dependencies: build-deps for netatalk 4.0
     sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev libpam0g-dev libdb-dev docbook-xsl xsltproc cmark-gfm
-    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libtracker-sparql-3.0-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs unicode-data
+    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs unicode-data
 
     sudo apt-get clean
 
     # bullseye needs to get meson from pip
     if [[ $debianName == "bullseye" ]]; then
-	sudo apt-get install --assume-yes python3-pip
+	sudo apt-get install --assume-yes python3-pip libtracker-miner-2.0-dev
 	sudo apt-get clean
 	sudo pip install meson
     else
-	sudo apt-get install --assume-yes meson
+	sudo apt-get install --assume-yes meson libtracker-sparql-3.0-dev
 	sudo apt-get clean
     fi
 
