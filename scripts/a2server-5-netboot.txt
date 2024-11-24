@@ -497,7 +497,11 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cppo -s -ea $outfile $netInstallDir
                 done
                 rm *.sea* &> /dev/null
+                # sed trashes the EAs on the script files. back them up and then restore them afterwards.
+                getfattr --name="user.org.netatalk.Metadata" --absolute-names -R $netInstallDir/Install/Scripts/* > attr.txt
                 sed -i "s/\([^\\]\r:\)/\1A2FILES:GSOS.Installer:Net.Install:/g" $netInstallDir/Install/Scripts/*
+                setfattr --restore attr.txt
+                rm attr.txt
     
                 afpsync -v $gsosDir > /dev/null
                 
