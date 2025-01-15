@@ -224,7 +224,14 @@ if [[ ! $(ip a | grep 'tash0') ]]; then
         sudo ip link set dev tash0 up
         sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
     else #config tap with NetworkManager
+        distroname=$(lsb_release -i | cut -f2)
+        if [[ $distroname == "Ubuntu" ]]; then
+            sudo apt-get install --assume-yes network-manager
+        fi
         sudo nmcli connection add type tun tun.mode tap tun.owner 0 autoconnect yes con-name "TashRouter TAP" ipv4.method disabled ipv6.method disabled ifname tash0
+        if [[ $distroname == "Ubuntu" ]]; then
+            sudo netplan apply
+        fi
     fi
 fi
 sudo systemctl enable tashrouter
