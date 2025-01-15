@@ -223,6 +223,9 @@ if [[ ! $(ip a | grep 'tash0') ]]; then
     sudo ip link set dev tash0 up
 fi
 # make sure it comes up after reboot
+if [ ! -d "/etc/network/interfaces.d" ]; then
+    sudo mkdir /etc/network/interfaces.d
+fi
 sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
 sudo systemctl enable tashrouter
 cd /tmp/
