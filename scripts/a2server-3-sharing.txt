@@ -219,14 +219,14 @@ sudo wget -q -O /usr/local/sbin/tashrouter.py "${scriptURL}files/tashrouter.py"
 
 # create tap interface to link netatalk and tashrouter
 if [[ ! $(ip a | grep 'tash0') ]]; then
-    sudo ip tuntap add mode tap tash0
-    sudo ip link set dev tash0 up
+    if [ -d "/etc/network/interfaces.d" ]; then # config tap with ifupdown
+        sudo ip tuntap add mode tap tash0
+        sudo ip link set dev tash0 up
+        sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
+    else #config tap with NetworkManager
+        sudo nmcli connection add type tun tun.mode tap tun.owner 0 autoconnect yes con-name "TashRouter TAP" ipv4.method disabled ipv6.method disabled ifname tash0
+    fi
 fi
-# make sure it comes up after reboot
-if [ ! -d "/etc/network/interfaces.d" ]; then
-    sudo mkdir /etc/network/interfaces.d
-fi
-sudo wget -q -O /etc/network/interfaces.d/tash0 "${scriptURL}files/tash0.txt"
 sudo systemctl enable tashrouter
 cd /tmp/
 rm -rf tashrouter
