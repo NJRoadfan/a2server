@@ -312,7 +312,15 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 	    echo "A2SERVER: Installing P8 AppleShare Utilities..."
 	    mkdir -p /tmp/netboot/p8tools
             cd /tmp/netboot/p8tools
-	    wget -qO A2GS.WS.HDV ${binaryURL}appleii/a2ws/A2GS.WS.HDV
+            if [[ $useExternalURL ]]; then
+                wget -T 5 -t 1 -qO A2GS.WS.HDV https://appleii.ivanx.com/a2server/files/appleii/a2ws/A2GS.WS.HDV
+            fi
+            if (( $? != 0 )); then
+                wget -qO A2GS.WS.HDV https://web.archive.org/web/20240908102605/http://appleii.ivanx.com/a2server/files/appleii/a2ws/A2GS.WS.HDV
+            fi
+            if [[ $? != 0 || ! -f A2GS.WS.HDV || $(wc -c < A2GS.WS.HDV) != "819200" ]]; then
+                wget -qO A2GS.WS.HDV ${binaryURL}appleii/a2ws/A2GS.WS.HDV
+            fi
 	    cppo -ea -s A2GS.WS.HDV . > /dev/null
 	    mkdir -p $p8Dir/ATalk.Tools.P8
             for thisFolder in \
@@ -678,7 +686,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         mkdir -p GSHK
                         cppo -s -shk -ea gshk11.sea ./GSHK &> /dev/null
                     fi
-                    if [[ ! -f ./GSHK/gshk11.sea ]]; then
+                    if [[ ! -f ./GSHK/gshk11.sea/GSHK ]]; then
                         wget -qO gshk11.sea ${binaryURL}external/appleii/gshk11.sea
                         mkdir -p GSHK
                         cppo -s -shk -ea gshk11.sea ./GSHK &> /dev/null
@@ -897,7 +905,15 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cd /tmp/netboot/marinetti
 
                     # Marinetti 3.0b1 -- had to repackage because installer is GS/OS self-contained app
-                    wget -qO MarinettiB1.SHK ${binaryURL}appleii/MarinettiB1.SHK
+                    if [[ $useExternalURL ]]; then
+                        wget -T 5 -t 1 -qO MarinettiB1.SHK https://appleii.ivanx.com/a2server/files/appleii/MarinettiB1.SHK
+                    fi
+                    if (( $? != 0 )); then
+                        wget -qO MarinettiB1.SHK https://web.archive.org/web/20240701030707/https://appleii.ivanx.com/a2server/files/appleii/MarinettiB1.SHK
+                    fi
+                    if [[ $? != 0 || ! -f MarinettiB1.SHK || $(wc -c < MarinettiB1.SHK) != "121303" ]]; then
+                        wget -qO MarinettiB1.SHK ${binaryURL}appleii/MarinettiB1.SHK
+                    fi
                     cppo -ea -s -n MarinettiB1.SHK $gsosDir > /dev/null
 
 		    # TCP/IP update (3.0b11)
@@ -985,7 +1001,16 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpEA TimeZone/Tool056 $gsosDir/System/Tools
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SAFE2 2> /dev/null
                     mv Help/Help.Files/SAFE2 $gsosDir/System/Desk.Accs/Help.Files
-                    wget -qO- ${binaryURL}safe2-setup.tgz | tar Pzx
+                    if [[ $useExternalURL ]]; then
+                        wget -T 5 -t 1 -qO safe2-setup.tgz https://appleii.ivanx.com/a2server/files/safe2-setup.tgz
+                    fi
+                    if (( $? != 0 )); then
+                        wget -qO safe2-setup.tgz https://web.archive.org/web/20240629232851/https://appleii.ivanx.com/a2server/files/safe2-setup.tgz
+                    fi
+                    if [[ $? != 0 || ! -f safe2-setup.tgz || $(wc -c < safe2-setup.tgz) != "977" ]]; then
+                        wget -qO safe2-setup.tgz ${binaryURL}safe2-setup.tgz
+                    fi
+                    tar Pzxf safe2-setup.tgz
 
                     afpsync -v $gsosDir > /dev/null
                 fi
@@ -1055,7 +1080,16 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cpEA Quick.Start $commDir/SNAP
                     rm -r $gsosDir/System/Desk.Accs/Help.Files/SNAP 2> /dev/null
                     mv Help/Help.Files/SNAP $gsosDir/System/Desk.Accs/Help.Files
-                    wget -qO- ${binaryURL}snap-setup.tgz | tar Pzx
+                    if [[ $useExternalURL ]]; then
+                        wget -T 5 -t 1 -qO snap-setup.tgz https://appleii.ivanx.com/a2server/files/snap-setup.tgz
+                    fi
+                    if (( $? != 0 )); then
+                        wget -qO snap-setup.tgz https://web.archive.org/web/20240701030629/https://appleii.ivanx.com/a2server/files/snap-setup.tgz
+                    fi
+                    if [[ $? != 0 || ! -f snap-setup.tgz || $(wc -c < snap-setup.tgz) != "3495" ]]; then
+                        wget -qO snap-setup.tgz ${binaryURL}snap-setup.tgz
+                    fi
+                    tar Pzxf snap-setup.tgz
                     # cpAD Fonts/SIS.3.10 $gsosDir/System/Fonts
                     # cpAD Fonts/SIS.4.10 $gsosDir/System/Fonts
                     # cpAD Tools/HTMLTool/TOOL130 $gsosDir/System/Tools
@@ -1216,7 +1250,15 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 echo
                 mkdir -p $commDir/ProTERM
                 cd /tmp/netboot
-                wget -qO A2CLOUD.HDV "${binaryURL}appleii/A2CLOUD.HDV"
+                if [[ $useExternalURL ]]; then
+                    wget -T 5 -t 1 -qO A2CLOUD.HDV https://appleii.ivanx.com/a2server/files/appleii/A2CLOUD.HDV
+                fi
+                if (( $? != 0 )); then
+                    wget -qO A2CLOUD.HDV https://web.archive.org/web/20240629232658/https://appleii.ivanx.com/a2server/files/appleii/A2CLOUD.HDV
+                fi
+                if [[ $? != 0 || ! -f A2CLOUD.HDV || $(wc -c < A2CLOUD.HDV) != "819200" ]]; then
+                    wget -qO A2CLOUD.HDV "${binaryURL}appleii/A2CLOUD.HDV"
+                fi
                 cppo -s -ea A2CLOUD.HDV . &> /dev/null
                 cd A2CLOUD
                 mv *PT3* *PROTERM* $commDir/ProTERM
@@ -1279,7 +1321,15 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
             # Farallon bridge patch for GS/OS courtesy of Geoff Body
             echo "A2SERVER: Downloading Farallon bridge patch..."
-            wget -qO /tmp/FARALLON.PO "${binaryURL}appleii/FARALLON.B1.PO" &> /dev/null
+            if [[ $useExternalURL ]]; then
+                wget -T 5 -t 1 -qO /tmp/FARALLON.PO https://appleii.ivanx.com/a2server/files/appleii/FARALLON.B1.PO
+            fi
+            if (( $? != 0 )); then
+                wget -qO /tmp/FARALLON.PO https://web.archive.org/web/20231008123413/http://appleii.ivanx.com:80/a2server/files/appleii/FARALLON.B1.PO
+            fi
+            if [[ $? != 0 || ! -f /tmp/FARALLON.PO || $(wc -c < /tmp/FARALLON.PO) != "143360" ]]; then
+                wget -qO /tmp/FARALLON.PO "${binaryURL}appleii/FARALLON.B1.PO" &> /dev/null
+            fi
             cppo -s -ea /tmp/FARALLON.PO /ATALKPATCH/ATALKIRQ $gsosDir/SYSTEM/SYSTEM.SETUP &> /dev/null
             echo
             echo "A2SERVER: The Farallon bridge patch is installed."
