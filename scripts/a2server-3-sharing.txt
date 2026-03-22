@@ -110,7 +110,7 @@ else
     
     # Dependencies: build-deps for netatalk 4.0
     sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev libpam0g-dev libdb-dev docbook-xsl xsltproc cmark-gfm
-    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs unicode-data
+    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs unicode-data libiniparser-dev libsqlite3-dev
 
     sudo apt-get clean
 
@@ -130,13 +130,13 @@ else
     cd /tmp/netatalk
     
     if [[ $useExternalURL ]]; then
-	wget -qO netatalk-4.1.0.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-4-1-0/netatalk-4.1.0.tar.xz"
-	tar xf netatalk-4.1.0.tar.xz &> /dev/null
+	wget -qO netatalk-4.4.1.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-4-4-1/netatalk-4.4.1.tar.xz"
+	tar xf netatalk-4.4.1.tar.xz &> /dev/null
     fi
 
-    if [[ ! -d netatalk-4.1.0 ]]; then
-        wget -O netatalk-4.1.0.tar.xz "${binaryURL}external/source/netatalk-4.1.0.tar.xz"
-        tar xf netatalk-4.1.0.tar.xz &> /dev/null
+    if [[ ! -d netatalk-4.4.1 ]]; then
+        wget -O netatalk-4.4.1.tar.xz "${binaryURL}external/source/netatalk-4.4.1.tar.xz"
+        tar xf netatalk-4.4.1.tar.xz &> /dev/null
     fi
 
     cd netatalk-4.1.0
