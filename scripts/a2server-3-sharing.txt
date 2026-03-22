@@ -346,7 +346,7 @@ sudo usermod -a -G lpadmin $USER
 #sudo sed -i \
 #    's/^#share2/\/srv\/A2SERVER\/A2FILES\ A2FILES options:prodos\ ea:ad/' \
 #        /usr/local/etc/netatalk/AppleVolumes.default
-sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "volume name" "A2SERVER"
+sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "volume name" "A2FILES"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "path" "/srv/A2SERVER/A2FILES"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "cnid dev" "no"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "prodos" "yes"
