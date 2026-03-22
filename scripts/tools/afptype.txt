@@ -386,7 +386,7 @@ for filename in $@; do
     originalname=$filename
 
     # sanity check to make sure we are in a valid netatalk volume
-    if ad ls "$(dirname "$filename")" | grep "no volume for path" &> /dev/null; then
+    if nad ls "$(dirname "$filename")" | grep "no volume for path" &> /dev/null; then
         netatalk_vol=0
     else
         netatalk_vol=1
@@ -420,7 +420,7 @@ for filename in $@; do
         found_ea=1
     else # no EA found, check if we are in an EA style netatalk volume and create one if needed
        if [[ ( $netatalk_vol -eq 1 ) && ( $found_adv2 -eq 0) && ( $adv2_vol -eq 0 ) ]]; then
-           ad set -l none $originalname &> /dev/null # this forces creation of an EA
+           nad set -l none $originalname &> /dev/null # this forces creation of an EA
            # check again for the existance of the EA and dump if there is one
            if getfattr -n "user.org.netatalk.Metadata" $originalname &> /dev/null; then
                filename="/tmp/$(basename "$originalname")tmpEA"
