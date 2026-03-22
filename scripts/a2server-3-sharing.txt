@@ -354,11 +354,11 @@ sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "ea" "samba"
 [[ -d /srv/A2SERVER/.a2files ]] || mkdir -p /srv/A2SERVER/.a2files
 
 # set up ciopfs
-if ! hash ciopfs &> /dev/null; then
-    echo "A2SERVER: Installing ciopfs (case insensitive file system)..."
+if ! hash cicpoffs &> /dev/null; then
+    echo "A2SERVER: Installing cicpoffs (case insensitive file system)..."
     cd /tmp
 
-    # Dependency: For ciopfs
+    # Dependency: For cicpoffs
     sudo apt-get -y install fuse libglib2.0-0 libattr1 libfuse2
     if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
         { wget -qO- "${binaryURL}precompiled/ciopfs-${arch}.tgz" | sudo tar Pzx; } &> /dev/null
@@ -369,7 +369,7 @@ if ! hash ciopfs &> /dev/null; then
         echo "user_allow_other" | sudo tee /etc/fuse.conf > /dev/null
     fi
 
-    if ! hash ciopfs &> /dev/null; then
+    if ! hash cicpoffs &> /dev/null; then
         if [[ ! -f /tmp/a2server-packageReposUpdated ]]; then
             # prepare for installing packages
             sudo apt-get -y update
@@ -377,45 +377,42 @@ if ! hash ciopfs &> /dev/null; then
         fi
 
         # Dependency: build-dep for ciopfs
-        sudo apt-get -y install build-essential libfuse-dev libglib2.0-dev libattr1-dev
+        sudo apt-get -y install build-essential libfuse3-dev libfuse-dev libglib2.0-dev libattr1-dev
         sudo apt-get -y clean
 
         cd /tmp
-        rm -rf /tmp/ciopfs &> /dev/null
-        mkdir /tmp/ciopfs
-        cd /tmp/ciopfs
+        rm -rf /tmp/cicpoffs &> /dev/null
+        mkdir /tmp/cicpoffs
+        cd /tmp/cicpoffs
         if [[ $useExternalURL ]]; then
-            wget -q -O ciopfs-0.4.tar.gz http://www.brain-dump.org/projects/ciopfs/ciopfs-0.4.tar.gz
-            if (( $? != 0 )); then
-                wget -q -O ciopfs-0.4.tar.gz http://web.archive.org/web/20160911102924/http://www.brain-dump.org/projects/ciopfs/ciopfs-0.4.tar.gz
-            fi
-            tar zxf ciopfs-0.4.tar.gz &> /dev/null
-            rm ciopfs-0.4.tar.gz &> /dev/null
+            wget -q -O cicpoffs.zip https://github.com/NJRoadfan/cicpoffs/archive/refs/heads/various-fixes.zip
+            #if (( $? != 0 )); then
+            #    wget -q -O ciopfs-0.4.tar.gz http://web.archive.org/web/20160911102924/http://www.brain-dump.org/projects/ciopfs/ciopfs-0.4.tar.gz
+            #fi
+            unzip cicpoffs.zip &> /dev/null
+            rm cicpoffs.zip &> /dev/null
         fi
-        if [ ! -f ciopfs*/ciopfs.c ]; then # single brackets required for glob
-            wget -q -O ciopfs-0.4.tar.gz ${binaryURL}external/source/ciopfs-0.4.tar.gz
-            tar zxf ciopfs-0.4.tar.gz &> /dev/null
-            rm ciopfs-0.4.tar.gz &> /dev/null
-        fi
-        cd ciopfs*
-        # patch source to remove lock() function and deprecated functions.
-        wget -q -O ciopfs_patch.diff "${scriptURL}files/ciopfs_patch.diff"
-        patch -p1 < ciopfs_patch.diff
+        #if [ ! -f ciopfs*/ciopfs.c ]; then # single brackets required for glob
+        #    wget -q -O ciopfs-0.4.tar.gz ${binaryURL}external/source/ciopfs-0.4.tar.gz
+        #    tar zxf ciopfs-0.4.tar.gz &> /dev/null
+        #    rm ciopfs-0.4.tar.gz &> /dev/null
+        #fi
+        cd cicpoffs*
         make
-        sudo mv ciopfs /usr/local/bin
-        cd
-        rm -rf /tmp/ciopfs
+        sudo make install
+	cd
+        rm -rf /tmp/cicpoffs
     fi
-    if ! grep -q '^ciopfs' /etc/fstab; then
-        echo "ciopfs#/srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES fuse allow_other,use_ino 0 0" | sudo tee -a /etc/fstab > /dev/null
+    if ! grep -q '^cicpoffs' /etc/fstab; then
+        echo "cicpoffs#/srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES fuse allow_other 0 0" | sudo tee -a /etc/fstab > /dev/null
     fi
     sudo systemctl daemon-reload
     sudo systemctl restart local-fs.target
-    if ! mount | grep '^ciopfs.*A2FILES'; then
-        sudo ciopfs /srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES -o allow_other,use_ino
+    if ! mount | grep '^cicpoffs.*A2FILES'; then
+        sudo cicpoffs /srv/A2SERVER/.a2files /srv/A2SERVER/A2FILES -o allow_other
     fi
 else
-    echo "A2SERVER: ciopfs (case insensitive file system) has already been installed."
+    echo "A2SERVER: cicpoffs (case insensitive file system) has already been installed."
 fi
 
 # set up ADTDISKS share (ADTPro disk image folder, if A2CLOUD is installed)    
