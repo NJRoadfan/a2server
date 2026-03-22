@@ -44,7 +44,9 @@ fi
 debianName=
 if [[ $debianVersion ]]; then
     debianMajor=$(cut -d . -f 1 <<< $debianVersion)
-    if [[ $debianMajor == "12" ]]; then
+    if [[ $debianMajor == "13" ]]; then
+        debianName="trixie"
+    elif [[ $debianMajor == "12" ]]; then
         debianName="bookworm"
     elif [[ $debianMajor == "11" ]]; then
         debianName="bullseye"

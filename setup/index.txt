@@ -124,7 +124,7 @@ touch /tmp/a2server-compileAlways
 
 if [[ $isDebian ]]; then # supported Debian?
      debianVersion=$(cat /etc/debian_version)
-     debianSupported="-12.7- -11.11-"
+     debianSupported="-13.4- -12.13- -11.11-"
      [[ $debianSupported == *-$debianVersion-* ]] && unsupportedOS=
 fi
 
