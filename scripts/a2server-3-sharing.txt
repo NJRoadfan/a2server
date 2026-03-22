@@ -139,7 +139,7 @@ else
         tar xf netatalk-4.4.1.tar.xz &> /dev/null
     fi
 
-    cd netatalk-4.1.0
+    cd netatalk-4.4.1
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
