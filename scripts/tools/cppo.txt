@@ -665,6 +665,7 @@ def processEntry(arg1, arg2):
                                       getAuxType(arg1, arg2))                                   
                         writechars(g.exFileData, 54, b'pdos')
                         saveFile(dotName, g.exFileData)
+                        touch(dotName, modifiedDate)
                 touch(saveName, modifiedDate)
                 if g.EX: # extended name from ProDOS image
                     if (g.exFileData != None):
