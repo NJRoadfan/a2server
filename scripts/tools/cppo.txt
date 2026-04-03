@@ -618,8 +618,7 @@ def processEntry(arg1, arg2):
                 elif (creationDate is not None and modifiedDate is None):
                     modifiedDate = creationDate
                 elif (creationDate is None and modifiedDate is None):
-                    creationDate = (datetime.datetime.today() -
-                                    datetime.datetime(1970,1,1)).days*24*60*60
+                    creationDate = int(datetime.datetime.now().timestamp())
                     modifiedDate = creationDate
                 if g.AD: # AppleDouble
                     # set dates
@@ -1139,6 +1138,18 @@ def mkdir(dirPath):
         dirPath = dirPath.replace("./", ".-/")
     try:
         os.mkdir(dirPath)
+        if g.EA:
+            makeEA()
+            # set dates of dir
+            creationDate = int(datetime.datetime.now().timestamp())
+            modifiedDate = creationDate
+            writecharsHex(g.exEAData,
+                          354,
+                          (unixDateToADDate(creationDate) +
+                           unixDateToADDate(modifiedDate)))
+            writecharHex(g.exEAData, 362, "80")
+            writecharHex(g.exEAData, 366, "80")
+            os.setxattr(dirPath, 'user.org.netatalk.Metadata', g.exEAData)
     except FileExistsError:
         pass
 
@@ -1149,6 +1160,18 @@ def makedirs(dirPath):
         dirPath = dirPath.replace("./", ".-/")
     try:
         os.makedirs(dirPath)
+        if g.EA:
+            makeEA()
+            # set dates of dir
+            creationDate = int(datetime.datetime.now().timestamp())
+            modifiedDate = creationDate
+            writecharsHex(g.exEAData,
+                          354,
+                          (unixDateToADDate(creationDate) +
+                           unixDateToADDate(modifiedDate)))
+            writecharHex(g.exEAData, 362, "80")
+            writecharHex(g.exEAData, 366, "80")
+            os.setxattr(dirPath, 'user.org.netatalk.Metadata', g.exEAData)
     except OSError as e:
         if (e.errno != errno.EEXIST):
             raise
