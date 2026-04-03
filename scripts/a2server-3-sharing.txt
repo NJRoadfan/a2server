@@ -130,16 +130,16 @@ else
     cd /tmp/netatalk
     
     if [[ $useExternalURL ]]; then
-	wget -qO netatalk-4.4.1.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-4-4-1/netatalk-4.4.1.tar.xz"
-	tar xf netatalk-4.4.1.tar.xz &> /dev/null
+	wget -qO netatalk-4.5.0beta.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-4-5-0beta/netatalk-4.5.0beta.tar.xz"
+	tar xf netatalk-4.5.0beta.tar.xz &> /dev/null
     fi
 
-    if [[ ! -d netatalk-4.4.1 ]]; then
-        wget -O netatalk-4.4.1.tar.xz "${binaryURL}external/source/netatalk-4.4.1.tar.xz"
-        tar xf netatalk-4.4.1.tar.xz &> /dev/null
+    if [[ ! -d netatalk-4.5.0beta ]]; then
+        wget -O netatalk-4.5.0beta.tar.xz "${binaryURL}external/source/netatalk-4.5.0beta.tar.xz"
+        tar xf netatalk-4.5.0beta.tar.xz &> /dev/null
     fi
 
-    cd netatalk-4.4.1
+    cd netatalk-4.5.0beta
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
