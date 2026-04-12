@@ -216,6 +216,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
     
         nbmode=1
         echo
+        sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "convert appledouble" "yes"
         
         sudo true
         mkdir -p /tmp/netboot
@@ -1342,3 +1343,4 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         fi
     fi
 fi
+sudo crudini --del /usr/local/etc/netatalk/afp.conf A2FILES "convert appledouble"
