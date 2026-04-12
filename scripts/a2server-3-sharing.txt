@@ -109,8 +109,8 @@ else
     sudo apt-get install --no-install-recommends --assume-yes crudini gawk ninja-build attr
     
     # Dependencies: build-deps for netatalk 4.0
-    sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libgcrypt20-dev libpam0g-dev libdb-dev docbook-xsl xsltproc cmark-gfm
-    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs unicode-data libiniparser-dev libsqlite3-dev
+    sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libcrypt-dev libgcrypt20-dev libpam0g-dev libdb-dev cmark-gfm
+    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs  libiniparser-dev libsqlite3-dev
 
     sudo apt-get clean
 
@@ -143,7 +143,7 @@ else
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
-   meson setup build -Dbuildtype=release -Dwith-quota=false -Dwith-init-style=systemd -Dwith-pkgconfdir-path=/usr/local/etc/netatalk -Dwith-appletalk=true -Dwith-dbus-sysconf-path=/usr/share/dbus-1/system.d -Dwith-dbus-sysconf-path=/etc -Dwith-pam-config-path=/etc/pam.d
+   meson setup build -Dbuildtype=release -Dwith-quota=false -Dwith-init-style=systemd -Dwith-pkgconfdir-path=/usr/local/etc/netatalk -Dwith-appletalk=true -Dwith-dbus-sysconf-path=/usr/share/dbus-1/system.d -Dwith-pam-config-path=/etc/pam.d
 
     # uninstall Netatalk if already installed
     #[[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
