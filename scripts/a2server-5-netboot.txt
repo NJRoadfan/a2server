@@ -322,13 +322,13 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 wget -qO A2GS.WS.HDV ${binaryURL}appleii/a2ws/A2GS.WS.HDV
             fi
 	    cppo -ea -s A2GS.WS.HDV . > /dev/null
-	    mkdir -p $p8Dir/ATalk.Tools.P8
+	    nad mkdir -p $p8Dir/ATalk.Tools.P8
             for thisFolder in \
             	SYS.APPS/ACCESS^ACCESS \
             	SYS.APPS/NAMER^NAMER \
             	SYS.APPS/CHOOSER^CHOOSER
             do
-                mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
+                nad mkdir -p $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
                 cp -R --preserve=xattr ASIIGS.WS/${thisFolder%%^*}/* $p8Dir/ATalk.Tools.P8/"${thisFolder##*^}"
             done
 	    # Get updated LOGON 1.5 program to match boot blocks.
@@ -438,8 +438,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 mkdir -p /tmp/netboot
                 rm -r /tmp/netboot/* 2> /dev/null
                 cd /tmp/netboot
-                mkdir -p $imagesDir
-                mkdir -p $netInstallDir
+                nad mkdir -p $imagesDir
+                nad mkdir -p $netInstallDir
                 activeDisk=0
                 
                 diskNames=( Install System.Disk SystemTools1 SystemTools2 Fonts synthLAB )
@@ -543,11 +543,11 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         targetdotPath="${targetParent}"/._"${targetFile}"
                 
                         if [[ $action == 1 || $action == 2 ]]; then
-                            mkdir -p $targetParent
+                            nad mkdir -p $targetParent
                             echo "copying: $sourcePathMixed"
                             echo "     to: $targetPath"
                             echo
-                            [[ ! -d $targetParent ]] && mkdir -p $targetParent
+                            [[ ! -d $targetParent ]] && nad mkdir -p $targetParent
                             cp -p --preserve=xattr ${gsosDir%/*}$sourcePath $targetPath &> /dev/null
                             if [[ -f ${gsosDir%/*}$sourcedotPath ]]; then
                                 cp -p ${gsosDir%/*}$sourcedotPath $targetdotPath
@@ -645,7 +645,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         
                 # download image tools and put them in IMAGE.TOOLS
                 echo "A2SERVER: Downloading GS/OS disk image utilities..."
-                mkdir -p $imageToolsDir
+                nad mkdir -p $imageToolsDir
         
                 # get Asimov2 (for GS/OS)
                 echo -n "Asimov 2.0"
@@ -718,7 +718,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                         cppo -s -ea MOUNTIT.SHK ReadMe . &> /dev/null
                     fi
                     cpEA ./MountIt $gsosDir/System/System.Setup
-                    mkdir -p $gsosDir/GSOS.Installer/Image.Tools/MountIt
+                    nad mkdir -p $gsosDir/GSOS.Installer/Image.Tools/MountIt
                     cpEA ./ReadMe $gsosDir/GSOS.Installer/Image.Tools/MountIt
                     afpsync -v $gsosDir > /dev/null
                 fi
@@ -728,7 +728,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
         if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
             echo "A2SERVER: Downloading ProDOS 8 disk image utilities..."
 
-            mkdir -p $diskToolsP8Dir
+            nad mkdir -p $diskToolsP8Dir
     
             echo -n "ShrinkIt 3.4"
             # get ShrinkIt 3.4 (for ProDOS 8)
@@ -829,7 +829,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
     
             echo "A2SERVER: Downloading communications software..."
 
-            mkdir -p $commDir
+            nad mkdir -p $commDir
 
             if [[ $gsosInstalled ]]; then
 
@@ -856,7 +856,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     echo " is already installed."
                 else
                     echo
-                    mkdir -p $commDir/Spectrum
+                    nad mkdir -p $commDir/Spectrum
                     # remove images that might have been installed by 1.2.5
                     cd $commDir/Spectrum
                     rm SPECTRUM.HDV MANUALS.HDV SOUNDS.HDV EXTRAS.HDV &> /dev/null
@@ -887,7 +887,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                       Spectrum.*/Spectrum.Script^Comm/Spectrum/Spectrum.Script \
                       Manuals^Comm/Spectrum/Manuals
                     do
-                        mkdir -p $gsosDir/"${thisFolder##*^}"
+                        nad mkdir -p $gsosDir/"${thisFolder##*^}"
                         cp -R --preserve=xattr Spectrum.Platnm/${thisFolder%%^*}/* $gsosDir/"${thisFolder##*^}"
                         cp -R Spectrum.Platnm/${thisFolder%%^*}/._* $gsosDir/"${thisFolder##*^}" &> /dev/null
                     done
@@ -945,7 +945,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     cd PPPX.1.3d4
                     cpEA PPP.scripted $gsosDir/System/TCPIP
                     cpEA PPP.Script.DOC $commDir/Marinetti/Documentation
-                    mkdir -p $commDir/Marinetti/PPP.scripted
+                    nad mkdir -p $commDir/Marinetti/PPP.scripted
                     cpEA Connect.Script $commDir/Marinetti/PPP.scripted
                     cpEA ChangeLog $commDir/Marinetti/PPP.scripted
 
@@ -978,7 +978,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     echo " is already installed."
                 else
                     echo
-                    mkdir -p $commDir/SAFE2
+                    nad mkdir -p $commDir/SAFE2
                     mkdir -p /tmp/netboot/safe2
                     cd /tmp/netboot/safe2
                     if [[ $useExternalURL ]]; then
@@ -1020,8 +1020,8 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     echo " is already installed."
                 else
                     echo
-                    mkdir -p $commDir/SAM2
-                    mkdir -p $commDir/SAM2/SAM2.Data
+                    nad mkdir -p $commDir/SAM2
+                    nad mkdir -p $commDir/SAM2/SAM2.Data
                     mkdir -p /tmp/netboot/sam2
                     cd /tmp/netboot/sam2
                     if [[ $useExternalURL ]]; then
@@ -1058,7 +1058,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     echo " is already installed."
                 else
                     echo
-                    mkdir -p $commDir/SNAP
+                    nad mkdir -p $commDir/SNAP
                     mkdir -p /tmp/netboot/snap
                     cd /tmp/netboot/snap
                     if [[ $useExternalURL ]]; then
@@ -1104,7 +1104,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     echo " is already installed."
                 else
                     echo
-                    mkdir -p $commDir/Webber
+                    nad mkdir -p $commDir/Webber
                     mkdir -p /tmp/netboot/webber
                     cd /tmp/netboot/webber
                     if [[ $useExternalURL ]]; then
@@ -1130,9 +1130,9 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                     echo " is already installed."
                 else
                     echo
-                    mkdir -p $commDir/Networker2
-		    mkdir -p $commDir/Networker2/NetW.Data
-		    mkdir -p $commDir/Networker2/NetW.Logs
+                    nad mkdir -p $commDir/Networker2
+		    nad mkdir -p $commDir/Networker2/NetW.Data
+		    nad mkdir -p $commDir/Networker2/NetW.Logs
                     mkdir -p /tmp/netboot/networker
                     cd /tmp/netboot/networker
                     if [[ $useExternalURL ]]; then
@@ -1194,7 +1194,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 		    cd NetDisk
 		    cpEA NetDiskInit $gsosDir/System/System.Setup
 		    cpEA NetDisk $gsosDir/System/CDevs
-		    mkdir -p $gsosDir/USERS/$userFolder/FinderExtras
+		    nad mkdir -p $gsosDir/USERS/$userFolder/FinderExtras
 		    cpEA DiskBrowser $gsosDir/USERS/$userFolder/FinderExtras
 		    afpsync -v $gsosDir > /dev/null
 		fi
@@ -1248,7 +1248,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 echo " is already installed."
             else
                 echo
-                mkdir -p $commDir/ProTERM
+                nad mkdir -p $commDir/ProTERM
                 cd /tmp/netboot
                 if [[ $useExternalURL ]]; then
                     wget -T 5 -t 1 -qO A2CLOUD.HDV https://appleii.ivanx.com/a2server/files/appleii/A2CLOUD.HDV
@@ -1271,7 +1271,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
                 echo " is already installed."
             else
                 echo
-                mkdir -p $commDir/Z.Link
+                nad mkdir -p $commDir/Z.Link
                 cd /tmp/netboot/A2CLOUD
                 mv Z.LINK $commDir/Z.Link
                 afpsync -v $gsosDir > /dev/null
@@ -1281,7 +1281,7 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
             if [[ -f $commDir/ADTPro/ADTPRO ]]; then
                 echo " is already installed."
             else
-                mkdir -p $commDir/ADTPro
+                nad mkdir -p $commDir/ADTPro
                 echo
                 cd /tmp/netboot/A2CLOUD
                 mv *ADTPRO* *VEDRIVE* *VSDRIVE* $commDir/ADTPro

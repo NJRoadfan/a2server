@@ -223,19 +223,19 @@ while : ; do
         done
 
         if [ ! -d "$sharepath/USERS" ]; then
-            mkdir "$sharepath/USERS"
+            nad mkdir "$sharepath/USERS"
             if [ $? -ne 0 ]; then
                 break
             fi
         fi
         if [ ! -d "$sharepath/USERS/$username" ]; then
-            mkdir "$sharepath/USERS/$username"
+            nad mkdir "$sharepath/USERS/$username"
             if [ $? -ne 0 ]; then
                 break
             fi
         fi
         if [ ! -d "$sharepath/USERS/$username/SETUP" ]; then
-            mkdir "$sharepath/USERS/$username/SETUP"
+            nad mkdir "$sharepath/USERS/$username/SETUP"
             if [ $? -ne 0 ]; then
                 break
             fi
