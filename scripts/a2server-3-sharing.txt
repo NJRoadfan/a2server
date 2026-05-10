@@ -110,7 +110,7 @@ else
     
     # Dependencies: build-deps for netatalk 4.0
     sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libcrypt-dev libgcrypt20-dev libpam0g-dev libdb-dev cmark-gfm
-    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs  libiniparser-dev libsqlite3-dev
+    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs  libiniparser-dev libsqlite3-dev libnet-dbus-glib-perl
 
     sudo apt-get clean
 
@@ -363,7 +363,7 @@ if ! hash cicpoffs &> /dev/null; then
     cd /tmp
 
     # Dependency: For cicpoffs
-    sudo apt-get -y install fuse libglib2.0-0 libattr1 libfuse2
+    sudo apt-get -y install fuse libglib2.0-0 libattr1 libfuse2 libicu-dev
     if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
         { wget -qO- "${binaryURL}precompiled/ciopfs-${arch}.tgz" | sudo tar Pzx; } &> /dev/null
     fi
