@@ -510,7 +510,7 @@ for filename in $@; do
         echo -n "$linestart"
 
         if [[ $creator != "pdos" || ( ( $type != "TEXT" ) \
-            && ( $type != "PSYS" ) && ( ${type:0:1} != "p" ) ) ]]; then
+            && ( $type != "PSYS" ) && ( $type != "PS16" ) && ( ${type:0:1} != "p" ) ) ]]; then
             if [[ $creator || $type ]]; then
                 echo "Mac file.   Type:$type   Creator:$creator"
             else
@@ -523,11 +523,14 @@ for filename in $@; do
         fi
 
         if [[ $type == "TEXT" ]]; then
-            pdosType="\$04 [TXT]"
-            pdosAuxType='$0000'
+            pdosType="04 [TXT]"
+            pdosAuxType='0000'
         elif [[ $type == "PSYS" ]]; then
-            pdosType="\$FF [SYS]"
-            pdosAuxType='$0000'
+            pdosType="FF [SYS]"
+            pdosAuxType='0000'
+        elif [[ $type == "PS16" ]]; then
+            pdosType="B3 [S16]"
+            pdosAuxType='0000'
         else
             (( tpos=tpos+1 ))
             pdosType=$(readcharHex "$filename" $tpos)
