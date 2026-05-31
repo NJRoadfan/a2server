@@ -1342,5 +1342,5 @@ if [[ ! $autoAnswerYes || -f /tmp/a2server-setupNetBoot ]]; then
 	    afpsync -v $gsosDir > /dev/null
         fi
     fi
-fi
 sudo crudini --del /usr/local/etc/netatalk/afp.conf A2FILES "convert appledouble"
+fi
