@@ -19,7 +19,7 @@ processPath () {
         echo "$sharepath does not exist."
     else
             IFS=''
-            result=$(sudo dbd -r $sharepath | grep encoding)
+            result=$(sudo dbd $sharepath | grep encoding)
             f=$(wc -l <<< $result)
             [[ $(wc -w <<< $result) == 0 ]] && f=0
             if (( f == 0 )); then

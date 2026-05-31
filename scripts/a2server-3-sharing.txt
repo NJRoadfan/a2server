@@ -110,7 +110,7 @@ else
     
     # Dependencies: build-deps for netatalk 4.0
     sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libcrypt-dev libgcrypt20-dev libpam0g-dev libdb-dev cmark-gfm
-    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs  libiniparser-dev libsqlite3-dev libnet-dbus-glib-perl
+    sudo apt-get install --no-install-recommends --assume-yes libacl1-dev libevent-dev libdbus-1-dev libglib2.0-dev libtalloc-dev libwrap0-dev systemtap-sdt-dev tcpd tracker tracker-miner-fs  libiniparser-dev libsqlite3-dev libxapian-dev libmagic-dev dconf-cli
 
     sudo apt-get clean
 
@@ -130,20 +130,20 @@ else
     cd /tmp/netatalk
     
     if [[ $useExternalURL ]]; then
-	wget -qO netatalk-4.5.0beta.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-4-5-0beta/netatalk-4.5.0beta.tar.xz"
-	tar xf netatalk-4.5.0beta.tar.xz &> /dev/null
+	wget -qO netatalk-4.5.0.tar.xz "https://github.com/Netatalk/netatalk/releases/download/netatalk-4-5-0/netatalk-4.5.0.tar.xz"
+	tar xf netatalk-4.5.0.tar.xz &> /dev/null
     fi
 
-    if [[ ! -d netatalk-4.5.0beta ]]; then
-        wget -O netatalk-4.5.0beta.tar.xz "${binaryURL}external/source/netatalk-4.5.0beta.tar.xz"
-        tar xf netatalk-4.5.0beta.tar.xz &> /dev/null
+    if [[ ! -d netatalk-4.5.0 ]]; then
+        wget -O netatalk-4.5.0.tar.xz "${binaryURL}external/source/netatalk-4.5.0.tar.xz"
+        tar xf netatalk-4.5.0.tar.xz &> /dev/null
     fi
 
-    cd netatalk-4.5.0beta
+    cd netatalk-4.5.0
 
     # prepare to build Netatalk
     #./configure --enable-systemd --enable-cups --disable-quota
-   meson setup build -Dbuildtype=release -Dwith-quota=false -Dwith-init-style=systemd -Dwith-pkgconfdir-path=/usr/local/etc/netatalk -Dwith-appletalk=true -Dwith-dbus-sysconf-path=/usr/share/dbus-1/system.d -Dwith-pam-config-path=/etc/pam.d
+   meson setup build -Dbuildtype=release -Dwith-quota=false -Dwith-init-style=systemd -Dwith-pkgconfdir-path=/usr/local/etc/netatalk -Dwith-appletalk=true -Dwith-pam-config-path=/etc/pam.d
 
     # uninstall Netatalk if already installed
     #[[ -f /usr/local/sbin/afpd ]] && sudo make uninstall
@@ -189,6 +189,7 @@ sudo systemctl enable atalkd netatalk papd a2boot timelord macipgw
 # enable appletalk
 sudo crudini --set /usr/local/etc/netatalk/afp.conf Global "appletalk" "yes"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf Global "mimic model" "MacPro"
+sudo crudini --set /usr/local/etc/netatalk/afp.conf Global "spotlight" "yes"
 
 # create a symbolic link to the startup configuration file in netatalk configuration folder
 #[[ -L /usr/local/etc/netatalk/netatalk.conf ]] \
@@ -198,7 +199,7 @@ sudo crudini --set /usr/local/etc/netatalk/afp.conf Global "mimic model" "MacPro
 [[ -L /etc/netatalk ]] || sudo ln -s /usr/local/etc/netatalk /etc/netatalk
 
 if [[ ! $(grep 'uams_randnum.so' /usr/local/etc/netatalk/afp.conf) ]]; then
-    sudo crudini --set /usr/local/etc/netatalk/afp.conf Global "uam list" "uams_guest.so uams_randnum.so uams_clrtxt.so uams_dhx.so uams_dhx2.so"
+    sudo crudini --set /usr/local/etc/netatalk/afp.conf Global "uam list" "uams_guest.so uams_randnum.so uams_clrtxt.so uams_dhx.so uams_dhx2.so uams_srp.so"
 fi
 
 # disable home folder "name" in later netatalk builds
@@ -352,6 +353,7 @@ sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "cnid dev" "no"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "prodos" "yes"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "ea" "samba"
 sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "cnid scheme" "sqlite"
+sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "spotlight backend" "xapian"
 #sudo crudini --set /usr/local/etc/netatalk/afp.conf A2FILES "appledouble" "v2"
 
 [[ -d /srv/A2SERVER/A2FILES ]] || mkdir -p /srv/A2SERVER/A2FILES
@@ -380,7 +382,7 @@ if ! hash cicpoffs &> /dev/null; then
             touch /tmp/a2server-packageReposUpdated
         fi
 
-        # Dependency: build-dep for ciopfs
+        # Dependency: build-dep for cicpoffs
         sudo apt-get -y install build-essential libfuse3-dev libfuse-dev libglib2.0-dev libattr1-dev
         sudo apt-get -y clean
 
@@ -396,11 +398,11 @@ if ! hash cicpoffs &> /dev/null; then
             unzip cicpoffs.zip &> /dev/null
             rm cicpoffs.zip &> /dev/null
         fi
-        #if [ ! -f ciopfs*/ciopfs.c ]; then # single brackets required for glob
-        #    wget -q -O ciopfs-0.4.tar.gz ${binaryURL}external/source/ciopfs-0.4.tar.gz
-        #    tar zxf ciopfs-0.4.tar.gz &> /dev/null
-        #    rm ciopfs-0.4.tar.gz &> /dev/null
-        #fi
+        if [ ! -f cicpoffs*/cicpoffs.cpp ]; then # single brackets required for glob
+            wget -q -O cicpoffs.zip ${binaryURL}external/source/cicpoffs.zip
+            unzip cicpoffs.zip &> /dev/null
+            rm cicpoffs.zip &> /dev/null
+        fi
         cd cicpoffs*
         make
         sudo make install
@@ -445,11 +447,14 @@ else
     echo "A2SERVER: Setting up AFP password 'apple2' for Apple II and Mac clients..."
     # echo "A2SERVER: Enter 'apple2' or another password of up to eight characters."
     echo    
-    # set registered user login using RandNum authentication
+    # set registered user login using SRP authentication
     sudo afppasswd -c
-    sudo sed -i "s/^\(${USER}\).*$/\1:6170706C65320000:****************:********/" /usr/local/etc/netatalk/afppasswd
+    sudo afppasswd -a user1 -w apple2
+    # set registered user login using RandNum authentication
+    sudo afppasswd -r -c
+    sudo afppasswd -r -a user1 -w apple2
     # (The afppasswd -c only needs to ever be done once. You can repeat
-    #   the afppasswd -a to make Netatalk randnum logins for other Linux users.)
+    #   the afppasswd -r -a to make Netatalk randnum logins for other Linux users.)
 
 fi
 
@@ -561,7 +566,7 @@ fi
 sudo systemctl start atalkd netatalk papd a2boot timelord macipgw tashrouter 2> /dev/null
 
 # prepare shared volumes for use
-afpsync -v < /dev/null
+afpsync -v > /dev/null
 
 echo
 echo "A2SERVER: Netatalk is installed, configured, and running."
