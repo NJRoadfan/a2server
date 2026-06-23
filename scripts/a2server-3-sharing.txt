@@ -330,44 +330,6 @@ if [[ $isRpi ]];then
     fi
 fi
 
-#check for TashTalk USB
-usbdevlist=( /dev/ttyUSB* )
-tashtalkUSBdevice=
-tashtalkUSBfound=
-for devitems in "${usbdevlist[@]}"; do
-    if [ "$(udevadm info -a -n $devitems 2> /dev/null | grep TashTalk)" ]; then
-        echo "A2SERVER: Found TaskTalk USB at: $devitems"
-        tashtalkUSBdevice=$devitems
-        tashtalkUSBfound=1
-    else
-        echo "A2SERVER: No TashTalk USB Found. Skipping setup."
-    fi
-done
-
-if [[ $tashtalkUSBfound ]];then
-    tashtalkUSBInstalled=
-    [[ -f /tmp/a2server-autoAnswerYes ]] && autoAnswerYes=1 || autoAnswerYes=
-    REPLY=
-    if [[ ! $autoAnswerYes || -f /tmp/a2server-setupTashtalkUSB ]]; then
-        if [[ ! $tashtalkUSBInstalled ]];then
-            echo
-            echo "A2SERVER supports LocalTalk connectivity via a TashTalk USB."
-            echo "One of these devices was autodetected on your system."
-            echo
-            echo -n "Do you want to setup a TashTalk USB to use with A2SERVER? "
-            read
-        else
-            echo "A2SERVER: TashTalk USB already set up."
-            sudo sed -i /usr/local/sbin/tashrouter.py -e "s|tashtalkusbdevice=None|tashtalkusbdevice='"$tashtalkUSBdevice"'|"
-        fi
-    fi
-    if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
-        sudo true
-        # alter tashrouter configuration
-        sudo sed -i /usr/local/sbin/tashrouter.py -e "s|tashtalkusbdevice=None|tashtalkusbdevice='"$tashtalkUSBdevice"'|"
-    fi
-fi
-
 if [[ $(tac /usr/local/etc/netatalk/papd.conf | sed '/./,$!d' | head -1 | cut -c 1) == "#" ]]; then
     # enable papd's auto sharing of CUPS printer queues
     echo -e 'cupsautoadd:op=root:' | sudo tee -a /usr/local/etc/netatalk/papd.conf > /dev/null

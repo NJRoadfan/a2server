@@ -68,10 +68,6 @@ while [[ $1 ]]; do
         shift
         setupTashtalk="-h"
         touch /tmp/a2server-setupTashtalk
-    elif [[ $1 == "-u" ]]; then
-        shift
-        setupTashtalkUSB="-u"
-        touch /tmp/a2server-setupTashtalkUSB
     elif [[ $1 == "-w" ]]; then
         shift
         setupWindowsSharing="-w"
@@ -100,7 +96,6 @@ while [[ $1 ]]; do
         echo "-r: don't update package repositories"
         echo "-b: auto-setup network boot (use with -y)"
         echo "-h: auto-setup TashTalk Hat on RPi (use with -y)"
-        echo "-u: auto-setup TashTalk USB (use with -y)"
         echo "-w: auto-setup Windows file sharing (use with -y)"
         echo "-c: compile non-package items, rather than downloading binaries"
         echo "-t: use all available CPU cores for multi threaded compilation"
