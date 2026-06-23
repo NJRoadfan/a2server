@@ -106,7 +106,7 @@ else
     }
 
     # Tools We need elsewhere
-    sudo apt-get install --no-install-recommends --assume-yes crudini gawk ninja-build attr
+    sudo apt-get install --no-install-recommends --assume-yes crudini gawk ninja-build attr python3-serial
     
     # Dependencies: build-deps for netatalk 4.0
     sudo apt-get install --no-install-recommends --assume-yes flex bison build-essential cups cups-browsed avahi-daemon libnss-mdns libcups2-dev libavahi-client-dev libdb5.3-dev libcrypt-dev libgcrypt20-dev libpam0g-dev libdb-dev cmark-gfm
@@ -288,20 +288,21 @@ if [[ $isRpi ]];then
             echo "A2SERVER supports LocalTalk connectivity via a TashTalk Hat."
             echo "If you own one of these devices, you can set it up now."
             echo
-            echo "NOTE: This will disable any serial consoles set up on this machine."
+            echo "NOTE: This is NOT a TashTalk USB device. Answer 'No' if your TashTalk"
+            echo "connects via USB."
+            echo
+            echo "WARNING: This will disable any serial consoles set up on this machine."
             echo "You will be prompted to reboot after A2SERVER setup to activate your TashTalk."
             echo
             echo -n "Do you want to setup a TashTalk Hat to use with A2SERVER? "
             read
         else
             echo "A2SERVER: TashTalk Hat already set up."
-            sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#from tashrouter.port.localtalk.tashtalk/from tashrouter.port.localtalk.tashtalk/"
-            sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#TashTalkPort/TashTalkPort/"
+            sudo sed -i /usr/local/sbin/tashrouter.py -e "s|tashtalkhatdevice=None|tashtalkhatdevice='\/dev\/ttyAMA0'|"
         fi
     fi
     if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
         sudo true
-        sudo apt-get install --no-install-recommends --assume-yes python3-serial
         # disable serial console
         sudo sed -i $CMDLINE -e "s/console=ttyAMA0,[0-9]\+ //"
         sudo sed -i $CMDLINE -e "s/console=serial0,[0-9]\+ //"
@@ -324,9 +325,46 @@ if [[ $isRpi ]];then
         fi
 
         # alter tashrouter configuration
-        sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#from tashrouter.port.localtalk.tashtalk/from tashrouter.port.localtalk.tashtalk/"
-        sudo sed -i /usr/local/sbin/tashrouter.py -e "s/#TashTalkPort/TashTalkPort/"
+        sudo sed -i /usr/local/sbin/tashrouter.py -e "s|tashtalkhatdevice=None|tashtalkhatdevice='\/dev\/ttyAMA0'|"
         touch /tmp/rpiUpdate
+    fi
+fi
+
+#check for TashTalk USB
+usbdevlist=( /dev/ttyUSB* )
+tashtalkUSBdevice=
+tashtalkUSBfound=
+for devitems in "${usbdevlist[@]}"; do
+    if [ "$(udevadm info -a -n $devitems 2> /dev/null | grep TashTalk)" ]; then
+        echo "A2SERVER: Found TaskTalk USB at: $devitems"
+        tashtalkUSBdevice=$devitems
+        tashtalkUSBfound=1
+    else
+        echo "A2SERVER: No TashTalk USB Found. Skipping setup."
+    fi
+done
+
+if [[ $tashtalkUSBfound ]];then
+    tashtalkUSBInstalled=
+    [[ -f /tmp/a2server-autoAnswerYes ]] && autoAnswerYes=1 || autoAnswerYes=
+    REPLY=
+    if [[ ! $autoAnswerYes || -f /tmp/a2server-setupTashtalkUSB ]]; then
+        if [[ ! $tashtalkUSBInstalled ]];then
+            echo
+            echo "A2SERVER supports LocalTalk connectivity via a TashTalk USB."
+            echo "One of these devices was autodetected on your system."
+            echo
+            echo -n "Do you want to setup a TashTalk USB to use with A2SERVER? "
+            read
+        else
+            echo "A2SERVER: TashTalk USB already set up."
+            sudo sed -i /usr/local/sbin/tashrouter.py -e "s|tashtalkusbdevice=None|tashtalkusbdevice='"$tashtalkUSBdevice"'|"
+        fi
+    fi
+    if [[ $autoAnswerYes || ${REPLY:0:1} == "Y" || ${REPLY:0:1} == "y" ]]; then
+        sudo true
+        # alter tashrouter configuration
+        sudo sed -i /usr/local/sbin/tashrouter.py -e "s|tashtalkusbdevice=None|tashtalkusbdevice='"$tashtalkUSBdevice"'|"
     fi
 fi
 
