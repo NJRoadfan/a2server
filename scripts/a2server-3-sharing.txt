@@ -365,7 +365,7 @@ if ! hash cicpoffs &> /dev/null; then
     cd /tmp
 
     # Dependency: For cicpoffs
-    sudo apt-get -y install fuse libglib2.0-0 libattr1 libfuse2 libicu-dev
+    sudo apt-get -y install fuse libglib2.0-0 libattr1 libicu-dev
     if [[ $arch && ! -f /tmp/a2server-compileAlways ]]; then
         { wget -qO- "${binaryURL}precompiled/ciopfs-${arch}.tgz" | sudo tar Pzx; } &> /dev/null
     fi
