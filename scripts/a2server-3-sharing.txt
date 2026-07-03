@@ -383,7 +383,7 @@ if ! hash cicpoffs &> /dev/null; then
         fi
 
         # Dependency: build-dep for cicpoffs
-        sudo apt-get -y install build-essential libfuse3-dev libfuse-dev libglib2.0-dev libattr1-dev
+        sudo apt-get -y install build-essential libfuse3-dev libglib2.0-dev libattr1-dev
         sudo apt-get -y clean
 
         cd /tmp
