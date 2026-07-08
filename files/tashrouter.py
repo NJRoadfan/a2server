@@ -7,7 +7,7 @@ import serial
 import serial.tools.list_ports
 
 import tashrouter.netlog
-from tashrouter.port.ethertalk.tap import TapPort
+from tashrouter.port.ethertalk.tap import LinuxTapPort
 from tashrouter.port.localtalk.ltoudp import LtoudpPort
 from tashrouter.port.localtalk.tashtalk import TashTalkPort
 from tashrouter.router.router import Router
@@ -29,7 +29,7 @@ def find_usb_serial(target_name):
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 #tashrouter.netlog.set_log_str_func(logging.debug)  # comment this line for speed and reduced spam
 portlist = [LtoudpPort(seed_network=5, seed_zone_name=b'A2SERVER')]
-portlist.append(TapPort(tap_name='tash0', hw_addr=b'\xAA\xBB\xCC\xDD\x11\x22', seed_network_min=6502, seed_network_max=6502, seed_zone_names=[b'A2SERVER']))
+portlist.append(LinuxTapPort(tap_name='tash0', hw_addr=b'\xAA\xBB\xCC\xDD\x11\x22', seed_network_min=6502, seed_network_max=6502, seed_zone_names=[b'A2SERVER']))
 
 TARGET_VID = 0x10C4
 TARGET_PID = 0xEA60
