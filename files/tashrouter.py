@@ -7,9 +7,9 @@ import serial
 import serial.tools.list_ports
 
 import tashrouter.netlog
-from tashrouter.port.ethertalk.tap import LinuxTapPort
-from tashrouter.port.localtalk.ltoudp import LtoudpPort
-from tashrouter.port.localtalk.tashtalk import TashTalkPort
+from tashrouter.port.appletalk.ethertalk.tap import LinuxTapPort
+from tashrouter.port.appletalk.localtalk.ltoudp import LtoudpPort
+from tashrouter.port.appletalk.localtalk.tashtalk import TashTalkPort
 from tashrouter.router.router import Router
 
 def sigterm_handler(_signo, _stack_frame):
